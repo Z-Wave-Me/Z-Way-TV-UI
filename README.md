@@ -1,4 +1,4 @@
-Z-Way-TV-UI
-===========
+SmartTv-Demo-App
+================
 
-TV UI for Z-Way server
+SmartTv demo app made with Smartbox https://github.com/immosmart/smartbox
