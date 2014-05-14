@@ -4,17 +4,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; Charset=UTF-8"/>
-    <title>Smartbox demo</title>
-    <link rel="stylesheet" href="css/input.css"/>
-    <link rel="stylesheet" href="css/keyboard.css"/>
-    <link rel="stylesheet" href="css/legend.css"/>
-    <link rel="stylesheet" href="css/style.css"/>
+    <title>z-wave>me</title>
+
+
+    <!-- less -->
+    <link rel="stylesheet/less" type="text/css" href="public/less/all.less" />
 
     <!-- libs -->
     <script type="text/javascript" src="js/lib/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="js/lib/less-1.7.0.min.js"></script>
     <script type="text/javascript" src="js/lib/lodash.js"></script>
     <script type="text/javascript" src="js/lib/backbone.js"></script>
     <script type="text/javascript" src="js/lib/smartbox.js"></script>
+
 
     <!-- helpers -->
     <script type="text/javascript" src="js/helpers/bb-sync.js"></script>
@@ -34,6 +36,7 @@
 
     <!-- scenes -->
     <script type="text/javascript" src="js/legendTriggers.js"></script>
+
 </head>
 <body>
 
@@ -59,7 +62,7 @@
 
     <div class="scenes-wrapper">
         <div class="scene js-scene-devices">
-            <p>types</p>
+            <div class="container-devices"></div>
         </div>
     </div>
 </div>

@@ -15,22 +15,22 @@
 	<audiomute itemtype="boolean">y</audiomute>
 	<videomute itemtype="boolean">y</videomute>
 	<dcont itemtype="boolean">y</dcont>
-	<widgetname itemtype="string">SmartBox DemoApp</widgetname>
+	<widgetname itemtype="string">z-wave>me</widgetname>
 	<description itemtype="string"></description>
 	<width itemtype="number">1280</width>
 	<height itemtype="number">720</height>
 	<author itemtype="group">
 		<name itemtype="string">Smart</name>
-		<email itemtype="string">info@example.com</email>
-		<link itemtype="string">https://github.com/immosmart/smartbox</link>
+		<email itemtype="string">info@z-wave.me</email>
+		<link itemtype="string">https://github.com/Z-Wave-Me/Z-Way-TV-UI</link>
 		<organization itemtype="string">Smart</organization>
 	</author>
 
 
-    <ThumbIcon itemtype="string">icon/sb_demo_115x95.png</ThumbIcon>
-    <BigThumbIcon itemtype="string">icon/sb_demo_115x95.png</BigThumbIcon>
-    <BigListIcon itemtype="string">icon/sb_demo_95x78.png</BigListIcon>
-    <ListIcon itemtype="string">icon/sb_demo_85x70.png</ListIcon>
+    <ThumbIcon itemtype="string">public/icon/sb_demo_115x95.png</ThumbIcon>
+    <BigThumbIcon itemtype="string">public/icon/sb_demo_115x95.png</BigThumbIcon>
+    <BigListIcon itemtype="string">public/icon/sb_demo_95x78.png</BigListIcon>
+    <ListIcon itemtype="string">public/icon/sb_demo_85x70.png</ListIcon>
 
 </widget>
 
