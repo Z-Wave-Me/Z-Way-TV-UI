@@ -4,7 +4,8 @@
     window.App.models.device = Backbone.Model.extend({
 
         defaults: {
-            metrics: {}
+            metrics: {},
+            selected: false
         },
 
         methodToURL: {
@@ -32,7 +33,6 @@
         initialize: function () {
             //console.log('Init model');
         }
-
     });
 
 })();

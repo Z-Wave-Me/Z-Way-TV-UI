@@ -40,13 +40,44 @@
             that.devices.fetch();
         },
         setEvents: function () {
-            var self = this,
-                $bg = $('.bg');
+            var that = this,
+                $bg = $('.bg'),
+                $sceneWrapper = $('.scenes-wrapper'),
+                selected,
+                index;
 
             // click on menu item
             $('.menu').on('nav_focus', '.menu-item', function (e) {
                 var scene = e.currentTarget.getAttribute('data-type');
-                self.showContent(scene);
+                that.showContent(scene);
+            });
+
+            $sceneWrapper.on('nav_key', function (e) {
+                selected = that.devices.findWhere({selected: true});
+                index = selected ? that.devices.indexOf(selected) : 1;
+
+                if (e.keyName === 'down' || e.keyName === 'right' || e.keyName === 'up') {
+
+                    if (e.keyName === 'down' || e.keyName === 'up') {
+                        if (e.keyName === 'up') {
+                            index -= 1;
+                        } else if (e.keyName === 'down') {
+                            index += 1;
+                        }
+
+                        if (index < 1) {
+                            index = that.devices.length - 1;
+                        } else if (index > that.devices.length -1) {
+                            index = 1;
+                        }
+                    }
+
+                    that.devices.each(function (model) {
+                        model.set({selected: false});
+                    });
+
+                    that.devices.at(index).set({selected: true});
+                }
             });
 
             $(document.body).on({
@@ -102,7 +133,7 @@
             var that = this,
                 url;
 
-            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+            $.ajaxPrefilter(function (options) {
                 // Your server goes below
                 options = options || {};
                 url = that.Constants.API_BASE + options.url;

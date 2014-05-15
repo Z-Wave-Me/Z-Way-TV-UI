@@ -40,33 +40,33 @@
 </head>
 <body>
 
-<!--for dune-->
-<object type="application/x-dune-stb-api" id="duneapi"></object>
+    <!--for dune-->
+    <object type="application/x-dune-stb-api" id="duneapi"></object>
 
-<!--for better view in browser-->
-<div class="bg"></div>
+    <!--for better view in browser-->
+    <div class="bg"></div>
 
-<div class="wrap">
+    <div class="wrap">
 
-    <div class="menu">
-        <div class="logo"></div>
-        <ul class="menu-items" data-nav_type="vbox" data-nav_loop="true">
-            <li data-type='favourites' data-content='devices' class="menu-item nav-item">Favourites</li>
-            <li data-type='rooms' data-content='devices' class="menu-item nav-item">Rooms</li>
-            <li data-type='types' data-content='devices' class="menu-item nav-item">Types</li>
-        </ul>
-        <ul class="menu-items rooms-items" data-nav_type="vbox" data-nav_loop="true">
-            <li data-room='unassigned' class="menu-item nav-item">Unassigned</li>
-        </ul>
-    </div>
-
-    <div class="scenes-wrapper">
-        <div class="scene js-scene-devices">
-            <div class="container-devices"></div>
+        <div class="menu">
+            <div class="logo"></div>
+            <ul class="menu-items" data-nav_type="vbox" data-nav_loop="true">
+                <li data-type='favourites' data-content='devices' class="menu-item nav-item">Favourites</li>
+                <li data-type='rooms' data-content='devices' class="menu-item nav-item">Rooms</li>
+                <li data-type='types' data-content='devices' class="menu-item nav-item">Types</li>
+            </ul>
+            <ul class="menu-items rooms-items" data-nav_type="vbox" data-nav_loop="true">
+                <li data-room='unassigned' data-type='room' class="menu-item nav-item">Unassigned</li>
+            </ul>
         </div>
-    </div>
-</div>
 
+        <div class="scenes-wrapper" data-nav_type="vbox" data-nav_loop="true">
+            <div data-type='widget-element' class="scene js-scene-devices nav-item">
+                <div class="container-devices"></div>
+            </div>
+        </div>
+
+    </div>
 
 </body>
 </html>
