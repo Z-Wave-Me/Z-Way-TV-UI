@@ -5,7 +5,7 @@
 
     _.extend(window.App, {
         Constants: {
-            API_BASE: 'http://mskoff.z-wave.me:10483/ZAutomation/api/v1'
+            API_BASE: '/ZAutomation/api/v1'
         },
         currentScene: null,
         scenes: {
