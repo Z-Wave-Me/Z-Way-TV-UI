@@ -5,7 +5,7 @@
 
     _.extend(window.App, {
         Constants: {
-            API_BASE: 'http://mskoff.z-wave.me:10483/ZAutomation/api/v1'
+            API_BASE: '/ZAutomation/api/v1'
         },
         currentScene: null,
         scenes: {
@@ -20,7 +20,11 @@
         collections: {},
         isShown: true,
         initialize: function () {
-            var that = this;
+            var that = this,
+                query = that.getQueryParams(document.location.search);
+
+            that.apiPort = query.hasOwnProperty('port') ? query.port : window.location.port !== "" ? window.location.port : 8083;
+            that.apiHost = query.hasOwnProperty('host') ? query.host : window.location.hostname;
 
             that.$wrap = $('.wrap');
 
@@ -140,14 +144,27 @@
             $.ajaxPrefilter(function (options) {
                 // Your server goes below
                 options = options || {};
-                url = that.Constants.API_BASE + options.url;
+                url = 'http://' + that.apiHost + ':' + that.apiPort + that.Constants.API_BASE + options.url;
 
                 options.crossDomain = {
                     crossDomain: true
                 };
                 options.url = url;
             });
-        }
+        },
+        getQueryParams: function (qs) {
+            qs = qs.split("+").join(" ");
+
+            var params = {}, tokens,
+                re = /[?&]?([^=]+)=([^&]*)/g;
+
+            while (tokens = re.exec(qs)) {
+                params[decodeURIComponent(tokens[1])]
+                    = decodeURIComponent(tokens[2]);
+            }
+
+            return params;
+        },
     });
 
     // main app initialize when smartbox ready
