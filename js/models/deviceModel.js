@@ -32,6 +32,10 @@
 
         initialize: function () {
             //console.log('Init model');
+        },
+
+        command: function () {
+
         }
     });
 

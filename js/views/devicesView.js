@@ -38,7 +38,7 @@
                 } else if (model.get('deviceType') === "doorlock") {
                     view = new views.probe({model: model});
                 } else if (model.get('deviceType') === "switchBinary" || model.get('deviceType') === "switchRGBW") {
-                    view = new views.probe({model: model});
+                    view = new views.switch({model: model});
                 } else if (model.get('deviceType') === "toggleButton") {
                     view = new views.probe({model: model});
                 } else if (model.get('deviceType') === "camera") {
@@ -46,7 +46,7 @@
                 } else if (model.get('deviceType') === "switchControl") {
                     view = new views.probe({model: model});
                 } else {
-                    //log(model);
+                    view = new views.probe({model: model});
                 }
             }
 
@@ -65,11 +65,11 @@
         changeSelected: function () {
             var that = this,
                 selected = that.collection.findWhere({selected: true}),
-                index = !Boolean(selected) ? 0 : that.collection.indexOf(selected) - 2,// TODO: Quick fix - 2?
+                index = !Boolean(selected) ? 0 : that.collection.indexOf(selected) - 3,
                 top;
 
             if (selected) {
-                top = index * -64; // 64px height unfocused widget
+                top = index * -73; // 73px height unfocused widget
                 that.$el.find('.container-devices').animate({top: top + 'px'}, 100);
             }
         }

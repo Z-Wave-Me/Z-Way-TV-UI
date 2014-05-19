@@ -1,14 +1,23 @@
 (function () {
     "use strict";
 
-    window.App.views.probe = Backbone.View.extend({
+    window.App.views.switch = Backbone.View.extend({
 
         el: '.container-devices',
         template:
-            '<div class="widget widget-probe just-hidden">' +
+            '<div class="widget widget-switch just-hidden">' +
                 '<span class="icon icons <%= metrics.icon %> "></span>' +
                 '<span class="title"><%= metrics.title %></span>' +
-                '<span class="metrics"><%= metrics.level %> <%= metrics.scaleTitle %></span>' +
+                '<span class="metrics">' +
+                    '<span class="text-level"> <%= metrics.level %></span>' +
+                    '<div class="onoffswitch">' +
+                        '<input type="checkbox" name="<%= id %>-onoffswitch" class="onoffswitch-checkbox" id="<%= id %>-onoffswitch" <% if (metrics.level === "on") { print("checked"); } %>>' +
+                        '<label class="onoffswitch-label" for="<%= id %>-onoffswitch">' +
+                        '<div class="onoffswitch-inner"></div>' +
+                        '<div class="onoffswitch-switch"></div>' +
+                        '</label>' +
+                    '</div>' +
+                '</span>' +
             '</div>',
 
         initialize: function () {
@@ -22,24 +31,25 @@
 
             that.$template = $(_.template(that.template, json));
 
-            if (that.model.get('deviceType') === 'battery') {
-                if (that.model.get('metrics').level <= 30 && that.model.get('metrics').level > 0) {
-                    that.$template.find('.icon').addClass('critical');
-                } else if (that.model.get('metrics').level <= 60 && that.model.get('metrics').level > 30) {
-                    that.$template.find('.icon').addClass('low');
-                } else {
-                    that.$template.find('.icon').addClass('full');
-                }
-            }
-
             // events
             that.listenTo(that.model, 'change:selected', that.changeFocus);
+            that.listenTo(that.model, 'enter', that.changeStatus);
         },
 
         render: function () {
             var that = this;
             that.$el.append(that.$template);
             that.$template.fadeIn();
+        },
+
+        changeStatus: function (model) {
+            var that = this,
+                $switchBox = that.$template.find('.onoffswitch-checkbox');
+            if ($switchBox.is(':checked')) {
+                $switchBox.prop('checked', false);
+            } else {
+                $switchBox.prop('checked', true);
+            }
         },
 
         changeFocus: function (model) {

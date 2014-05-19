@@ -56,6 +56,8 @@
                 selected = that.devices.findWhere({selected: true});
                 index = selected ? that.devices.indexOf(selected) : 1;
 
+
+
                 if (e.keyName === 'down' || e.keyName === 'right' || e.keyName === 'up') {
 
                     if (e.keyName === 'down' || e.keyName === 'up') {
@@ -77,6 +79,8 @@
                     });
 
                     that.devices.at(index).set({selected: true});
+                } else if (e.keyName === 'enter') {
+                    that.devices.findWhere({selected: true}).trigger('enter');
                 }
             });
 
