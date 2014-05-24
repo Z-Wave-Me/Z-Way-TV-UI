@@ -34,6 +34,26 @@
 
             // events
             that.listenTo(that.model, 'change:selected', that.changeFocus);
+            that.listenTo(that.model, 'change:show', function () {
+                if (that.model.get('show')) {
+                    that.$template.slideDown('fast');
+                } else {
+                    that.$template.slideUp('fast');
+                }
+            });
+            that.listenTo(that.model, 'change', function () {
+                var $title = that.$template.find('.title'),
+                    $level = that.$template.find('.metrics');
+
+                [
+                    ['title', $title, that.model.get('metrics').title],
+                    ['level', $level, that.model.get('metrics').level + ' ' + that.model.get('metrics').scaleTitle]
+                ].forEach(function (group) {
+                        if (group[1].text() !== group[2]) {
+                            group[1].text(group[2]);
+                        }
+                    });
+            });
         },
 
         render: function () {

@@ -50,7 +50,6 @@
                 }
             }
 
-
             if (view !== null) {
                 view.render();
             }
@@ -64,12 +63,14 @@
 
         changeSelected: function () {
             var that = this,
-                selected = that.collection.findWhere({selected: true}),
-                index = !Boolean(selected) ? 0 : that.collection.indexOf(selected) - 3,
+                collection = that.collection.where({show: true}),
+                selected = _.find(collection, function (model) { return model.get('selected'); }),
+                offset = 3,// 3 - default offset
+                index = collection.indexOf(selected) - offset,
                 top;
 
             if (selected) {
-                top = index * -73; // 73px height unfocused widget
+                top = index * -73; // 73px = widget height (unfocused)
                 that.$el.find('.container-devices').animate({top: top + 'px'}, 100);
             }
         }

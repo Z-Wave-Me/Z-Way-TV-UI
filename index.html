@@ -26,14 +26,17 @@
 
     <!-- models -->
     <script type="text/javascript" src="js/models/deviceModel.js"></script>
+    <script type="text/javascript" src="js/models/locationModel.js"></script>
 
     <!-- collections -->
     <script type="text/javascript" src="js/collections/devicesCollection.js"></script>
+    <script type="text/javascript" src="js/collections/locationsCollection.js"></script>
 
     <!-- views -->
-    <script type="text/javascript" src="js/views/probeView.js"></script>
-    <script type="text/javascript" src="js/views/switchView.js"></script>
+    <script type="text/javascript" src="js/views/_probeView.js"></script>
+    <script type="text/javascript" src="js/views/_switchView.js"></script>
     <script type="text/javascript" src="js/views/devicesView.js"></script>
+    <script type="text/javascript" src="js/views/filterView.js"></script>
 
     <!-- scenes -->
     <script type="text/javascript" src="js/legendTriggers.js"></script>
@@ -52,13 +55,16 @@
         <div class="menu">
             <div class="logo"></div>
             <ul class="menu-items" data-nav_type="vbox" data-nav_loop="true">
-                <li data-type='favourites' data-content='devices' class="menu-item nav-item">Favourites</li>
-                <li data-type='rooms' data-content='devices' class="menu-item nav-item">Rooms</li>
-                <li data-type='types' data-content='devices' class="menu-item nav-item">Types</li>
+                <li data-type='favourites' class="menu-item nav-item">Favourites</li>
+                <li data-type='rooms' class="menu-item nav-item">Rooms</li>
+                <li data-type='deviceType' class="menu-item nav-item">Types</li>
+                <li data-type='tags' class="menu-item nav-item">Tags</li>
             </ul>
-            <ul class="menu-items rooms-items" data-nav_type="vbox" data-nav_loop="true">
-                <li data-room='unassigned' data-type='room' class="menu-item nav-item">Unassigned</li>
-            </ul>
+            <div class="filter-wrapper">
+                <ul class="menu-items filter-items rooms-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
+                <ul class="menu-items filter-items deviceType-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
+                <ul class="menu-items filter-items tags-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
+            </div>
         </div>
 
         <div class="scenes-wrapper" data-nav_type="vbox" data-nav_loop="true">

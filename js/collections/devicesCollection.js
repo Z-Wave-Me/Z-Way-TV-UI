@@ -19,11 +19,13 @@
         sync: function (method, model, options) {
 
             options = options || {};
+            options.data = {since: this.updateTime || 0};
             options.url = model.methodToURL[method.toLowerCase()];
             Backbone.sync(method, model, options);
         },
 
         parse: function (response) {
+            this.updateTime = response.data.updateTime;
             return response.data.devices;
         },
 

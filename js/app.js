@@ -9,13 +9,14 @@
         },
         currentScene: null,
         scenes: {
-            devices: {},
-            rooms: {}
+            devices: {}
         },
         views: {
             devices: {},
-            rooms: {}
+            filters: {}
         },
+        tags: [],
+        types: [],
         models: {},
         collections: {},
         isShown: true,
@@ -30,9 +31,20 @@
 
             that.preFilterAjax();
 
-            // init
+            // init collections
             that.devices = new that.collections.devices();
+            that.locations = new that.collections.locations();
+
+            // views
             that.devicesView = new that.views.devices({collection: that.devices});
+            that.filtersView = new that.views.filters({
+                devices: that.devices,
+                locations: that.locations,
+                tags: that.tags,
+                types: that.types
+            });
+
+            that.filtersView.render();
 
             $$legend.show();
             that.setEvents();
@@ -41,26 +53,38 @@
             $$nav.on();
 
             // fetch collections
-            that.devices.fetch();
+            that.devices.fetch({
+                success: function () {
+                    that.devices.at(Math.round(that.devices.size() / 2)).set({selected: true});
+                    that.locations.fetch();
+                    setInterval(function () {
+                        that.devices.fetch({
+                            remove: false,
+                            merge: true
+                        });
+                    }, 2000);
+                }
+            });
         },
         setEvents: function () {
             var that = this,
                 $bg = $('.bg'),
                 $sceneWrapper = $('.scenes-wrapper'),
                 selected,
-                index;
+                index,
+                collection;
 
             // click on menu item
             $('.menu').on('nav_focus', '.menu-item', function (e) {
-                var scene = e.currentTarget.getAttribute('data-type');
-                that.showContent(scene);
+                var scene = e.currentTarget.getAttribute('data-type'),
+                    id = e.currentTarget.getAttribute('data-id');
+                that.showContent(scene, id);
             });
 
             $sceneWrapper.on('nav_key', function (e) {
-                selected = that.devices.findWhere({selected: true});
-                index = selected ? that.devices.indexOf(selected) : 1;
-
-
+                collection = that.devices.where({show: true});
+                selected = _.find(collection, function (model) { return model.get('selected'); });
+                index = selected ? collection.indexOf(selected) : Math.round(collection.length / 2);
 
                 if (e.keyName === 'down' || e.keyName === 'right' || e.keyName === 'up') {
 
@@ -71,18 +95,18 @@
                             index += 1;
                         }
 
-                        if (index < 1) {
-                            index = that.devices.length - 1;
-                        } else if (index > that.devices.length -1) {
-                            index = 1;
+                        if (index < 0) {
+                            index = collection.length - 1;
+                        } else if (index > collection.length - 1) {
+                            index = 0;
                         }
                     }
 
-                    that.devices.each(function (model) {
+                    collection.forEach(function (model) {
                         model.set({selected: false});
                     });
 
-                    that.devices.at(index).set({selected: true});
+                    collection[index].set({selected: true});
                 } else if (e.keyName === 'enter') {
                     that.devices.findWhere({selected: true}).trigger('enter');
                 }
@@ -124,18 +148,10 @@
             }
             this.isShown = !this.isShown;
         },
-        showContent: function (scene) {
+        showContent: function (scene, id) {
             var that = this;
 
-            if (that.views.hasOwnProperty('roomsView')) {
-                if (scene === 'rooms') {
-                    that.roomsView.show();
-                } else {
-                    that.roomsView.hide();
-                }
-            }
-
-            that.devicesView.show(scene);
+            that.filtersView.select(scene, id);
         },
         preFilterAjax: function () {
             var that = this,
@@ -159,12 +175,11 @@
                 re = /[?&]?([^=]+)=([^&]*)/g;
 
             while (tokens = re.exec(qs)) {
-                params[decodeURIComponent(tokens[1])]
-                    = decodeURIComponent(tokens[2]);
+                params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
             }
 
             return params;
-        },
+        }
     });
 
     // main app initialize when smartbox ready

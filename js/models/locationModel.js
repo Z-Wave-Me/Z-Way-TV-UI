@@ -1,19 +1,17 @@
 (function () {
     "use strict";
 
-    window.App.models.device = Backbone.Model.extend({
+    window.App.models.location = Backbone.Model.extend({
 
         defaults: {
-            metrics: {},
-            selected: false,
-            show: true
+            selected: false
         },
 
         methodToURL: {
-            'read': '/devices',
-            'create': '/devices',
-            'update': '/devices',
-            'delete': '/devices'
+            'read': '/locations',
+            'create': '/locations',
+            'update': '/locations',
+            'delete': '/locations'
         },
 
         url: function () {
@@ -33,18 +31,6 @@
 
         initialize: function () {
             //console.log('Init model');
-        },
-
-        command: function (value, command, getParams) {
-            var options = {};
-
-            getParams = getParams || {};
-            command = command || 'command';
-
-            _.extend(options, {data: getParams});
-
-            options.url = this.methodToURL.read + this.url() + '/' + command + '/' + value;
-            Backbone.sync('read', this, options);
         }
     });
 
