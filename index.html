@@ -54,16 +54,20 @@
 
         <div class="menu">
             <div class="logo"></div>
-            <ul class="menu-items" data-nav_type="vbox" data-nav_loop="true">
-                <li data-type='favourites' class="menu-item nav-item">Favourites</li>
-                <li data-type='rooms' class="menu-item nav-item">Rooms</li>
-                <li data-type='deviceType' class="menu-item nav-item">Types</li>
-                <li data-type='tags' class="menu-item nav-item">Tags</li>
-            </ul>
+            <div class="choose-wrapper active-menu">
+                <ul class="menu-items first" data-nav_type="vbox" data-nav_loop="true">
+                    <li data-type='favourites' class="menu-item nav-item">Favourites</li>
+                    <li data-type='rooms' class="menu-item nav-item">Rooms</li>
+                    <li data-type='deviceType' class="menu-item nav-item">Types</li>
+                    <li data-type='tags' class="menu-item nav-item">Tags</li>
+                </ul>
+                <div class="menu-active-field first"></div>
+            </div>
             <div class="filter-wrapper">
-                <ul class="menu-items filter-items rooms-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
-                <ul class="menu-items filter-items deviceType-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
-                <ul class="menu-items filter-items tags-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
+                <ul class="menu-items second filter-items rooms-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
+                <ul class="menu-items second filter-items deviceType-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
+                <ul class="menu-items second filter-items tags-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
+                <div class="menu-active-field second just-hidden"></div>
             </div>
         </div>
 

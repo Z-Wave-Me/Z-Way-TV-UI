@@ -25,9 +25,7 @@
     }
   }
 
-  &.focus {
-    font-size: 21px;
-  }
+
   &.widget-switch {
     // on/off switch
     .text-level {
@@ -81,12 +79,29 @@
         right: 0px;
       }
     }
-    &.focus {
-      .onoffswitch {
-        display: block;
+
+  }
+}
+
+
+.scenes-wrapper {
+  &.active-menu {
+    .border-container {
+      display: block;
+    }
+    .widget {
+      &.focus {
+        font-size: 21px;
       }
-      .text-level {
-        display: none;
+      &.widget-switch {
+        &.focus {
+          .onoffswitch {
+            display: block;
+          }
+          .text-level {
+            display: none;
+          }
+        }
       }
     }
   }

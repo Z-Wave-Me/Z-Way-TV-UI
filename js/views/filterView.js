@@ -3,11 +3,11 @@
 
     window.App.views.filters = Backbone.View.extend({
 
-        el: '.filter-wrapper',
+        el: '.menu',
         template: '<li data-id="<%= id %>" data-type="<%= type %>" class="menu-item nav-item"><%= title %></li>',
 
         initialize: function () {
-            _.bindAll(this, 'render', 'renderRoom', 'renderOther', 'select');
+            _.bindAll(this, 'render', 'renderRoom', 'renderOther', 'select', 'setMenu');
             var that = this;
 
             _.extend(that, arguments[0]);
@@ -72,11 +72,17 @@
             if (that.$el.find('.' + type + '-items').is(':hidden')) {
                 that.$el.find('.filter-items').hide();
                 that.$el.find('.' + type + '-items').fadeIn('fast');
+                that.$el.find('.filter-wrapper').fadeIn('fast');
+            }
+
+            if (type !== that.type) {
+                that.$el.find('.filter-wrapper').find('.menu-items').animate({top: '0px'}, 'fast');
             }
 
             if (type === 'favourites') {
                 that.$el.find('.filter-items').fadeOut('fast');
-                console.log('favourites');
+                that.$el.find('.filter-wrapper').fadeOut('fast');
+                that.setSelected();
             } else if (type === 'rooms') {
                 if (Boolean(that.locations.findWhere({id: parseInt(id)})) && id !== 'Unassigned' && that.devices.findWhere({location: parseInt(id)})) {
                     that.devices.each(function (model) {
@@ -97,6 +103,7 @@
                 collection = that.devices.where({show: true});
                 index = collection.length > 1 ? Math.ceil(collection.length / 2) : 0;
                 collection[index].set({selected: true});
+                that.setSelected();
             } else if (type === 'deviceType') {
                 if (that.types.indexOf(id) !== -1 && id !== 'Unassigned') {
                     that.devices.each(function (model) {
@@ -117,6 +124,7 @@
                 collection = that.devices.where({show: true});
                 index = collection.length > 1 ? Math.ceil(collection.length / 2) : 0;
                 collection[index].set({selected: true});
+                that.setSelected();
             } else if (type === 'tags') {
                 if (that.tags.indexOf(id) !== -1 && id !== 'Unassigned') {
                     that.devices.each(function (model) {
@@ -129,7 +137,50 @@
                 } else {
                     that.devices.set(that.devices.models, {show: true});
                 }
+                that.setSelected();
             }
+
+            that.type = type;
+            that.setMenu(id, type);
+        },
+        setMenu: function (id, type) {
+            var that = this,
+                $choose = that.$el.find('.choose-wrapper'),
+                $filters = that.$el.find('.filter-wrapper'),
+                height = $choose.find('li:first').outerHeight(),
+                index = 0;
+
+            that.clear();
+
+            if (id === null) { // $choose
+                index = $choose.find('li').index($choose.find('li[data-type="' + type + '"]'));
+                index = index === -1 ? 0 : index;
+                $choose.find('.menu-items').animate({top: index * -1 * height + 'px'}, 'fast');
+                $choose.addClass('active-menu');
+            } else {
+                index = $filters.find('.' + type + '-items').find('li').index($filters.find('li[data-id="' + id + '"]'));
+                index = index === -1 ? 0 : index;
+                $filters.find('.menu-items').animate({top: index * -1 * height + 'px'}, 'fast');
+                $filters.addClass('active-menu');
+            }
+        },
+        setSelected: function () {
+            var that = this;
+            if (that.devices.length !== 0) {
+                if (!that.devices.findWhere({selected: true, show: true})) {
+                    that.devices.set(that.devices.models, {selected: false});
+                    that.devices.at(Math.round(that.devices.where({show: true}).length / 2)).set({selected: true});
+                }
+            }
+        },
+        clear: function () {
+            var that = this,
+                $choose = that.$el.find('.choose-wrapper'),
+                $filters = that.$el.find('.filter-wrapper');
+
+            $choose.removeClass('active-menu');
+            $filters.removeClass('active-menu');
+            $('.scenes-wrapper').removeClass('active-menu');
         }
     });
 

@@ -1,60 +1,31 @@
 $(function () {
-  "use strict";
+    "use strict";
 
 
-  var $body = $(document.body),
-    keys = window.$$legend.keys;
+    var $body = $(document.body),
+        devices = window.App.devices,
+        keys = window.$$legend.keys,
+        selected;
 
-  $('.menu-item').on({
-    'nav_focus': function () {
-      keys.enter('Show content')
-    },
-    'nav_blur': function () {
-      keys.enter('')
-    }
-  });
 
-  $body.on('nav_focus', '.input-item', function() {
-    keys.enter('Show keyboard');
-    keys.number('Num input');
-  });
-
-  $body.on('nav_blur', '.input-item', function() {
-    keys.enter('');
-    keys.number('');
-  });
-
-  $body.on('nav_focus', '#keyboard_popup', function () {
-
-      keys.enter('Input');
-      keys.number('Num input');
-      keys.red('Remove symbol');
-      keys.green('Complete');
-      keys.ret('Hide keyboard');
-  });
-
-  $body.on('nav_blur', '#keyboard_popup', function () {
-
-    keys.enter('');
-    keys.number('');
-    keys.red('');
-    keys.green('');
-    keys.ret('');
-  });
-
-  $body.on('nav_focus', '.navigation-item', function() {
-    keys.move('Navigate');
-  });
-
-  $body.on('nav_blur', '.navigation-item', function() {
-    keys.move('');
-  });
-
-  $body.on('nav_focus', '.video-item', function () {
-    keys.enter('Play video');
-  });
-
-  $body.on('nav_blur', '.video-item', function () {
-    keys.enter('');
-  });
+    $('.scenes-wrapper').on('nav_key', function (e) {
+        if (['up', 'down', 'right', 'enter'].indexOf(e.keyName) !== -1) {
+            keys.yellow('Add to favourites');
+            devices = window.App.devices;
+            selected = devices.findWhere({selected: true, show: true});
+            if (selected) {
+                if (['switchBinary', 'switchRGBW'].indexOf(selected.get('deviceType')) !== -1) {
+                    keys.enter('enter');
+                } else {
+                    keys.enter('');
+                }
+            } else {
+                keys.enter('');
+            }
+        } else {
+            keys.yellow('');
+            keys.enter('');
+        }
+    });
 });
+

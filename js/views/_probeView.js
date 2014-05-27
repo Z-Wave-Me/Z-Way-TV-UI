@@ -49,10 +49,10 @@
                     ['title', $title, that.model.get('metrics').title],
                     ['level', $level, that.model.get('metrics').level + ' ' + that.model.get('metrics').scaleTitle]
                 ].forEach(function (group) {
-                        if (group[1].text() !== group[2]) {
-                            group[1].text(group[2]);
-                        }
-                    });
+                    if (group[1].text() !== group[2]) {
+                        group[1].text(group[2]);
+                    }
+                });
             });
         },
 

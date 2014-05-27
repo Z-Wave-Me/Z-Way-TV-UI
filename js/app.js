@@ -27,7 +27,6 @@
             that.apiPort = query.hasOwnProperty('port') ? query.port : window.location.port !== "" ? window.location.port : 8083;
             that.apiHost = query.hasOwnProperty('host') ? query.host : window.location.hostname;
 
-            that.$wrap = $('.wrap');
 
             that.preFilterAjax();
 
@@ -46,7 +45,6 @@
 
             that.filtersView.render();
 
-            $$legend.show();
             that.setEvents();
 
             // start navigation
@@ -74,16 +72,21 @@
                 index,
                 collection;
 
+
+
             // click on menu item
             $('.menu').on('nav_focus', '.menu-item', function (e) {
                 var scene = e.currentTarget.getAttribute('data-type'),
                     id = e.currentTarget.getAttribute('data-id');
+                $$legend.show();
+                $$legend.clear();
+                $$legend.keys.move('Navigation');
                 that.showContent(scene, id);
             });
 
             $sceneWrapper.on('nav_key', function (e) {
                 collection = that.devices.where({show: true});
-                selected = _.find(collection, function (model) { return model.get('selected'); });
+                selected = that.devices.findWhere({show: true, selected: true});
                 index = selected ? collection.indexOf(selected) : Math.round(collection.length / 2);
 
                 if (e.keyName === 'down' || e.keyName === 'right' || e.keyName === 'up') {
@@ -107,14 +110,25 @@
                     });
 
                     collection[index].set({selected: true});
+
+                    if (e.keyName === 'right') {
+                        that.filtersView.clear();
+                        $('.scenes-wrapper').addClass('active-menu');
+                    }
+
                 } else if (e.keyName === 'enter') {
                     that.devices.findWhere({selected: true}).trigger('enter');
+                } else if (e.keyName === 'yellow') {
+
                 }
             });
 
+
+
             $(document.body).on({
+                /*
                 // on keyboard 'd' by default
-                'nav_key:blue': _.bind(this.toggleView, this),
+                'nav_key:blue': _.bind(this.toggleLegend, this),
 
                 // remote events
                 'nav_key:stop': function () {
@@ -123,12 +137,14 @@
                 'nav_key:pause': function () {
                     Player.togglePause();
                 },
+                */
                 'nav_key:exit': function () {
                     SB.exit();
                 }
             });
 
             // toggling background when player start/stop
+            /*
             Player.on('ready', function () {
                 $bg.hide();
                 $$log('player ready');
@@ -137,16 +153,9 @@
                 $bg.show();
                 $$log('player stop');
             });
-        },
-        toggleView: function () {
-            if (this.isShown) {
-                this.$wrap.hide();
-                $$legend.hide();
-            } else {
-                this.$wrap.show();
-                $$legend.show();
-            }
-            this.isShown = !this.isShown;
+            */
+
+            $('.choose-wrapper').find('li:first').focus(); // start element
         },
         showContent: function (scene, id) {
             var that = this;

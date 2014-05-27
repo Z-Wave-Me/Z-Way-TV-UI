@@ -17,8 +17,6 @@
 
         render: function () {
             var that = this;
-            console.log('render View');
-            console.log(that.scene);
         },
 
         renderWidget: function (model) {
