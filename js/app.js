@@ -27,12 +27,12 @@
             that.apiPort = query.hasOwnProperty('port') ? query.port : window.location.port !== "" ? window.location.port : 8083;
             that.apiHost = query.hasOwnProperty('host') ? query.host : window.location.hostname;
 
-
             that.preFilterAjax();
 
             // init collections
             that.devices = new that.collections.devices();
             that.locations = new that.collections.locations();
+            that.profiles = new that.collections.profiles();
 
             // views
             that.devicesView = new that.views.devices({collection: that.devices});
@@ -53,8 +53,13 @@
             // fetch collections
             that.devices.fetch({
                 success: function () {
-                    that.devices.at(Math.round(that.devices.size() / 2)).set({selected: true});
+                    that.devices.first().set({selected: true});
                     that.locations.fetch();
+                    that.profiles.fetch({
+                        remove: false,
+                        merge: true
+                    });
+
                     setInterval(function () {
                         that.devices.fetch({
                             remove: false,
@@ -72,22 +77,20 @@
                 index,
                 collection;
 
-
-
             // click on menu item
             $('.menu').on('nav_focus', '.menu-item', function (e) {
                 var scene = e.currentTarget.getAttribute('data-type'),
                     id = e.currentTarget.getAttribute('data-id');
+
                 $$legend.show();
                 $$legend.clear();
-                $$legend.keys.move('Navigation');
                 that.showContent(scene, id);
             });
 
             $sceneWrapper.on('nav_key', function (e) {
                 collection = that.devices.where({show: true});
                 selected = that.devices.findWhere({show: true, selected: true});
-                index = selected ? collection.indexOf(selected) : Math.round(collection.length / 2);
+                index = selected ? collection.indexOf(selected) : 0;
 
                 if (e.keyName === 'down' || e.keyName === 'right' || e.keyName === 'up') {
 
@@ -115,15 +118,12 @@
                         that.filtersView.clear();
                         $('.scenes-wrapper').addClass('active-menu');
                     }
-
                 } else if (e.keyName === 'enter') {
                     that.devices.findWhere({selected: true}).trigger('enter');
                 } else if (e.keyName === 'yellow') {
 
                 }
             });
-
-
 
             $(document.body).on({
                 /*

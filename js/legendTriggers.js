@@ -1,30 +1,30 @@
 $(function () {
     "use strict";
 
-
-    var $body = $(document.body),
-        devices = window.App.devices,
+    var devices,
+        profiles,
         keys = window.$$legend.keys,
         selected;
 
-
     $('.scenes-wrapper').on('nav_key', function (e) {
+        devices = window.App.devices;
+        profiles = window.App.profiles;
+        selected = devices.findWhere({selected: true, show: true});
+
         if (['up', 'down', 'right', 'enter'].indexOf(e.keyName) !== -1) {
-            keys.yellow('Add to favourites');
-            devices = window.App.devices;
-            selected = devices.findWhere({selected: true, show: true});
-            if (selected) {
-                if (['switchBinary', 'switchRGBW'].indexOf(selected.get('deviceType')) !== -1) {
-                    keys.enter('enter');
-                } else {
-                    keys.enter('');
-                }
+            if (profiles.getActive().get('positions').indexOf(selected.id) === -1) {
+                keys.yellow('Add to favourites');
             } else {
-                keys.enter('');
+                keys.yellow('Remove from favourites');
             }
+
         } else {
             keys.yellow('');
-            keys.enter('');
+        }
+
+        // events
+        if (e.keyName === 'yellow') {
+            profiles.toggleDevice(selected.id);
         }
     });
 });

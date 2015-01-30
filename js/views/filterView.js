@@ -101,7 +101,7 @@
                 that.devices.set(that.devices.models, {selected: false});
 
                 collection = that.devices.where({show: true});
-                index = collection.length > 1 ? Math.ceil(collection.length / 2) : 0;
+                index = 0;
                 collection[index].set({selected: true});
                 that.setSelected();
             } else if (type === 'deviceType') {
@@ -122,7 +122,7 @@
                 that.devices.set(that.devices.models, {selected: false});
 
                 collection = that.devices.where({show: true});
-                index = collection.length > 1 ? Math.ceil(collection.length / 2) : 0;
+                index = 0;
                 collection[index].set({selected: true});
                 that.setSelected();
             } else if (type === 'tags') {
@@ -166,11 +166,11 @@
         },
         setSelected: function () {
             var that = this;
-            if (that.devices.length !== 0) {
+            if (that.devices.length > 0) {
                 if (!that.devices.findWhere({selected: true, show: true})) {
                     that.devices.set(that.devices.models, {selected: false});
-                    that.devices.at(Math.round(that.devices.where({show: true}).length / 2)).set({selected: true});
                 }
+                that.devices.at(0);
             }
         },
         clear: function () {

@@ -6,17 +6,15 @@
     <meta http-equiv="Content-Type" content="text/html; Charset=UTF-8"/>
     <title>z-wave>me</title>
 
-
     <!-- less -->
     <link rel="stylesheet/less" type="text/css" href="public/less/all.less" />
 
     <!-- libs -->
-    <script type="text/javascript" src="js/lib/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
     <script type="text/javascript" src="js/lib/less-1.7.0.min.js"></script>
     <script type="text/javascript" src="js/lib/lodash.js"></script>
     <script type="text/javascript" src="js/lib/backbone.js"></script>
     <script type="text/javascript" src="js/lib/smartbox.js"></script>
-
 
     <!-- helpers -->
     <script type="text/javascript" src="js/helpers/bb-sync.js"></script>
@@ -27,14 +25,18 @@
     <!-- models -->
     <script type="text/javascript" src="js/models/deviceModel.js"></script>
     <script type="text/javascript" src="js/models/locationModel.js"></script>
+    <script type="text/javascript" src="js/models/profileModel.js"></script>
 
     <!-- collections -->
     <script type="text/javascript" src="js/collections/devicesCollection.js"></script>
     <script type="text/javascript" src="js/collections/locationsCollection.js"></script>
+    <script type="text/javascript" src="js/collections/profilesCollection.js"></script>
 
     <!-- views -->
     <script type="text/javascript" src="js/views/_probeView.js"></script>
     <script type="text/javascript" src="js/views/_switchView.js"></script>
+    <script type="text/javascript" src="js/views/_doorlockView.js"></script>
+    <script type="text/javascript" src="js/views/_multilevelView.js"></script>
     <script type="text/javascript" src="js/views/devicesView.js"></script>
     <script type="text/javascript" src="js/views/filterView.js"></script>
 
@@ -79,6 +81,8 @@
         </div>
 
     </div>
+
+    <div class="overlay"></div>
 
 </body>
 </html>

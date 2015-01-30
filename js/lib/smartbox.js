@@ -1,298 +1,299 @@
 ;(function () {
-  var Smartbox,
-    _ready = false,
-    readyCallbacks = [],
-    userAgent = navigator.userAgent.toLowerCase(),
-    SmartboxAPI;
+    var Smartbox,
+        _ready = false,
+        readyCallbacks = [],
+        userAgent = navigator.userAgent.toLowerCase(),
+        SmartboxAPI;
 
-  //private func for applying all ready callbacks
-  var onReady = function () {
-    _ready = true;
+    //private func for applying all ready callbacks
+    var onReady = function () {
+        _ready = true;
 
-    for ( var i = 0, len = readyCallbacks.length; i < len; i++ ) {
-      if (typeof readyCallbacks[i] === 'function') {
-        readyCallbacks[i].call(this);
-      }
+        for ( var i = 0, len = readyCallbacks.length; i < len; i++ ) {
+            if (typeof readyCallbacks[i] === 'function') {
+                readyCallbacks[i].call(this);
+            }
+        }
+        // no need anymore
+        readyCallbacks = null;
+    };
+
+    /**
+     * Detecting current platform
+     * @returns {boolean} true if running on current platform
+     */
+    function detect ( slug ) {
+        return userAgent.indexOf(slug) !== -1;
     }
-    // no need anymore
-    readyCallbacks = null;
-  };
 
-  /**
-   * Detecting current platform
-   * @returns {boolean} true if running on current platform
-   */
-  function detect ( slug ) {
-    return userAgent.indexOf(slug) !== -1;
-  }
+    var initialise = function() {
+        Smartbox.setPlugins();
+        Smartbox.getDUID();
 
-  var initialise = function() {
-    Smartbox.setPlugins();
-    Smartbox.getDUID();
+        // wait for calling others $()
+        setTimeout(function () {
+            onReady();
+            onReady = null;
+        }, 10);
+    };
 
-    // wait for calling others $()
-    setTimeout(function () {
-      onReady();
-      onReady = null;
-    }, 10);
-  };
-
-  Smartbox = function ( platform, cb ) {
-    if ( typeof platform === 'string' ) {
-      Smartbox.readyForPlatform(platform, cb);
-    } else if ( typeof platform === 'function' ) {
-      // first arg - function
-      Smartbox.ready(platform);
-    }
-  };
-
-  //public smartbox API
-  SmartboxAPI = {
-    platformName: '',
-
-    userAgent: userAgent,
-
-    createPlatform: function ( platformName, platformApi ) {
-      var isCurrent = platformApi.detect && platformApi.detect();
-
-      if ( isCurrent || detect(platformApi.platformUserAgent) ) {
-        this.platformName = platformName;
-        _.extend(this, platformApi);
-
-        if (typeof platformApi.onDetect === 'function') {
-          this.onDetect();
+    Smartbox = function ( platform, cb ) {
+        if ( typeof platform === 'string' ) {
+            Smartbox.readyForPlatform(platform, cb);
+        } else if ( typeof platform === 'function' ) {
+            // first arg - function
+            Smartbox.ready(platform);
         }
-      }
-    },
+    };
 
-    // calling cb after library initialise
-    ready: function ( cb ) {
-      if ( _ready ) {
-        cb.call(this);
-      } else {
-        readyCallbacks.push(cb);
-      }
-    },
+    //public smartbox API
+    SmartboxAPI = {
+        version: 0.1,
+        platformName: '',
 
-    // calling cb after library initialise if platform is current
-    readyForPlatform: function ( platform, cb ) {
-      var self = this;
-      this.ready(function () {
-        if ( platform == self.platformName ) {
-          cb.call(self);
+        userAgent: userAgent,
+
+        createPlatform: function ( platformName, platformApi ) {
+            var isCurrent = platformApi.detect && platformApi.detect();
+
+            if ( isCurrent || detect(platformApi.platformUserAgent) ) {
+                this.platformName = platformName;
+                _.extend(this, platformApi);
+
+                if (typeof platformApi.onDetect === 'function') {
+                    this.onDetect();
+                }
+            }
+        },
+
+        // calling cb after library initialise
+        ready: function ( cb ) {
+            if ( _ready ) {
+                cb.call(this);
+            } else {
+                readyCallbacks.push(cb);
+            }
+        },
+
+        // calling cb after library initialise if platform is current
+        readyForPlatform: function ( platform, cb ) {
+            var self = this;
+            this.ready(function () {
+                if ( platform == self.platformName ) {
+                    cb.call(self);
+                }
+            });
+        },
+
+        utils: {
+
+            /**
+             * Show error message
+             * @param msg
+             */
+            error: function ( msg ) {
+                $$log(msg, 'error');
+            },
+
+            /**
+             * Show messages in log
+             * all functionality in main.js
+             */
+            log: {
+                log: $.noop,
+                state: $.noop,
+                show: $.noop,
+                hide: $.noop,
+                startProfile: $.noop,
+                stopProfile: $.noop
+            },
+
+            /**
+             * Asynchroniosly adding javascript files
+             * @param filesArray {Array} array of sources of javascript files
+             * @param cb {Function} callback on load javascript files
+             */
+            addExternalJS: function ( filesArray, cb ) {
+                var $externalJsContainer,
+                    loadedScripts = 0,
+                    len = filesArray.length,
+                    el,
+                    scriptEl;
+
+                function onloadScript () {
+                    loadedScripts++;
+
+                    if ( loadedScripts === len ) {
+                        cb && cb.call();
+                    }
+                }
+
+                if ( filesArray.length ) {
+
+                    $externalJsContainer = document.createDocumentFragment();
+                    el = document.createElement('script');
+                    el.type = 'text/javascript';
+                    el.onload = onloadScript;
+
+                    for ( var i = 0; i < len; i++ ) {
+                        scriptEl = el.cloneNode();
+                        scriptEl.src = filesArray[i];
+                        $externalJsContainer.appendChild(scriptEl);
+                    }
+
+                    document.body.appendChild($externalJsContainer);
+                } else {
+
+                    // if no external js simple call cb
+                    cb && cb.call(this);
+                }
+            },
+
+            addExternalCss: function ( filesArray ) {
+                var $externalCssContainer;
+
+                if ( filesArray.length ) {
+                    $externalCssContainer = document.createDocumentFragment();
+                    _.each(filesArray, function ( src ) {
+
+                        var el = document.createElement('link');
+
+                        el.rel = 'stylesheet';
+                        el.href = src;
+
+                        $externalCssContainer.appendChild(el);
+                    });
+
+                    document.body.appendChild($externalCssContainer);
+                }
+            },
+
+            addExternalFiles: function ( cb ) {
+                if ( this.externalJs.length ) {
+                    this.addExternalJS(this.externalJs, cb);
+                }
+                if ( this.externalCss.length ) {
+                    this.addExternalCss(this.externalCss);
+                }
+            }
         }
-      });
-    },
+    };
 
-    utils: {
+    Smartbox.config = {
+        DUID: 'real'
+    };
 
-      /**
-       * Show error message
-       * @param msg
-       */
-      error: function ( msg ) {
-        $$log(msg, 'error');
-      },
+    _.extend(Smartbox, SmartboxAPI);
 
-      /**
-       * Show messages in log
-       * all functionality in main.js
-       */
-      log: {
-        log: $.noop,
-        state: $.noop,
-        show: $.noop,
-        hide: $.noop,
-        startProfile: $.noop,
-        stopProfile: $.noop
-      },
+    // exporting library to global
+    window.SB = Smartbox;
 
-      /**
-       * Asynchroniosly adding javascript files
-       * @param filesArray {Array} array of sources of javascript files
-       * @param cb {Function} callback on load javascript files
-       */
-      addExternalJS: function ( filesArray, cb ) {
-        var $externalJsContainer,
-          loadedScripts = 0,
-          len = filesArray.length,
-          el,
-          scriptEl;
+    // initialize library
+    window.onload = function () {
+        initialise();
 
-        function onloadScript () {
-          loadedScripts++;
-
-          if ( loadedScripts === len ) {
-            cb && cb.call();
-          }
-        }
-
-        if ( filesArray.length ) {
-
-          $externalJsContainer = document.createDocumentFragment();
-          el = document.createElement('script');
-          el.type = 'text/javascript';
-          el.onload = onloadScript;
-
-          for ( var i = 0; i < len; i++ ) {
-            scriptEl = el.cloneNode();
-            scriptEl.src = filesArray[i];
-            $externalJsContainer.appendChild(scriptEl);
-          }
-
-          document.body.appendChild($externalJsContainer);
-        } else {
-
-          // if no external js simple call cb
-          cb && cb.call(this);
-        }
-      },
-
-      addExternalCss: function ( filesArray ) {
-        var $externalCssContainer;
-
-        if ( filesArray.length ) {
-          $externalCssContainer = document.createDocumentFragment();
-          _.each(filesArray, function ( src ) {
-
-            var el = document.createElement('link');
-
-            el.rel = 'stylesheet';
-            el.href = src;
-
-            $externalCssContainer.appendChild(el);
-          });
-
-          document.body.appendChild($externalCssContainer);
-        }
-      },
-
-      addExternalFiles: function ( cb ) {
-        if ( this.externalJs.length ) {
-          this.addExternalJS(this.externalJs, cb);
-        }
-        if ( this.externalCss.length ) {
-          this.addExternalCss(this.externalCss);
-        }
-      }
-    }
-  };
-
-  Smartbox.config = {
-    DUID: 'real'
-  };
-
-  _.extend(Smartbox, SmartboxAPI);
-
-  // exporting library to global
-  window.SB = Smartbox;
-
-  // initialize library
-  window.onload = function () {
-    initialise();
-
-    // we don't need initialise func anymore
-    initialise = null;
-  };
+        // we don't need initialise func anymore
+        initialise = null;
+    };
 })();
 // global SB
 !(function ( window, undefined ) {
 
-  var PlatformApi = {
-    externalCss: [],
-    externalJs: [],
-    keys: {},
+    var PlatformApi = {
+        externalCss: [],
+        externalJs: [],
+        keys: {},
 
-    DUID: '',
+        DUID: '',
 
-    platformUserAgent: 'not found',
+        platformUserAgent: 'not found',
 
-    /**
-     * Get DUID in case of Config
-     * @return {string} DUID
-     */
-    getDUID: function () {
-      switch ( SB.config.DUID ) {
-        case 'real':
-          this.DUID = this.getNativeDUID();
-          break;
-        case 'mac':
-          this.DUID = this.getMac();
-          break;
-        case 'random':
-          this.DUID = this.getRandomDUID();
-          break;
-        /*case 'local_random':
-         this.DUID = this.getLocalRandomDUID();
-         break;*/
-        default:
-          this.DUID = Config.DUIDSettings;
-          break;
-      }
+        /**
+         * Get DUID in case of Config
+         * @return {string} DUID
+         */
+        getDUID: function () {
+            switch ( SB.config.DUID ) {
+                case 'real':
+                    this.DUID = this.getNativeDUID();
+                    break;
+                case 'mac':
+                    this.DUID = this.getMac();
+                    break;
+                case 'random':
+                    this.DUID = this.getRandomDUID();
+                    break;
+                /*case 'local_random':
+                 this.DUID = this.getLocalRandomDUID();
+                 break;*/
+                default:
+                    this.DUID = Config.DUIDSettings;
+                    break;
+            }
 
-      return this.DUID;
-    },
+            return this.DUID;
+        },
 
-    getSDI: function () {
-      return '';
-    },
+        getSDI: function () {
+            return '';
+        },
 
-    /**
-     * Returns random DUID for platform
-     * @returns {string}
-     */
-    getRandomDUID: function () {
-      return (new Date()).getTime().toString(16) + Math.floor(Math.random() * parseInt("10000", 16)).toString(16);
-    },
+        /**
+         * Returns random DUID for platform
+         * @returns {string}
+         */
+        getRandomDUID: function () {
+            return (new Date()).getTime().toString(16) + Math.floor(Math.random() * parseInt("10000", 16)).toString(16);
+        },
 
-    /**
-     * Returns MAC for platform if exist
-     * @returns {string}
-     */
-    getMac: function () {
-      return '';
-    },
+        /**
+         * Returns MAC for platform if exist
+         * @returns {string}
+         */
+        getMac: function () {
+            return '';
+        },
 
-    /**
-     * Returns native DUID for platform if exist
-     * @returns {string}
-     */
-    getNativeDUID: function () {
-      return '';
-    },
+        /**
+         * Returns native DUID for platform if exist
+         * @returns {string}
+         */
+        getNativeDUID: function () {
+            return '';
+        },
 
-    /**
-     * Set custom plugins for platform
-     */
-    setPlugins: $.noop,
+        /**
+         * Set custom plugins for platform
+         */
+        setPlugins: $.noop,
 
-    // TODO: volume for all platforms
-    volumeUp: $.noop,
-    volumeDown: $.noop,
-    getVolume: $.noop,
-    exit: $.noop,
-    sendReturn: $.noop,
-    setData: function ( name, val ) {
-      // save data in string format
-      localStorage.setItem(name, JSON.stringify(val));
-    },
+        // TODO: volume for all platforms
+        volumeUp: $.noop,
+        volumeDown: $.noop,
+        getVolume: $.noop,
+        exit: $.noop,
+        sendReturn: $.noop,
+        setData: function ( name, val ) {
+            // save data in string format
+            localStorage.setItem(name, JSON.stringify(val));
+        },
 
-    getData: function ( name ) {
-      var result;
-      try {
-        result = JSON.parse(localStorage.getItem(name));
-      } catch (e) {
-      }
+        getData: function ( name ) {
+            var result;
+            try {
+                result = JSON.parse(localStorage.getItem(name));
+            } catch (e) {
+            }
 
-      return result;
-    },
+            return result;
+        },
 
-    removeData: function ( name ) {
-      localStorage.removeItem(name);
-    }
-  };
+        removeData: function ( name ) {
+            localStorage.removeItem(name);
+        }
+    };
 
-  _.extend(SB, PlatformApi);
+    _.extend(SB, PlatformApi);
 })(this);
 /**
  * Keyboard Plugin
@@ -300,415 +301,415 @@
 ;
 (function ( $, window, document, undefined ) {
 
-  var pluginName = 'SBInput',
-    defaultOptions = {
-      keyboard: {
-        type: 'fulltext_ru',
-        firstLayout: 'ru'
-      },
+    var pluginName = 'SBInput',
+        defaultOptions = {
+            keyboard: {
+                type: 'fulltext_ru',
+                firstLayout: 'ru'
+            },
 
-      /**
-       * Format function
-       * @param text
-       */
-      formatText: null,
-      bindKeyboard: null,
+            /**
+             * Format function
+             * @param text
+             */
+            formatText: null,
+            bindKeyboard: null,
 
-      input: {
-        template: '<div class="smart_input-container">' +
-                  '<div class="smart_input-wrap">' +
-                  '<span class="smart_input-text"></span>' +
-                  '<span class="smart_input-cursor"></span>' +
-                  '</div>' +
-                  '</div>',
-        elClass: 'smart_input-container',
-        wrapperClass: 'smart_input-wrap',
-        cursorClass: 'smart_input-cursor',
-        textClass: 'smart_input-text'
-      },
+            input: {
+                template: '<div class="smart_input-container">' +
+                '<div class="smart_input-wrap">' +
+                '<span class="smart_input-text"></span>' +
+                '<span class="smart_input-cursor"></span>' +
+                '</div>' +
+                '</div>',
+                elClass: 'smart_input-container',
+                wrapperClass: 'smart_input-wrap',
+                cursorClass: 'smart_input-cursor',
+                textClass: 'smart_input-text'
+            },
 
-      directKeyboardInput: false,
-      directNumInput: false,
+            directKeyboardInput: false,
+            directNumInput: false,
 
-      max: 0,
+            max: 0,
 
-      next: null
-    },
-    pluginPrototype,
-    $keyboardOverlay,
-    $keyboardPopup,
-  // in app can be only one blink cursor
-    blinkInterval;
-
-  /**
-   * Generate input element
-   * @param opt  input options
-   * @returns {*}  jQuery el
-   */
-  function generateInput ( opt ) {
-    var div = $(document.createElement('div'));
-    div.html(opt.template);
-    return div.find('.' + opt.elClass);
-  }
-
-  /**
-   * generate popup for input keyboards
-   */
-  function generateKeyboardPopup () {
-    $keyboardOverlay = $(document.createElement('div')).attr('id', 'keyboard_overlay');
-    $keyboardPopup = $(document.createElement('div')).attr({
-      'id': 'keyboard_popup',
-      'class': 'keyboard_popup_wrapper'
-    });
-    $keyboardOverlay.append($keyboardPopup);
-    $(document.body).append($keyboardOverlay);
-  }
-
-  // The actual plugin constructor
-  function Plugin ( element, options ) {
-    this.$input = $(element);
-    this.initialise(options);
-    this.stopBlink();
-    this.setText(element.value);
-  }
-
-  pluginPrototype = {
-    isInited: false,
-    _generatedKeyboard: false,
-    isKeyboardActive: false,
-    text: '',
-    initialise: function ( options ) {
-      var $el;
-      if ( this.isInited ) {
-        return this;
-      }
-
-      options = $.extend({}, defaultOptions, options);
-      options.next = this.$input.attr('data-next') || options.next;
-      options.max = this.$input.attr('data-max') || options.max || 0;
-
-      this.options = options;
-
-      this.$input.attr({
-        'data-value': '',
-        'data-max': options.max
-      });
-
-      $el = generateInput(options.input);
-      $el.addClass(this.$input[0].className);
-
-      this.$input.hide().after($el);
-
-      this.$el = $el;
-      this.$text = $el.find('.' + options.input.textClass);
-      this.$cursor = $el.find('.' + options.input.cursorClass);
-      this.$wrapper = $el.find('.' + options.input.wrapperClass);
-
-      if ( options.directKeyboardInput ) {
-        this.addDirectKeyboardEvents();
-      }
-
-      this.addEvents();
-      this.isInited = true;
-      return this;
-    },
-
-    startBlink: function () {
-      var self = this,
-        hiddenClass = this.options.input.cursorClass + '_hidden';
-
-      if ( blinkInterval ) {
-        clearInterval(blinkInterval);
-      }
-      blinkInterval = setInterval(function () {
-        self.$cursor.toggleClass(hiddenClass);
-      }, 500);
-    },
-
-    stopBlink: function () {
-      var hiddenClass = this.options.input.cursorClass + '_hidden';
-      if ( blinkInterval ) {
-        clearInterval(blinkInterval);
-      }
-      this.$cursor.addClass(hiddenClass);
-    },
-
-    addEvents: function () {
-      var $wrap = this.$wrapper,
-        opt = this.options,
-        self = this;
-
-      this.$input.on({
-        'nav_focus': function () {
-          $$nav.current(self.$el);
+            next: null
         },
-        'startBlink': function () {
-          self.startBlink();
-        },
-        'stopBlink': function () {
-          self.stopBlink();
-        },
-        'hideKeyboard': function () {
-          if ( $wrap.hasClass('smart-input-active') ) {
-            self.hideKeyboard();
-          }
-        },
-        'showKeyboard': function () {
-          self.showKeyboard();
-        }
-      });
+        pluginPrototype,
+        $keyboardOverlay,
+        $keyboardPopup,
+    // in app can be only one blink cursor
+        blinkInterval;
 
-      this.$el.on({
-        'nav_focus': function () {
-          self.$input.addClass('focus');
-        },
-        'nav_blur': function () {
-          self.$input.removeClass('focus');
-        }
-      });
+    /**
+     * Generate input element
+     * @param opt  input options
+     * @returns {*}  jQuery el
+     */
+    function generateInput ( opt ) {
+        var div = $(document.createElement('div'));
+        div.html(opt.template);
+        return div.find('.' + opt.elClass);
+    }
 
-      if (opt.directNumInput && !opt.directKeyboardInput) {
-        this.$el.off('nav_key:num nav_key:red').on('nav_key:num nav_key:red', function ( e ) {
-          self.typeNum(e);
+    /**
+     * generate popup for input keyboards
+     */
+    function generateKeyboardPopup () {
+        $keyboardOverlay = $(document.createElement('div')).attr('id', 'keyboard_overlay');
+        $keyboardPopup = $(document.createElement('div')).attr({
+            'id': 'keyboard_popup',
+            'class': 'keyboard_popup_wrapper'
         });
-      }
+        $keyboardOverlay.append($keyboardPopup);
+        $(document.body).append($keyboardOverlay);
+    }
 
-      $wrap.off('nav_focus nav_blur click');
+    // The actual plugin constructor
+    function Plugin ( element, options ) {
+        this.$input = $(element);
+        this.initialise(options);
+        this.stopBlink();
+        this.setText(element.value);
+    }
 
-      if ( opt.bindKeyboard ) {
-        opt.keyboard = false;
-        opt.bindKeyboard
-          .off('type backspace delall')
-          .on('type', function ( e ) {
-            self.type(e.letter);
-          })
-          .on('backspace', function () {
-            self.type('backspace');
-          })
-          .on('delall', function () {
-            self.type('delall');
-          });
-      }
-
-      if ( opt.keyboard ) {
-        this.$el.on('click', function () {
-          self.startBlink();
-          self.showKeyboard();
-        })
-      }
-    },
-
-    addDirectKeyboardEvents: function () {
-      var self = this;
-
-      this.$el.on({
-        nav_focus: function () {
-          self.startBlink();
-          $(document.body).on('keypress.SBInput', function ( e ) {
-            if ( e.charCode ) {
-              e.preventDefault();
-              self.type(String.fromCharCode(e.charCode));
-            } else {
-              switch ( e.keyCode ) {
-                case 8:
-                  e.preventDefault();
-                  self.type('backspace');
-                  break;
-              }
+    pluginPrototype = {
+        isInited: false,
+        _generatedKeyboard: false,
+        isKeyboardActive: false,
+        text: '',
+        initialise: function ( options ) {
+            var $el;
+            if ( this.isInited ) {
+                return this;
             }
-          });
+
+            options = $.extend({}, defaultOptions, options);
+            options.next = this.$input.attr('data-next') || options.next;
+            options.max = this.$input.attr('data-max') || options.max || 0;
+
+            this.options = options;
+
+            this.$input.attr({
+                'data-value': '',
+                'data-max': options.max
+            });
+
+            $el = generateInput(options.input);
+            $el.addClass(this.$input[0].className);
+
+            this.$input.hide().after($el);
+
+            this.$el = $el;
+            this.$text = $el.find('.' + options.input.textClass);
+            this.$cursor = $el.find('.' + options.input.cursorClass);
+            this.$wrapper = $el.find('.' + options.input.wrapperClass);
+
+            if ( options.directKeyboardInput ) {
+                this.addDirectKeyboardEvents();
+            }
+
+            this.addEvents();
+            this.isInited = true;
+            return this;
         },
-        nav_blur: function () {
-          self.stopBlink();
-          $(document.body).off('keypress.SBInput');
+
+        startBlink: function () {
+            var self = this,
+                hiddenClass = this.options.input.cursorClass + '_hidden';
+
+            if ( blinkInterval ) {
+                clearInterval(blinkInterval);
+            }
+            blinkInterval = setInterval(function () {
+                self.$cursor.toggleClass(hiddenClass);
+            }, 500);
+        },
+
+        stopBlink: function () {
+            var hiddenClass = this.options.input.cursorClass + '_hidden';
+            if ( blinkInterval ) {
+                clearInterval(blinkInterval);
+            }
+            this.$cursor.addClass(hiddenClass);
+        },
+
+        addEvents: function () {
+            var $wrap = this.$wrapper,
+                opt = this.options,
+                self = this;
+
+            this.$input.on({
+                'nav_focus': function () {
+                    $$nav.current(self.$el);
+                },
+                'startBlink': function () {
+                    self.startBlink();
+                },
+                'stopBlink': function () {
+                    self.stopBlink();
+                },
+                'hideKeyboard': function () {
+                    if ( $wrap.hasClass('smart-input-active') ) {
+                        self.hideKeyboard();
+                    }
+                },
+                'showKeyboard': function () {
+                    self.showKeyboard();
+                }
+            });
+
+            this.$el.on({
+                'nav_focus': function () {
+                    self.$input.addClass('focus');
+                },
+                'nav_blur': function () {
+                    self.$input.removeClass('focus');
+                }
+            });
+
+            if (opt.directNumInput && !opt.directKeyboardInput) {
+                this.$el.off('nav_key:num nav_key:red').on('nav_key:num nav_key:red', function ( e ) {
+                    self.typeNum(e);
+                });
+            }
+
+            $wrap.off('nav_focus nav_blur click');
+
+            if ( opt.bindKeyboard ) {
+                opt.keyboard = false;
+                opt.bindKeyboard
+                    .off('type backspace delall')
+                    .on('type', function ( e ) {
+                        self.type(e.letter);
+                    })
+                    .on('backspace', function () {
+                        self.type('backspace');
+                    })
+                    .on('delall', function () {
+                        self.type('delall');
+                    });
+            }
+
+            if ( opt.keyboard ) {
+                this.$el.on('click', function () {
+                    self.startBlink();
+                    self.showKeyboard();
+                })
+            }
+        },
+
+        addDirectKeyboardEvents: function () {
+            var self = this;
+
+            this.$el.on({
+                nav_focus: function () {
+                    self.startBlink();
+                    $(document.body).on('keypress.SBInput', function ( e ) {
+                        if ( e.charCode ) {
+                            e.preventDefault();
+                            self.type(String.fromCharCode(e.charCode));
+                        } else {
+                            switch ( e.keyCode ) {
+                                case 8:
+                                    e.preventDefault();
+                                    self.type('backspace');
+                                    break;
+                            }
+                        }
+                    });
+                },
+                nav_blur: function () {
+                    self.stopBlink();
+                    $(document.body).off('keypress.SBInput');
+                }
+            });
+        },
+
+        setText: function ( text ) {
+            var opt = this.options,
+                formatText,
+                max = opt.max,
+                method;
+
+            text = text || '';
+
+            if ( text.length > max && max != 0 ) {
+                text = text.substr(0, max);
+            }
+
+            formatText = opt.formatText ? opt.formatText(text) : text;
+
+            this.$input.val(text).attr('data-value', text);
+            this.text = text;
+            this.$text.html(formatText);
+
+            // TODO: fix for Samsung 11
+            if ( text.length > 1 ) {
+                method = (this.$text.width() > this.$wrapper.width()) ? 'add' : 'remove';
+                this.$wrapper[ method + 'Class']('.' + opt.input.wrapperClass + '_right');
+            } else {
+                this.$wrapper.removeClass('.' + opt.input.wrapperClass + '_right');
+            }
+
+            this.$input.trigger('text_change');
+        },
+
+        type: function ( letter ) {
+            var text = this.text || '',
+                opt = this.options;
+
+            switch ( letter ) {
+                case 'backspace':
+                    text = text.substr(0, text.length - 1);
+                    break;
+                case 'delall':
+                    text = '';
+                    break;
+                default:
+                    text += letter;
+                    break;
+            }
+
+            this.setText(text);
+
+            //jump to next input if is set
+            if ( text.length === opt.max &&
+                opt.next &&
+                opt.max != 0 ) {
+                this.hideKeyboard();
+                $$nav.current(opt.next);
+                $$nav.current().click();
+            }
+        },
+
+        typeNum: function(e){
+            switch (e.keyName) {
+                case 'red':
+                    this.type('backspace');
+                    break;
+                default:
+                    this.type(e.num);
+                    break;
+            }
+            e.stopPropagation();
+        },
+
+        changeKeyboard: function ( keyboardOpt ) {
+            var curOpt = this.options.keyboard;
+            this.options.keyboard = _.extend({}, curOpt, keyboardOpt);
+            $keyboardPopup && $keyboardPopup.SBKeyboard(this.options.keyboard);
+        },
+
+        hideKeyboard: function ( isComplete ) {
+            var $wrapper = this.$wrapper;
+            $wrapper.removeClass('smart-input-active');
+            this.$input.trigger('keyboard_hide');
+
+            $keyboardOverlay && $keyboardOverlay.hide();
+
+            $$nav.restore();
+            $$voice.restore();
+
+            this.isKeyboardActive = false;
+            if ( isComplete ) {
+                this.$input.trigger('keyboard_complete');
+            }
+            else {
+                this.$input.trigger('keyboard_cancel');
+            }
+            $keyboardPopup && $keyboardPopup.trigger('keyboard_hide');
+        },
+
+        showKeyboard: function () {
+            var $wrapper = this.$wrapper,
+                keyboardOpt = this.options.keyboard,
+                self = this;
+
+            this.isKeyboardActive = true;
+            $wrapper.addClass('smart-input-active');
+
+            var h = this.$el.outerHeight();
+            var o = this.$el.offset();
+            var top = o.top + h;
+
+            if ( !$keyboardOverlay ) {
+                generateKeyboardPopup();
+            }
+
+            if ( !this._generatedKeyboard ) {
+                $keyboardPopup.SBKeyboard(keyboardOpt);
+                this._generatedKeyboard = true;
+            }
+
+            $keyboardPopup.SBKeyboard('changeKeyboard', keyboardOpt.type)
+                .css({
+                    'left': o.left,
+                    'top': top
+                })
+                .off('type backspace delall complete cancel')
+                .on('type', function ( e ) {
+                    self.type(e.letter);
+                })
+                .on('backspace', function () {
+                    self.type('backspace');
+                })
+                .on('delall', function () {
+                    self.type('delall');
+                })
+                .on('complete cancel', function ( e ) {
+                    var isComplete = false;
+                    if ( e.type === 'complete' ) {
+                        isComplete = true;
+                    }
+                    self.stopBlink();
+                    self.hideKeyboard(isComplete);
+                });
+
+            $keyboardOverlay.show();
+
+            var kh = $keyboardPopup.height();
+            var kw = $keyboardPopup.width();
+
+            if ( top + kh > 680 ) {
+                $keyboardPopup.css({
+                    'top': top - kh - h
+                })
+            }
+            if ( o.left + kw > 1280 ) {
+                $keyboardPopup.css({
+                    'left': 1280 - kw - 20
+                })
+            }
+            $$voice.save();
+            $$nav.save();
+            $$nav.on('#keyboard_popup');
+            $keyboardPopup.SBKeyboard('refreshVoice').voiceLink();
+            this.$el.addClass($$nav.higlight_class);
+            this.$input.trigger('keyboard_show');
+            this.startBlink();
         }
-      });
-    },
+    };
 
-    setText: function ( text ) {
-      var opt = this.options,
-        formatText,
-        max = opt.max,
-        method;
+    $.extend(Plugin.prototype, pluginPrototype);
+    pluginPrototype = null;
 
-      text = text || '';
+    $.fn.SBInput = function () {
+        var args = Array.prototype.slice.call(arguments),
+            method = (typeof args[0] == 'string') && args[0],
+            options = (typeof args[0] == 'object') && args[0],
+            params = args.slice(1);
 
-      if ( text.length > max && max != 0 ) {
-        text = text.substr(0, max);
-      }
-
-      formatText = opt.formatText ? opt.formatText(text) : text;
-
-      this.$input.val(text).attr('data-value', text);
-      this.text = text;
-      this.$text.html(formatText);
-
-      // TODO: fix for Samsung 11
-      if ( text.length > 1 ) {
-        method = (this.$text.width() > this.$wrapper.width()) ? 'add' : 'remove';
-        this.$wrapper[ method + 'Class']('.' + opt.input.wrapperClass + '_right');
-      } else {
-        this.$wrapper.removeClass('.' + opt.input.wrapperClass + '_right');
-      }
-
-      this.$input.trigger('text_change');
-    },
-
-    type: function ( letter ) {
-      var text = this.text || '',
-        opt = this.options;
-
-      switch ( letter ) {
-        case 'backspace':
-          text = text.substr(0, text.length - 1);
-          break;
-        case 'delall':
-          text = '';
-          break;
-        default:
-          text += letter;
-          break;
-      }
-
-      this.setText(text);
-
-      //jump to next input if is set
-      if ( text.length === opt.max &&
-           opt.next &&
-           opt.max != 0 ) {
-        this.hideKeyboard();
-        $$nav.current(opt.next);
-        $$nav.current().click();
-      }
-    },
-
-    typeNum: function(e){
-      switch (e.keyName) {
-        case 'red':
-          this.type('backspace');
-          break;
-        default:
-          this.type(e.num);
-          break;
-      }
-      e.stopPropagation();
-    },
-
-    changeKeyboard: function ( keyboardOpt ) {
-      var curOpt = this.options.keyboard;
-      this.options.keyboard = _.extend({}, curOpt, keyboardOpt);
-      $keyboardPopup && $keyboardPopup.SBKeyboard(this.options.keyboard);
-    },
-
-    hideKeyboard: function ( isComplete ) {
-      var $wrapper = this.$wrapper;
-      $wrapper.removeClass('smart-input-active');
-      this.$input.trigger('keyboard_hide');
-
-      $keyboardOverlay && $keyboardOverlay.hide();
-
-      $$nav.restore();
-      $$voice.restore();
-
-      this.isKeyboardActive = false;
-      if ( isComplete ) {
-        this.$input.trigger('keyboard_complete');
-      }
-      else {
-        this.$input.trigger('keyboard_cancel');
-      }
-      $keyboardPopup && $keyboardPopup.trigger('keyboard_hide');
-    },
-
-    showKeyboard: function () {
-      var $wrapper = this.$wrapper,
-        keyboardOpt = this.options.keyboard,
-        self = this;
-
-      this.isKeyboardActive = true;
-      $wrapper.addClass('smart-input-active');
-
-      var h = this.$el.outerHeight();
-      var o = this.$el.offset();
-      var top = o.top + h;
-
-      if ( !$keyboardOverlay ) {
-        generateKeyboardPopup();
-      }
-
-      if ( !this._generatedKeyboard ) {
-        $keyboardPopup.SBKeyboard(keyboardOpt);
-        this._generatedKeyboard = true;
-      }
-
-      $keyboardPopup.SBKeyboard('changeKeyboard', keyboardOpt.type)
-        .css({
-          'left': o.left,
-          'top': top
-        })
-        .off('type backspace delall complete cancel')
-        .on('type', function ( e ) {
-          self.type(e.letter);
-        })
-        .on('backspace', function () {
-          self.type('backspace');
-        })
-        .on('delall', function () {
-          self.type('delall');
-        })
-        .on('complete cancel', function ( e ) {
-          var isComplete = false;
-          if ( e.type === 'complete' ) {
-            isComplete = true;
-          }
-          self.stopBlink();
-          self.hideKeyboard(isComplete);
+        return this.each(function () {
+            var instance = $.data(this, 'plugin_' + pluginName);
+            if ( !instance ) {
+                $.data(this, 'plugin_' + pluginName,
+                    new Plugin(this, options));
+            } else if ( typeof instance[method] === 'function' ) {
+                instance[method].apply(instance, params);
+            }
         });
-
-      $keyboardOverlay.show();
-
-      var kh = $keyboardPopup.height();
-      var kw = $keyboardPopup.width();
-
-      if ( top + kh > 680 ) {
-        $keyboardPopup.css({
-          'top': top - kh - h
-        })
-      }
-      if ( o.left + kw > 1280 ) {
-        $keyboardPopup.css({
-          'left': 1280 - kw - 20
-        })
-      }
-      $$voice.save();
-      $$nav.save();
-      $$nav.on('#keyboard_popup');
-      $keyboardPopup.SBKeyboard('refreshVoice').voiceLink();
-      this.$el.addClass($$nav.higlight_class);
-      this.$input.trigger('keyboard_show');
-      this.startBlink();
     }
-  };
-
-  $.extend(Plugin.prototype, pluginPrototype);
-  pluginPrototype = null;
-
-  $.fn.SBInput = function () {
-    var args = Array.prototype.slice.call(arguments),
-      method = (typeof args[0] == 'string') && args[0],
-      options = (typeof args[0] == 'object') && args[0],
-      params = args.slice(1);
-
-    return this.each(function () {
-      var instance = $.data(this, 'plugin_' + pluginName);
-      if ( !instance ) {
-        $.data(this, 'plugin_' + pluginName,
-          new Plugin(this, options));
-      } else if ( typeof instance[method] === 'function' ) {
-        instance[method].apply(instance, params);
-    }
-    });
-  }
 
 })(jQuery, window, document);
 /**
@@ -717,423 +718,423 @@
 ;
 (function ( $, window, document, undefined ) {
 
-  var pluginName = 'SBKeyboard',
-    keyRegExp = /([^{]+){{([^}]*)}}/,
-    defaults = {
-      type: 'en',
-      firstLayout: null
-    },
-    pluginPrototype = {},
-    keyboardPrototype = {},
-    generatedKeyboards = {};
-
-  /**
-   * Keyboard constructor
-   * @param options
-   * @param $el parent element
-   * @constructor
-   */
-  function Keyboard ( options, $el ) {
-
-    this.type = options.type;
-    this.currentLayout = '';
-    this.previousLayout = '';
-    this.$el = $el;
-
-    // jquery layout els
-    this.$layouts = {};
-
-    // all available layouts(for changeKeyboardLang)
-    this.presets = [];
-
-    this.initialize(options);
-  }
-
-  keyboardPrototype = {
-    isShiftActive: false,
-    isNumsShown: false,
-    currentPresetType: '',
-      initialize: function ( options ) {
-
-      var _type = _.result(this, 'type'),
-        board = '',
-        preset,
-        haveNums = false,
-        type;
-
-      preset = SB.keyboardPresets[_type];
-
-      if (!preset) {
-        throw new Error('Preset ' + _type + ' doesn\'t exist');
-      }
-
-      this.currentPresetType = _type;
-
-      this.$wrap = $(document.createElement('div')).addClass('kb-wrap');
-
-      if ( typeof preset === 'function' ) {
-        this.presets.push(_type);
-        board = this.generateBoard(_type);
-      } else if ( preset.length ) {
-        this.presets = preset;
-        haveNums = (preset.indexOf('fullnum') !== -1);
-        if ( haveNums ) {
-          this.presets = _.without(this.presets, 'fullnum');
-        }
-        board = this.generateFull(this.presets, haveNums);
-      }
-
-      this.$wrap
-        .append(board)
-        .addClass('kekekey_' + _type);
-
-      this.$el.append(this.$wrap);
-      this.setEvents();
-
-      // save jquery els of current layouts
-      for ( var i = 0; i < this.presets.length; i++ ) {
-        type = this.presets[i];
-        this.$layouts[type] = this.$wrap.find('.keyboard_generated_' + type);
-      }
-
-      if (haveNums) {
-        this.$layouts['fullnum'] = this.$wrap.find('.keyboard_generated_fullnum');
-      }
-
-      if ( this.presets.indexOf(options.firstLayout) !== -1 ) {
-        this.changeLayout(options.firstLayout);
-      } else {
-        this.changeLayout(this.presets[0]);
-      }
-    },
+    var pluginName = 'SBKeyboard',
+        keyRegExp = /([^{]+){{([^}]*)}}/,
+        defaults = {
+            type: 'en',
+            firstLayout: null
+        },
+        pluginPrototype = {},
+        keyboardPrototype = {},
+        generatedKeyboards = {};
 
     /**
-     * Generate multilayout keyboards
-     * @param types {Array} array of layout types (['ru', 'en'])
-     * @param haveNums {Boolean} add fullnum keyboard
-     * @returns {string} generated html
+     * Keyboard constructor
+     * @param options
+     * @param $el parent element
+     * @constructor
      */
-    generateFull: function ( types, haveNums ) {
-      var wrapHtml = '',
-        preset = '',
-        type = '';
+    function Keyboard ( options, $el ) {
 
-      if ( types.length > 1 ) {
-        this.$wrap.addClass('kb-multilang');
-      }
+        this.type = options.type;
+        this.currentLayout = '';
+        this.previousLayout = '';
+        this.$el = $el;
 
-      for ( var i = 0; i < types.length; i++ ) {
-        type = types[i];
-        wrapHtml += this.generateBoard(type);
-      }
+        // jquery layout els
+        this.$layouts = {};
 
-      if ( haveNums ) {
-        this.$wrap.addClass('kb-havenums');
-        wrapHtml += this.generateBoard('fullnum');
-      }
+        // all available layouts(for changeKeyboardLang)
+        this.presets = [];
 
-      return wrapHtml;
-    },
+        this.initialize(options);
+    }
 
-    /**
-     * Generate keyboard layout
-     * @param type {String}  'ru', 'en'
-     * @returns {String} generated html
-     */
-    generateBoard: function ( type ) {
+    keyboardPrototype = {
+        isShiftActive: false,
+        isNumsShown: false,
+        currentPresetType: '',
+        initialize: function ( options ) {
 
-      var preset = SB.keyboardPresets[type],
-        boardHtml = '',
-        rowHtml = '',
-        keyAttrs = {},
-        row, letter;
+            var _type = _.result(this, 'type'),
+                board = '',
+                preset,
+                haveNums = false,
+                type;
 
-      if ( generatedKeyboards[type] ) {
-        return generatedKeyboards[type].board;
-      }
+            preset = SB.keyboardPresets[_type];
 
-      preset = preset();
-      boardHtml = '<div class="kb-c keyboard_generated_' + type + '">';
+            if (!preset) {
+                throw new Error('Preset ' + _type + ' doesn\'t exist');
+            }
 
-      for ( var i = 0; i < preset.length; i++ ) {
-        row = preset[i];
-        rowHtml = '<div class="kb-row" data-nav_type="hbox">';
+            this.currentPresetType = _type;
 
-        for ( var j = 0; j < row.length; j++ ) {
-          letter = row[j];
-          if ( letter.length == 1 || letter === '&amp;' ) {
-            keyAttrs = {
-              text: letter,
-              type: '',
-              letter: letter
+            this.$wrap = $(document.createElement('div')).addClass('kb-wrap');
+
+            if ( typeof preset === 'function' ) {
+                this.presets.push(_type);
+                board = this.generateBoard(_type);
+            } else if ( preset.length ) {
+                this.presets = preset;
+                haveNums = (preset.indexOf('fullnum') !== -1);
+                if ( haveNums ) {
+                    this.presets = _.without(this.presets, 'fullnum');
+                }
+                board = this.generateFull(this.presets, haveNums);
+            }
+
+            this.$wrap
+                .append(board)
+                .addClass('kekekey_' + _type);
+
+            this.$el.append(this.$wrap);
+            this.setEvents();
+
+            // save jquery els of current layouts
+            for ( var i = 0; i < this.presets.length; i++ ) {
+                type = this.presets[i];
+                this.$layouts[type] = this.$wrap.find('.keyboard_generated_' + type);
+            }
+
+            if (haveNums) {
+                this.$layouts['fullnum'] = this.$wrap.find('.keyboard_generated_fullnum');
+            }
+
+            if ( this.presets.indexOf(options.firstLayout) !== -1 ) {
+                this.changeLayout(options.firstLayout);
+            } else {
+                this.changeLayout(this.presets[0]);
+            }
+        },
+
+        /**
+         * Generate multilayout keyboards
+         * @param types {Array} array of layout types (['ru', 'en'])
+         * @param haveNums {Boolean} add fullnum keyboard
+         * @returns {string} generated html
+         */
+        generateFull: function ( types, haveNums ) {
+            var wrapHtml = '',
+                preset = '',
+                type = '';
+
+            if ( types.length > 1 ) {
+                this.$wrap.addClass('kb-multilang');
+            }
+
+            for ( var i = 0; i < types.length; i++ ) {
+                type = types[i];
+                wrapHtml += this.generateBoard(type);
+            }
+
+            if ( haveNums ) {
+                this.$wrap.addClass('kb-havenums');
+                wrapHtml += this.generateBoard('fullnum');
+            }
+
+            return wrapHtml;
+        },
+
+        /**
+         * Generate keyboard layout
+         * @param type {String}  'ru', 'en'
+         * @returns {String} generated html
+         */
+        generateBoard: function ( type ) {
+
+            var preset = SB.keyboardPresets[type],
+                boardHtml = '',
+                rowHtml = '',
+                keyAttrs = {},
+                row, letter;
+
+            if ( generatedKeyboards[type] ) {
+                return generatedKeyboards[type].board;
+            }
+
+            preset = preset();
+            boardHtml = '<div class="kb-c keyboard_generated_' + type + '">';
+
+            for ( var i = 0; i < preset.length; i++ ) {
+                row = preset[i];
+                rowHtml = '<div class="kb-row" data-nav_type="hbox">';
+
+                for ( var j = 0; j < row.length; j++ ) {
+                    letter = row[j];
+                    if ( letter.length == 1 || letter === '&amp;' ) {
+                        keyAttrs = {
+                            text: letter,
+                            type: '',
+                            letter: letter
+                        };
+                    }
+                    else {
+                        var matches = keyRegExp.exec(letter);
+
+                        keyAttrs.text = matches[2] || '';
+                        keyAttrs.type = matches[1];
+                        keyAttrs.letter = '';
+                    }
+                    rowHtml += '<div class="kbtn nav-item ' +
+                    keyAttrs.type +
+                    '" data-letter="' + _.escape(keyAttrs.letter) + '"';
+
+                    if ( keyAttrs.type ) {
+                        rowHtml += ' data-keytype="' + keyAttrs.type + '"';
+                    }
+
+                    rowHtml += '>' + keyAttrs.text + '</div>';
+                }
+
+                boardHtml += rowHtml + '</div>';
+            }
+
+            boardHtml += '</div>';
+
+            generatedKeyboards[type] = {
+                board: boardHtml
             };
-          }
-          else {
-            var matches = keyRegExp.exec(letter);
+            return boardHtml;
+        },
 
-            keyAttrs.text = matches[2] || '';
-            keyAttrs.type = matches[1];
-            keyAttrs.letter = '';
-          }
-          rowHtml += '<div class="kbtn nav-item ' +
-                     keyAttrs.type +
-                     '" data-letter="' + _.escape(keyAttrs.letter) + '"';
+        /**
+         * Num keys event handler
+         * @param e
+         */
+        onKeyNum: function ( e ) {
+            switch ( e.keyName ) {
+                case 'red':
+                    this.$el.trigger('backspace');
+                    break;
+                default:
+                    var ev = $.Event({
+                        'type': 'type'
+                    });
+                    ev.letter = '' + e.num;
 
-          if ( keyAttrs.type ) {
-            rowHtml += ' data-keytype="' + keyAttrs.type + '"';
-          }
+                    this.$el.trigger(ev);
+                    break;
+            }
+            e.stopPropagation();
+        },
+        defaultOnKey: function ( e ) {
+            e.stopPropagation();
+        },
+        onKeyDown: function ( e ) {
+            var $el = $(e.currentTarget),
+                keyType = $el.attr('data-keytype'),
+                letter = $el.attr('data-letter'),
+                ev;
 
-          rowHtml += '>' + keyAttrs.text + '</div>';
-        }
+            // create custom event for triggering keyboard event
+            ev = $.Event({
+                'type': 'type'
+            });
 
-        boardHtml += rowHtml + '</div>';
-      }
+            if ( keyType ) {
+                switch ( keyType ) {
+                    case 'backspace':
+                        ev = 'backspace';
+                        break;
+                    case 'delall':
+                        ev = 'delall';
+                        break;
+                    case 'complete':
+                        ev = 'complete';
+                        break;
+                    case 'space':
+                        ev.letter = ' ';
+                        break;
+                    case 'shift':
+                        this.triggerShiftLetters();
+                        return;
+                    case 'lang':
+                        this.changeKeyboardLang();
+                        return;
+                    case 'nums':
+                        this.triggerNumKeyboard();
+                        return;
+                    default:
+                        break;
+                }
+            } else {
+                ev.letter = this.isShiftActive ? letter.toUpperCase() : letter;
+            }
 
-      boardHtml += '</div>';
+            ev && this.$el.trigger(ev);
 
-      generatedKeyboards[type] = {
-        board: boardHtml
-      };
-      return boardHtml;
-    },
+            e.stopPropagation();
+        },
 
-    /**
-     * Num keys event handler
-     * @param e
-     */
-    onKeyNum: function ( e ) {
-      switch ( e.keyName ) {
-        case 'red':
-          this.$el.trigger('backspace');
-          break;
-        default:
-          var ev = $.Event({
-            'type': 'type'
-          });
-          ev.letter = '' + e.num;
+        triggerShiftLetters: function () {
+            var self = this;
 
-          this.$el.trigger(ev);
-          break;
-      }
-      e.stopPropagation();
-    },
-    defaultOnKey: function ( e ) {
-      e.stopPropagation();
-    },
-    onKeyDown: function ( e ) {
-      var $el = $(e.currentTarget),
-        keyType = $el.attr('data-keytype'),
-        letter = $el.attr('data-letter'),
-        ev;
+            if ( this.isShiftActive ) {
+                this.isShiftActive = false;
+                this.$el.removeClass('shift_active');
+            } else {
+                this.isShiftActive = true;
+                this.$el.addClass('shift_active');
+            }
 
-      // create custom event for triggering keyboard event
-      ev = $.Event({
-        'type': 'type'
-      });
-
-      if ( keyType ) {
-        switch ( keyType ) {
-          case 'backspace':
-            ev = 'backspace';
-            break;
-          case 'delall':
-            ev = 'delall';
-            break;
-          case 'complete':
-            ev = 'complete';
-            break;
-          case 'space':
-            ev.letter = ' ';
-            break;
-          case 'shift':
-            this.triggerShiftLetters();
-            return;
-          case 'lang':
-            this.changeKeyboardLang();
-            return;
-          case 'nums':
-            this.triggerNumKeyboard();
-            return;
-          default:
-            break;
-        }
-      } else {
-        ev.letter = this.isShiftActive ? letter.toUpperCase() : letter;
-      }
-
-      ev && this.$el.trigger(ev);
-
-      e.stopPropagation();
-    },
-
-    triggerShiftLetters: function () {
-      var self = this;
-
-      if ( this.isShiftActive ) {
-        this.isShiftActive = false;
-        this.$el.removeClass('shift_active');
-      } else {
-        this.isShiftActive = true;
-        this.$el.addClass('shift_active');
-      }
-
-      // TODO: only for samsung 11
+            // TODO: only for samsung 11
 //      this.$el.find('.kbtn').not('.delall,.complete,.space,.nums,.lang,.shift,.backspace').each(function () {
 //        this.innerHTML = self.isShiftActive ? this.innerHTML.toUpperCase() : this.innerHTML.toLowerCase();
 //      });
-    },
+        },
 
-    /**
-     * show/hide fullnum layout
-     */
-    triggerNumKeyboard: function () {
+        /**
+         * show/hide fullnum layout
+         */
+        triggerNumKeyboard: function () {
 
-      if ( this.isNumsShown ) {
-        this.isNumsShown = false;
-        this.changeLayout(this.previousLayout);
-        this.$el.trigger('hide_num');
-      } else {
-        this.isNumsShown = true;
-        this.changeLayout('fullnum');
-        this.$el.trigger('show_num');
-      }
+            if ( this.isNumsShown ) {
+                this.isNumsShown = false;
+                this.changeLayout(this.previousLayout);
+                this.$el.trigger('hide_num');
+            } else {
+                this.isNumsShown = true;
+                this.changeLayout('fullnum');
+                this.$el.trigger('show_num');
+            }
 
-      $$nav.current(this.$layouts[this.currentLayout].find('.nums'));
-    },
+            $$nav.current(this.$layouts[this.currentLayout].find('.nums'));
+        },
 
-    changeKeyboardLang: function () {
-      var curIndex = this.presets.indexOf(this.currentLayout),
-        index;
+        changeKeyboardLang: function () {
+            var curIndex = this.presets.indexOf(this.currentLayout),
+                index;
 
-      index = (curIndex + 1) % this.presets.length;
-      this.changeLayout(this.presets[index]);
-      $$nav.current(this.$layouts[this.currentLayout].find('.lang'));
-    },
+            index = (curIndex + 1) % this.presets.length;
+            this.changeLayout(this.presets[index]);
+            $$nav.current(this.$layouts[this.currentLayout].find('.lang'));
+        },
 
-    /**
-     * Change layout function
-     * @param layout {String} 'fullnum', 'en'
-     */
-    changeLayout: function ( layout ) {
-      var prevLayout,
-        curLayout = this.$layouts[layout];
+        /**
+         * Change layout function
+         * @param layout {String} 'fullnum', 'en'
+         */
+        changeLayout: function ( layout ) {
+            var prevLayout,
+                curLayout = this.$layouts[layout];
 
-      if ( this.currentLayout ) {
-        prevLayout = this.$layouts[this.currentLayout];
-        prevLayout && prevLayout.hide();
-        this.$el.removeClass('keyboard_' + this.currentLayout);
-        this.previousLayout = this.currentLayout;
-      }
+            if ( this.currentLayout ) {
+                prevLayout = this.$layouts[this.currentLayout];
+                prevLayout && prevLayout.hide();
+                this.$el.removeClass('keyboard_' + this.currentLayout);
+                this.previousLayout = this.currentLayout;
+            }
 
-      if ( curLayout ) {
-        this.currentLayout = layout;
-        this.$el.addClass('keyboard_' + layout);
-        curLayout.show();
-      }
-    },
-    setEvents: function () {
-      var self = this;
-      // block yellow & blue buttons
-      this.$wrap.on('nav_key:yellow nav_key:blue', this.defaultOnKey);
-      this.$wrap.on('nav_key:num nav_key:red', _.bind(this.onKeyNum, this));
-      this.$wrap.on('click', '.kbtn', _.bind(this.onKeyDown, this));
-      this.$wrap
-        .on('nav_key:green', function ( e ) {
-          self.$el.trigger('complete');
-          e.stopPropagation();
-        })
-        .on('nav_key:return', function ( e ) {
-          self.$el.trigger('cancel');
-          e.stopPropagation();
-        });
-    },
-    show: function () {
-      this.$wrap.show();
-      this.$el.addClass(_.result(this, 'type') + '_wrap').addClass('keyboard_' + this.currentLayout);
-      return this;
-    },
-    hide: function () {
-      this.$wrap.hide();
-      this.$el.removeClass(_.result(this, 'type') + '_wrap').removeClass('keyboard_' + this.currentLayout);
-    }
-  };
-
-  $.extend(Keyboard.prototype, keyboardPrototype);
-  keyboardPrototype = null;
-
-  // The actual plugin constructor
-  function Plugin ( element, options ) {
-    this.$el = $(element);
-    this.keyboards = {};
-
-    options = $.extend({}, defaults, options);
-    this.addKeyboard(options);
-    this.$el.addClass('keyboard_popup_wrapper');
-  }
-
-  pluginPrototype = {
-    /**
-     * Add keyboard to current element
-     * @param opt {Object}
-     */
-    addKeyboard: function ( opt ) {
-      var options = $.extend({}, defaults, opt),
-        type = _.isFunction(opt.type) ? _.result(opt, 'type') : opt.type;
-
-      if ( !this.keyboards[type] ) {
-        this.keyboards[type] = new Keyboard(options, this.$el);
-      }
-      this.changeKeyboard(type);
-    },
-    /**
-     * Change current active keyboard
-     * @param type {String|Function} 'en', 'ru'
-     */
-    changeKeyboard: function ( type ) {
-      var curKeyboard = this.currentKeyboard,
-        preset,
-        isCurrent;
-
-      type = _.isFunction(type) ? type() : type;
-      preset = this.keyboards[type];
-      isCurrent = curKeyboard && (curKeyboard.currentPresetType === type);
-
-      if ( preset && !isCurrent ) {
-        curKeyboard && curKeyboard.hide();
-        this.currentKeyboard = preset.show();
-      } else if (!preset){
-        this.addKeyboard({
-          type: type
-        });
-      }
-    }
-  };
-
-  $.extend(Plugin.prototype, pluginPrototype);
-  pluginPrototype = null;
-
-  // A lightweight plugin wrapper around the constructor,
-  // preventing against multiple instantiations
-  $.fn.SBKeyboard = function () {
-    var args = Array.prototype.slice.call(arguments),
-      method = (typeof args[0] == 'string') && args[0],
-      options = (typeof args[0] == 'object') && args[0],
-      params = args.slice(1);
-
-    return this.each(function () {
-      var instance = $.data(this, 'plugin_' + pluginName);
-      if ( !instance ) {
-        $.data(this, 'plugin_' + pluginName,
-          new Plugin(this, options));
-      } else {
-        if ( method ) {
-          instance[method] && instance[method].apply(instance, params)
-        } else if ( options ) {
-          instance.addKeyboard(options);
+            if ( curLayout ) {
+                this.currentLayout = layout;
+                this.$el.addClass('keyboard_' + layout);
+                curLayout.show();
+            }
+        },
+        setEvents: function () {
+            var self = this;
+            // block yellow & blue buttons
+            this.$wrap.on('nav_key:yellow nav_key:blue', this.defaultOnKey);
+            this.$wrap.on('nav_key:num nav_key:red', _.bind(this.onKeyNum, this));
+            this.$wrap.on('click', '.kbtn', _.bind(this.onKeyDown, this));
+            this.$wrap
+                .on('nav_key:green', function ( e ) {
+                    self.$el.trigger('complete');
+                    e.stopPropagation();
+                })
+                .on('nav_key:return', function ( e ) {
+                    self.$el.trigger('cancel');
+                    e.stopPropagation();
+                });
+        },
+        show: function () {
+            this.$wrap.show();
+            this.$el.addClass(_.result(this, 'type') + '_wrap').addClass('keyboard_' + this.currentLayout);
+            return this;
+        },
+        hide: function () {
+            this.$wrap.hide();
+            this.$el.removeClass(_.result(this, 'type') + '_wrap').removeClass('keyboard_' + this.currentLayout);
         }
-      }
-    });
-  }
+    };
+
+    $.extend(Keyboard.prototype, keyboardPrototype);
+    keyboardPrototype = null;
+
+    // The actual plugin constructor
+    function Plugin ( element, options ) {
+        this.$el = $(element);
+        this.keyboards = {};
+
+        options = $.extend({}, defaults, options);
+        this.addKeyboard(options);
+        this.$el.addClass('keyboard_popup_wrapper');
+    }
+
+    pluginPrototype = {
+        /**
+         * Add keyboard to current element
+         * @param opt {Object}
+         */
+        addKeyboard: function ( opt ) {
+            var options = $.extend({}, defaults, opt),
+                type = _.isFunction(opt.type) ? _.result(opt, 'type') : opt.type;
+
+            if ( !this.keyboards[type] ) {
+                this.keyboards[type] = new Keyboard(options, this.$el);
+            }
+            this.changeKeyboard(type);
+        },
+        /**
+         * Change current active keyboard
+         * @param type {String|Function} 'en', 'ru'
+         */
+        changeKeyboard: function ( type ) {
+            var curKeyboard = this.currentKeyboard,
+                preset,
+                isCurrent;
+
+            type = _.isFunction(type) ? type() : type;
+            preset = this.keyboards[type];
+            isCurrent = curKeyboard && (curKeyboard.currentPresetType === type);
+
+            if ( preset && !isCurrent ) {
+                curKeyboard && curKeyboard.hide();
+                this.currentKeyboard = preset.show();
+            } else if (!preset){
+                this.addKeyboard({
+                    type: type
+                });
+            }
+        }
+    };
+
+    $.extend(Plugin.prototype, pluginPrototype);
+    pluginPrototype = null;
+
+    // A lightweight plugin wrapper around the constructor,
+    // preventing against multiple instantiations
+    $.fn.SBKeyboard = function () {
+        var args = Array.prototype.slice.call(arguments),
+            method = (typeof args[0] == 'string') && args[0],
+            options = (typeof args[0] == 'object') && args[0],
+            params = args.slice(1);
+
+        return this.each(function () {
+            var instance = $.data(this, 'plugin_' + pluginName);
+            if ( !instance ) {
+                $.data(this, 'plugin_' + pluginName,
+                    new Plugin(this, options));
+            } else {
+                if ( method ) {
+                    instance[method] && instance[method].apply(instance, params)
+                } else if ( options ) {
+                    instance.addKeyboard(options);
+                }
+            }
+        });
+    }
 })(jQuery, window, document);
 
 window.SB = window.SB || {};
@@ -1141,978 +1142,978 @@ window.SB = window.SB || {};
 // Default layouts, can be extended
 window.SB.keyboardPresets = {
 
-  en: function () {
-    return [
-      'qwertyuiop'.split(''),
-      'asdfghjkl'.split('').concat(['backspace{{<i class="backspace_icon"></i>}}']),
-      ['shift{{<i class="shift_icon"></i>Shift}}'].concat('zxcvbnm'.split('')).concat(
-        ['delall{{<span>Del<br/>all</span>}}']),
-      ['lang{{en}}', 'nums{{123}}', 'space{{}}', 'complete{{Complete}}']
-    ];
-  },
+    en: function () {
+        return [
+            'qwertyuiop'.split(''),
+            'asdfghjkl'.split('').concat(['backspace{{<i class="backspace_icon"></i>}}']),
+            ['shift{{<i class="shift_icon"></i>Shift}}'].concat('zxcvbnm'.split('')).concat(
+                ['delall{{<span>Del<br/>all</span>}}']),
+            ['lang{{en}}', 'nums{{123}}', 'space{{}}', 'complete{{Complete}}']
+        ];
+    },
 
-  ru: function () {
-    return [
-      'йцукенгшщзхъ'.split(''),
-      'фывапролджэ'.split('').concat(['backspace{{<i class="backspace_icon"></i>}}']),
-      ['shift{{<i class="shift_icon"></i>Shift}}'].concat('ячсмитьбю'.split('')).concat(['delall{{<span>Del<br/>all</span>}}']),
-      ['lang{{ru}}', 'nums{{123}}', 'space{{}}', 'complete{{Готово}}']
-    ]
-  },
+    ru: function () {
+        return [
+            'йцукенгшщзхъ'.split(''),
+            'фывапролджэ'.split('').concat(['backspace{{<i class="backspace_icon"></i>}}']),
+            ['shift{{<i class="shift_icon"></i>Shift}}'].concat('ячсмитьбю'.split('')).concat(['delall{{<span>Del<br/>all</span>}}']),
+            ['lang{{ru}}', 'nums{{123}}', 'space{{}}', 'complete{{Готово}}']
+        ]
+    },
 
-  email: function () {
-    return [
-      '1234567890@'.split(''),
-      'qwertyuiop'.split('').concat(['backspace{{<i class="backspace_icon"></i>}}']),
-      'asdfghjkl_'.split('').concat(['delall{{<span>Del<br/>all</span>}}']),
-      'zxcvbnm-.'.split('').concat('complete{{OK}}')
-    ];
-  },
+    email: function () {
+        return [
+            '1234567890@'.split(''),
+            'qwertyuiop'.split('').concat(['backspace{{<i class="backspace_icon"></i>}}']),
+            'asdfghjkl_'.split('').concat(['delall{{<span>Del<br/>all</span>}}']),
+            'zxcvbnm-.'.split('').concat('complete{{OK}}')
+        ];
+    },
 
-  num: function () {
-    return [
-      '123'.split(''),
-      '456'.split(''),
-      '789'.split(''),
-      ['backspace{{<i class="backspace_icon"></i>}}', '0', 'complete{{OK}}']
-    ]
-  },
+    num: function () {
+        return [
+            '123'.split(''),
+            '456'.split(''),
+            '789'.split(''),
+            ['backspace{{<i class="backspace_icon"></i>}}', '0', 'complete{{OK}}']
+        ]
+    },
 
-  fullnum: function () {
-    return [
-      '1234567890'.split(''),
-      '-/:;()$"'.split('').concat(['&amp;', 'backspace{{<i class="backspace_icon"></i>}}']),
-      ['nums{{ABC}}'].concat("@.,?!'+".split('')),
-      ['space{{}}', 'complete{{OK}}']
-    ]
-  },
+    fullnum: function () {
+        return [
+            '1234567890'.split(''),
+            '-/:;()$"'.split('').concat(['&amp;', 'backspace{{<i class="backspace_icon"></i>}}']),
+            ['nums{{ABC}}'].concat("@.,?!'+".split('')),
+            ['space{{}}', 'complete{{OK}}']
+        ]
+    },
 
-  fulltext_ru: ['ru','en'],
-  fulltext_en: ['en'],
-  fulltext_ru_nums: ['ru', 'en', 'fullnum'],
-  fulltext_en_nums: ['en', 'fullnum']
+    fulltext_ru: ['ru','en'],
+    fulltext_en: ['en'],
+    fulltext_ru_nums: ['ru', 'en', 'fullnum'],
+    fulltext_en_nums: ['en', 'fullnum']
 };
 (function (window) {
-  "use strict";
-  /*globals _, ViewModel,$,Events,document, Observable, Computed, Lang, nav*/
-  var icons = ['info','red', 'green', 'yellow', 'blue', 'rew', 'play', 'pause', 'stop', 'ff', 'tools', 'left',
-               'right', 'up', 'down', 'leftright', 'updown', 'move', 'number', 'enter', 'ret'],
+    "use strict";
+    /*globals _, ViewModel,$,Events,document, Observable, Computed, Lang, nav*/
+    var icons = ['info','red', 'green', 'yellow', 'blue', 'rew', 'play', 'pause', 'stop', 'ff', 'tools', 'left',
+            'right', 'up', 'down', 'leftright', 'updown', 'move', 'number', 'enter', 'ret'],
 
-    notClickableKeys= ['leftright', 'left', 'right', 'up', 'down', 'updown', 'move', 'number'],
-    _isInited,
-    LegendKey,
-    savedLegend = [],
-    Legend;
+        notClickableKeys= ['leftright', 'left', 'right', 'up', 'down', 'updown', 'move', 'number'],
+        _isInited,
+        LegendKey,
+        savedLegend = [],
+        Legend;
 
-  function isClickable( key ) {
-    return (notClickableKeys.indexOf(key) === -1)
-  }
-
-  function renderKey( key ) {
-    var clickableClass = isClickable(key) ? ' legend-clickable' : '';
-    return '<div class="legend-item legend-item-' + key + clickableClass + '" data-key="' + key + '">' +
-             '<i class="leg-icon leg-icon-' + key + '"></i>' +
-             '<span class="legend-item-title"></span>' +
-           '</div>';
-  }
-
-  function _renderLegend() {
-    var legendEl,
-      wrap,
-      allKeysHtml = '';
-
-    for (var i = 0, len = icons.length; i<len; i++) {
-      allKeysHtml += renderKey(icons[i]);
+    function isClickable( key ) {
+        return (notClickableKeys.indexOf(key) === -1)
     }
 
-    legendEl = document.createElement('div');
-    wrap = document.createElement('div');
-
-    legendEl.className = 'legend';
-    legendEl.id = 'legend';
-    wrap.className = 'legend-wrap';
-    wrap.innerHTML = allKeysHtml;
-    legendEl.appendChild(wrap);
-
-    return $(legendEl);
-  }
-
-  Legend = function() {
-    var self = this;
-    this.$el = _renderLegend();
-    this.keys = {};
-
-    var initKey = function ( key ) {
-      var $keyEl;
-      if ( !self.keys[key] ) {
-        $keyEl = self.$el.find('.legend-item-' + key);
-        self.keys[key] = new LegendKey($keyEl);
-      }
-    };
-
-    for ( var i = 0; i < icons.length; i++ ) {
-      initKey(icons[i]);
+    function renderKey( key ) {
+        var clickableClass = isClickable(key) ? ' legend-clickable' : '';
+        return '<div class="legend-item legend-item-' + key + clickableClass + '" data-key="' + key + '">' +
+            '<i class="leg-icon leg-icon-' + key + '"></i>' +
+            '<span class="legend-item-title"></span>' +
+            '</div>';
     }
 
-    this.addKey = function ( keyName, isClickable ) {
-      var keyHtml;
+    function _renderLegend() {
+        var legendEl,
+            wrap,
+            allKeysHtml = '';
 
-      if (typeof isClickable === 'undefined') {
-        isClickable = true;
-      }
+        for (var i = 0, len = icons.length; i<len; i++) {
+            allKeysHtml += renderKey(icons[i]);
+        }
 
-      if (!isClickable) {
-        notClickableKeys.push(keyName);
-      }
+        legendEl = document.createElement('div');
+        wrap = document.createElement('div');
 
-      keyHtml = renderKey(keyName);
+        legendEl.className = 'legend';
+        legendEl.id = 'legend';
+        wrap.className = 'legend-wrap';
+        wrap.innerHTML = allKeysHtml;
+        legendEl.appendChild(wrap);
 
-      this.$el.find('.legend-wrap').append(keyHtml);
-      initKey(keyName);
-    };
-
-    this.show = function () {
-      this.$el.show();
-    };
-
-    this.hide = function () {
-      this.$el.hide();
-    };
-
-    this.clear = function () {
-      for ( var key in this.keys ) {
-        this.keys[key]('');
-      }
-    };
-
-    this.save = function () {
-      for ( var key in this.keys ) {
-        savedLegend[key] = this.keys[key]();
-      }
-    };
-
-    this.restore = function () {
-      _.each(icons, function ( key ) {
-        Legend[key](savedLegend[key]);
-      });
-
-      for ( var key in savedLegend ) {
-        this.keys[key](savedLegend[key]);
-      }
-
-      savedLegend = [];
-    };
-  };
-
-  LegendKey = function ($el) {
-    this.$el = $el;
-    this.$text = $el.find('.legend-item-title');
-    return _.bind(this.setText, this);
-  };
-
-  LegendKey.prototype.text = '';
-  LegendKey.prototype.isShown = false;
-  LegendKey.prototype.setText = function (text) {
-    if (typeof text === 'undefined') {
-      return this.text;
-    } else if (text !== this.text) {
-      text = text || '';
-
-      if (!text && this.isShown) {
-        this.$el[0].style.display = 'none';
-        this.$el.removeClass('legend-item-visible');
-        this.isShown = false;
-      } else if (text && !this.isShown) {
-        this.$el[0].style.display = '';
-        this.$el.addClass('legend-item-visible');
-        this.isShown = true;
-      }
-
-      this.text = text;
-      this.$text.html(text);
+        return $(legendEl);
     }
-  };
+
+    Legend = function() {
+        var self = this;
+        this.$el = _renderLegend();
+        this.keys = {};
+
+        var initKey = function ( key ) {
+            var $keyEl;
+            if ( !self.keys[key] ) {
+                $keyEl = self.$el.find('.legend-item-' + key);
+                self.keys[key] = new LegendKey($keyEl);
+            }
+        };
+
+        for ( var i = 0; i < icons.length; i++ ) {
+            initKey(icons[i]);
+        }
+
+        this.addKey = function ( keyName, isClickable ) {
+            var keyHtml;
+
+            if (typeof isClickable === 'undefined') {
+                isClickable = true;
+            }
+
+            if (!isClickable) {
+                notClickableKeys.push(keyName);
+            }
+
+            keyHtml = renderKey(keyName);
+
+            this.$el.find('.legend-wrap').append(keyHtml);
+            initKey(keyName);
+        };
+
+        this.show = function () {
+            this.$el.show();
+        };
+
+        this.hide = function () {
+            this.$el.hide();
+        };
+
+        this.clear = function () {
+            for ( var key in this.keys ) {
+                this.keys[key]('');
+            }
+        };
+
+        this.save = function () {
+            for ( var key in this.keys ) {
+                savedLegend[key] = this.keys[key]();
+            }
+        };
+
+        this.restore = function () {
+            _.each(icons, function ( key ) {
+                Legend[key](savedLegend[key]);
+            });
+
+            for ( var key in savedLegend ) {
+                this.keys[key](savedLegend[key]);
+            }
+
+            savedLegend = [];
+        };
+    };
+
+    LegendKey = function ($el) {
+        this.$el = $el;
+        this.$text = $el.find('.legend-item-title');
+        return _.bind(this.setText, this);
+    };
+
+    LegendKey.prototype.text = '';
+    LegendKey.prototype.isShown = false;
+    LegendKey.prototype.setText = function (text) {
+        if (typeof text === 'undefined') {
+            return this.text;
+        } else if (text !== this.text) {
+            text = text || '';
+
+            if (!text && this.isShown) {
+                this.$el[0].style.display = 'none';
+                this.$el.removeClass('legend-item-visible');
+                this.isShown = false;
+            } else if (text && !this.isShown) {
+                this.$el[0].style.display = '';
+                this.$el.addClass('legend-item-visible');
+                this.isShown = true;
+            }
+
+            this.text = text;
+            this.$text.html(text);
+        }
+    };
 
 
-  window.$$legend = new Legend();
+    window.$$legend = new Legend();
 
-  $(function () {
-    $$legend.$el.appendTo(document.body);
-    $$legend.$el.on('click', '.legend-clickable', function () {
-      var key = $(this).attr('data-key'),
-        ev, commonEvent;
+    $(function () {
+        $$legend.$el.appendTo(document.body);
+        $$legend.$el.on('click', '.legend-clickable', function () {
+            var key = $(this).attr('data-key'),
+                ev, commonEvent;
 
-      if (key === 'ret') {
-        key = 'return';
-      } else if (key === 'rew') {
-        key = 'rw';
-      }
+            if (key === 'ret') {
+                key = 'return';
+            } else if (key === 'rew') {
+                key = 'rw';
+            }
 
-      ev = $.Event("nav_key:" + key);
-      commonEvent = $.Event("nav_key");
-      commonEvent.keyName = ev.keyName = key;
+            ev = $.Event("nav_key:" + key);
+            commonEvent = $.Event("nav_key");
+            commonEvent.keyName = ev.keyName = key;
 
-      $$nav.current().trigger(ev).trigger(commonEvent);
+            $$nav.current().trigger(ev).trigger(commonEvent);
+        });
     });
-  });
 })(this);
 (function ( window, undefined ) {
 
-  var profiles = {},
-    logs = {},
-    logNames = [],
-    curPanelIndex = 0,
-  // максимум логов на странице
-    maxLogCount = 20,
-    $logWrap,
-    $logRow,
-    Log,
-    LogPanel;
+    var profiles = {},
+        logs = {},
+        logNames = [],
+        curPanelIndex = 0,
+    // максимум логов на странице
+        maxLogCount = 20,
+        $logWrap,
+        $logRow,
+        Log,
+        LogPanel;
 
-  // append log wrapper to body
-  $logWrap = $('<div></div>', {
-    id: 'log'
-  });
+    // append log wrapper to body
+    $logWrap = $('<div></div>', {
+        id: 'log'
+    });
 
-  $(function () {
-    $logWrap.appendTo(document.body);
-  });
+    $(function () {
+        $logWrap.appendTo(document.body);
+    });
 
-  $logRow = $('<div></div>', {
-    'class': 'log-row'
-  });
+    $logRow = $('<div></div>', {
+        'class': 'log-row'
+    });
 
-  /**
-   * LogPanel constructor
-   * @param logName {String} name of log panel
-   * @constructor
-   */
-  LogPanel = function ( logName ) {
-    this.name = logName;
-    this.logs = 0;
-    this.states = {};
+    /**
+     * LogPanel constructor
+     * @param logName {String} name of log panel
+     * @constructor
+     */
+    LogPanel = function ( logName ) {
+        this.name = logName;
+        this.logs = 0;
+        this.states = {};
 
-    var $wrapper = $logWrap.find('#log_' + this.name);
+        var $wrapper = $logWrap.find('#log_' + this.name);
 
-    this.$content = $wrapper.find('.log_content');
-    this.$state = $wrapper.find('.log_states');
+        this.$content = $wrapper.find('.log_content');
+        this.$state = $wrapper.find('.log_states');
 
-    // no need anymore
-    $wrapper = null;
-  };
+        // no need anymore
+        $wrapper = null;
+    };
 
-  _.extend(LogPanel.prototype, {
-    log: function log ( msg ) {
-      var logRow = $logRow.clone(),
-        $rows, length;
-      this.logs++;
-      msg = _.escape(msg);
+    _.extend(LogPanel.prototype, {
+        log: function log ( msg ) {
+            var logRow = $logRow.clone(),
+                $rows, length;
+            this.logs++;
+            msg = _.escape(msg);
 
-      logRow.html(msg).appendTo(this.$content);
-      if ( this.logs > maxLogCount ) {
-        $rows = this.$content.find(".log-row");
-        length = $rows.length;
-        $rows.slice(0, length - maxLogCount).remove();
-        this.logs = $rows.length;
-      }
-    },
+            logRow.html(msg).appendTo(this.$content);
+            if ( this.logs > maxLogCount ) {
+                $rows = this.$content.find(".log-row");
+                length = $rows.length;
+                $rows.slice(0, length - maxLogCount).remove();
+                this.logs = $rows.length;
+            }
+        },
 
-    state: function state ( value, stateName ) {
-      var state = this.states[stateName] || this.createState(stateName);
-      state.textContent = stateName + ': ' + value;
-    },
+        state: function state ( value, stateName ) {
+            var state = this.states[stateName] || this.createState(stateName);
+            state.textContent = stateName + ': ' + value;
+        },
 
-    createState: function ( stateName ) {
-      var $state = document.createElement('div');
-      $state.id = '#log_' + this.name + '_' + stateName;
-      this.states[stateName] = $state;
-      this.$state.append($state);
+        createState: function ( stateName ) {
+            var $state = document.createElement('div');
+            $state.id = '#log_' + this.name + '_' + stateName;
+            this.states[stateName] = $state;
+            this.$state.append($state);
 
-      return $state;
-    }
-  });
+            return $state;
+        }
+    });
 
-  var logPanelTemplate = '<div class="log_pane" id="log_<%=name%>">' +
-                           '<div class="log_name">Log: <%=name%></div>' +
-                           '<div class="log_content_wrap">' +
-                            '<div class="log_content"></div>' +
-                           '</div>' +
-                           '<div class="log_states"></div>' +
-                         '</div>';
+    var logPanelTemplate = '<div class="log_pane" id="log_<%=name%>">' +
+        '<div class="log_name">Log: <%=name%></div>' +
+        '<div class="log_content_wrap">' +
+        '<div class="log_content"></div>' +
+        '</div>' +
+        '<div class="log_states"></div>' +
+        '</div>';
 
-  Log = {
+    Log = {
 
-    create: function ( logName ) {
-      var logHtml = logPanelTemplate.replace(/<%=name%>/g, logName);
-      $logWrap.append(logHtml);
-      logs[logName] = new LogPanel(logName);
-      logNames.push(logName);
-      return logs[logName];
-    },
+        create: function ( logName ) {
+            var logHtml = logPanelTemplate.replace(/<%=name%>/g, logName);
+            $logWrap.append(logHtml);
+            logs[logName] = new LogPanel(logName);
+            logNames.push(logName);
+            return logs[logName];
+        },
 
-    getPanel: function ( logName ) {
-      logName = logName || 'default';
-      return (logs[logName] || this.create(logName));
-    }
-  };
+        getPanel: function ( logName ) {
+            logName = logName || 'default';
+            return (logs[logName] || this.create(logName));
+        }
+    };
 
-  /**
-   * Public log API
-   */
-  window.SB.utils.log = {
-    log: function ( msg, logName ) {
-      Log.getPanel(logName).log(msg);
-    },
+    /**
+     * Public log API
+     */
+    window.SB.utils.log = {
+        log: function ( msg, logName ) {
+            Log.getPanel(logName).log(msg);
+        },
 
-    state: function ( msg, state, logName ) {
-      Log.getPanel(logName).state(msg, state);
-    },
+        state: function ( msg, state, logName ) {
+            Log.getPanel(logName).state(msg, state);
+        },
 
-    show: function ( logName ) {
-      logName = logName || logNames[curPanelIndex];
+        show: function ( logName ) {
+            logName = logName || logNames[curPanelIndex];
 
-      if ( !logName ) {
-        curPanelIndex = 0;
-        this.hide();
-      } else {
-        curPanelIndex++;
-        $logWrap.show();
-        $('.log_pane').hide();
-        $('#log_' + logName).show();
-      }
-    },
+            if ( !logName ) {
+                curPanelIndex = 0;
+                this.hide();
+            } else {
+                curPanelIndex++;
+                $logWrap.show();
+                $('.log_pane').hide();
+                $('#log_' + logName).show();
+            }
+        },
 
-    hide: function () {
-      $logWrap.hide();
-    },
+        hide: function () {
+            $logWrap.hide();
+        },
 
-    startProfile: function ( profileName ) {
-      if ( profileName ) {
-        profiles[profileName] = (new Date()).getTime();
-      }
-    },
+        startProfile: function ( profileName ) {
+            if ( profileName ) {
+                profiles[profileName] = (new Date()).getTime();
+            }
+        },
 
-    stopProfile: function ( profileName ) {
-      if ( profiles[profileName] ) {
-        this.log(profileName + ': ' + ((new Date()).getTime() - profiles[profileName]) + 'ms', 'profiler');
-        delete profiles[profileName];
-      }
-    }
-  };
-  window.$$log = SB.utils.log.log;
-  window.$$error = SB.utils.error;
+        stopProfile: function ( profileName ) {
+            if ( profiles[profileName] ) {
+                this.log(profileName + ': ' + ((new Date()).getTime() - profiles[profileName]) + 'ms', 'profiler');
+                delete profiles[profileName];
+            }
+        }
+    };
+    window.$$log = SB.utils.log.log;
+    window.$$error = SB.utils.error;
 
 })(this);
 
 $(function () {
-  var logKey = SB.config.logKey || 'tools';
-  $(document.body).on('nav_key:' + logKey, function () {
-    SB.utils.log.show();
-  });
+    var logKey = SB.config.logKey || 'tools';
+    $(document.body).on('nav_key:' + logKey, function () {
+        SB.utils.log.show();
+    });
 });
 
 
 !(function ( window, undefined ) {
 
-  var $body = null,
-    nav, invertedKeys = {};
+    var $body = null,
+        nav, invertedKeys = {};
 
-  SB.ready(function () {
-    var keys = SB.keys;
-    for (var key in keys) {
-      invertedKeys[keys[key]] = key.toLowerCase();
-    }
-  });
-
-  function Navigation () {
-
-
-    // for methods save и restore
-    var savedNavs = [],
-
-    // object for store throttled color keys  methods
-      throttledMethods = {},
-
-    // current el in focus
-      navCur = null,
-
-    // arrays
-      numsKeys = ['n0', 'n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8', 'n9'],
-      colorKeys = ['green', 'red', 'yellow', 'blue'],
-
-    // pause counter
-      paused = 0;
-
-    function onKeyDown ( e ) {
-      var key,
-        data = {},
-        keyCode = e.keyCode;
-
-      if ( paused || !navCur ) {
-        return;
-      }
-
-      key = invertedKeys[keyCode];
-      if ( key ) {
-        if ( colorKeys.indexOf(key) > -1 ) {
-          throttleEvent(key);
-        } else {
-          if ( numsKeys.indexOf(key) > -1 ) {
-            data.num = key[1];
-            key = 'num';
-          }
-
-          triggerKeyEvent(key, data);
+    SB.ready(function () {
+        var keys = SB.keys;
+        for (var key in keys) {
+            invertedKeys[keys[key]] = key.toLowerCase();
         }
-      }
-    }
-
-    /**
-     * 'nav_key:' event trigger
-     * @param key key name
-     * @param data event data
-     */
-    function triggerKeyEvent ( key, data ) {
-      var ev,
-        commonEvent;
-      if ( navCur ) {
-        ev = $.Event("nav_key:" + key, data || {});
-        commonEvent = $.Event("nav_key");
-
-        ev.keyName = key;
-        commonEvent.keyName = key;
-        navCur.trigger(ev);
-        //первый trigger мог уже сменить текщий элемент
-        navCur && navCur.trigger(commonEvent);
-      }
-    }
-
-    function throttleEvent ( key ) {
-      var keyMethod = throttledMethods[key];
-
-      // lazy init
-      if ( !keyMethod ) {
-        keyMethod = throttledMethods[key] = _.throttle(function () {
-          triggerKeyEvent(key);
-        }, 800, {
-          leading: true
-        });
-      }
-
-      keyMethod(key);
-    }
-
-    /**
-     * trigger click on current element
-     */
-    function onClick () {
-      navCur && navCur.click();
-    }
-
-    return {
-
-      // nav els selector
-      area_selector: '.nav-item',
-
-      /**
-       * Current el class
-       * @type {string}
-       */
-      higlight_class: 'focus',
-
-      /**
-       * navigation container
-       * @type {jQuery}
-       */
-      $container: null,
-
-      /**
-       * Current looping type
-       * false/hbox/vbox
-       * @type {boolean|string}
-       */
-      loopType: null,
-
-      /**
-       * Phantom els selector
-       * @type {string}
-       */
-      phantom_selector: '[data-nav-phantom]',
-
-      /**
-       * Returns current navigation state
-       * @returns {boolean}
-       */
-      isPaused: function () {
-        return !!paused;
-      },
-
-      /**
-       * Stop navigation. Increase pause counter
-       * @returns {Navigation}
-       */
-      pause: function () {
-        paused++;
-        return this;
-      },
-
-      /**
-       * Resume navigation if force or pause counter is zero
-       * @param force {Boolean} force navigation resume
-       * @returns {Navigation}
-       */
-      resume: function ( force ) {
-        paused--;
-        if ( paused < 0 || force ) {
-          paused = 0;
-        }
-        return this;
-      },
-
-      /**
-       * Save current navigation state
-       * @returns {Navigation}
-       */
-      save: function () {
-
-        savedNavs.push({
-          navCur: navCur,
-          area_selector: this.area_selector,
-          higlight_class: this.higlight_class,
-          $container: this.$container
-        });
-        return this;
-      },
-
-      /**
-       * Restore navigation state
-       * @returns {Navigation}
-       */
-      restore: function () {
-        if ( savedNavs.length ) {
-          this.off();
-          var foo = savedNavs.pop();
-          this.area_selector = foo.area_selector;
-          this.higlight_class = foo.higlight_class;
-          this.on(foo.$container, foo.navCur);
-        }
-
-        return this;
-      },
-
-      /**
-       * Setting focus on element
-       * @param element {*} - HTMLElement, selector or Jquery object
-       * @param originEvent {string} - event source(nav_key, mousemove, voice etc.)
-       * @return {Navigation}
-       */
-      current: function ( element, originEvent ) {
-        if ( !element ) {
-          return navCur;
-        }
-
-        originEvent = originEvent || 'nav_key';
-
-        var $el = $(element);
-        if ( $el.is(this.phantom_selector) ) {
-          $el = $($($el.attr('data-nav-phantom'))[0]);
-        }
-        if ( $el.length > 1 ) {
-          throw new Error('Focused element must be only one!');
-        }
-        if ( !$el.length ) {
-          return this;
-        }
-        var old = navCur;
-        if ( navCur ) {
-          navCur.removeClass(this.higlight_class).trigger('nav_blur', [originEvent, $el]);
-        }
-
-        navCur = $el;
-
-        $el.addClass(this.higlight_class).trigger('nav_focus', [originEvent, old]);
-        return this;
-      },
-
-      /**
-       * Turn on navigation in container, turn off previous navigation
-       * @param container - HTMLElement, selector or Jquery object (body by default)
-       * @param cur - HTMLElement, selector or Jquery object(first nav el by default)
-       * @return {Navigation}
-       */
-      on: function ( container, cur ) {
-
-        var self = this,
-          $navTypeEls;
-
-        $body = $body || $(document.body);
-
-        this.off();
-
-        this.$container = container ? $(container) : $body;
-
-        if ( SB.platform != 'philips' ) {
-          this.$container.on('mouseenter.nav', this.area_selector, function ( e ) {
-            if ( !$(this).is(self.phantom_selector) ) {
-              self.current(this, 'mouseenter');
-            }
-          });
-        }
-
-        $navTypeEls = this.$container.find('[data-nav_type]');
-
-        if ( this.$container.attr('data-nav_type') ) {
-          $navTypeEls = $navTypeEls.add(this.$container);
-        }
-
-        $navTypeEls.each(function () {
-          var $el = $(this);
-          var navType = $el.attr("data-nav_type");
-          $el.removeAttr('data-nav_type');
-          //self.setLoop($el);
-          var loop = $el.attr("data-nav_loop");
-
-          self.siblingsTypeNav($el, navType, loop);
-        });
-
-        $body
-          .bind('keydown.navigation', onKeyDown)
-          .bind('nav_key:enter.navigation', onClick);
-
-        if ( !cur ) {
-          cur = this.$container.find(this.area_selector).filter(':visible')[0];
-        }
-        this.current(cur);
-        return this;
-      },
-
-      siblingsTypeNav: function ( $container, type, loop ) {
-        var self = this;
-        $container.on('nav_key:left nav_key:right nav_key:up nav_key:down', this.area_selector,
-          function ( e ) {
-            var last = 'last',
-              cur = self.current(),
-              next,
-              fn;
-
-            //check if direction concur with declared
-            if ( (type == 'hbox' && e.keyName == 'left') ||
-                 (type == 'vbox' && e.keyName == 'up') ) {
-              fn = 'prev';
-            } else if ( (type == 'hbox' && e.keyName == 'right') ||
-                        (type == 'vbox' && e.keyName == 'down') ) {
-              fn = 'next';
-            }
-
-            if ( fn == 'next' ) {
-              last = 'first';
-            }
-
-            if ( fn ) {
-              next = cur[fn](self.area_selector);
-
-              while ( next.length && !next.is(':visible') ) {
-                next = next[fn](self.area_selector);
-              }
-
-              if ( !next.length && loop ) {
-                next = $container.find(self.area_selector).filter(':visible')[last]();
-              }
-
-              if ( next.length ) {
-                nav.current(next);
-                return false;
-              }
-            }
-          });
-      },
-
-      /**
-       * Turn off navigation from container, disable navigation from current element
-       * @return {Navigation}
-       */
-      off: function () {
-        if ( navCur ) {
-          navCur.removeClass(this.higlight_class).trigger('nav_blur');
-        }
-        this.$container && this.$container.off('mouseenter.nav').off('.loop');
-        $body.unbind('.navigation');
-        navCur = null;
-        return this;
-      },
-
-      /**
-       * Find first nav el & set navigation on them
-       */
-      findSome: function () {
-        var cur;
-
-        if ( !(navCur && navCur.is(':visible')) ) {
-          cur = this.$container.find(this.area_selector).filter(':visible').eq(0);
-          this.current(cur);
-        }
-
-        return this;
-      },
-
-      /**
-       * Find closest to $el element by dir direction
-       * @param $el {jQuery} - source element
-       * @param dir {string} - direction up, right, down, left
-       * @param navs {jQuery} - object, contains elements to search
-       * @returns {*}
-       */
-      findNav: function ( $el, dir, navs ) {
-        var user_defined = this.checkUserDefined($el, dir);
-
-        if ( user_defined ) {
-          if (user_defined === 'none') {
-            return false;
-          } else {
-            return user_defined;
-          }
-        }
-
-        var objBounds = $el[0].getBoundingClientRect(),
-          arr = [],
-          curBounds = null,
-          cond1, cond2, i , l;
-
-        for ( i = 0, l = navs.length; i < l; i++ ) {
-          curBounds = navs[i].getBoundingClientRect();
-
-          if ( curBounds.left == objBounds.left &&
-               curBounds.top == objBounds.top ) {
-            continue;
-          }
-
-          switch ( dir ) {
-            case 'left':
-              cond1 = objBounds.left > curBounds.left;
-              break;
-            case 'right':
-              cond1 = objBounds.right < curBounds.right;
-              break;
-            case 'up':
-              cond1 = objBounds.top > curBounds.top;
-              break;
-            case 'down':
-              cond1 = objBounds.bottom < curBounds.bottom;
-              break;
-            default:
-              break;
-          }
-
-          if ( cond1 ) {
-            arr.push({
-              'obj': navs[i],
-              'bounds': curBounds
-            });
-          }
-        }
-
-        var min_dy = 9999999, min_dx = 9999999, min_d = 9999999, max_intersection = 0;
-        var dy = 0, dx = 0, d = 0;
-
-        function isIntersects ( b1, b2, dir ) {
-          var temp = null;
-          switch ( dir ) {
-            case 'left':
-            case 'right':
-              if ( b1.top > b2.top ) {
-                temp = b2;
-                b2 = b1;
-                b1 = temp;
-              }
-              if ( b1.bottom > b2.top ) {
-                if ( b1.top > b2.right ) {
-                  return b2.top - b1.right;
-                }
-                else {
-                  return b2.height;
-                }
-              }
-              break;
-            case 'up':
-            case 'down':
-              if ( b1.left > b2.left ) {
-                temp = b2;
-                b2 = b1;
-                b1 = temp;
-              }
-              if ( b1.right > b2.left ) {
-                if ( b1.left > b2.right ) {
-                  return b2.left - b1.right;
-                }
-                else {
-                  return b2.width;
-                }
-              }
-              break;
-            default:
-              break;
-          }
-          return false;
-        }
-
-        var intersects_any = false;
-        var found = false;
-
-        for ( i = 0, l = arr.length; i < l; i++ ) {
-          if ( !this.checkEntryPoint(arr[i].obj, dir) ) {
-            continue;
-          }
-
-          var b = arr[i].bounds;
-          var intersects = isIntersects(objBounds, b, dir);
-          dy = Math.abs(b.top - objBounds.top);
-          dx = Math.abs(b.left - objBounds.left);
-          d = Math.sqrt(dy * dy + dx * dx);
-          if ( intersects_any && !intersects ) {
-            continue;
-          }
-          if ( intersects && !intersects_any ) {
-            min_dy = dy;
-            min_dx = dx;
-            max_intersection = intersects;
-            found = arr[i].obj;
-            intersects_any = true;
-            continue;
-          }
-
-          switch ( dir ) {
-            case 'left':
-            case 'right':
-              if ( intersects_any ) {
-                cond2 = dx < min_dx || (dx == min_dx && dy < min_dy);
-              }
-              else {
-                cond2 = dy < min_dy || (dy == min_dy && dx < min_dx);
-              }
-              break;
-            case 'up':
-            case 'down':
-              if ( intersects_any ) {
-                cond2 = dy < min_dy || (dy == min_dy && dx < min_dx);
-              }
-              else {
-                cond2 = dx < min_dx || (dx == min_dx && dy < min_dy);
-              }
-              break;
-            default:
-              break;
-          }
-          if ( cond2 ) {
-            min_dy = dy;
-            min_dx = dx;
-            min_d = d;
-            found = arr[i].obj;
-          }
-        }
-
-        return found;
-      },
-
-      /**
-       * Return element defied by user
-       * Если юзером ничего не определено или направление равно 0, то возвращает false
-       * Если направление определено как none, то переход по этому направлению запрещен
-       *
-       * @param $el - current element
-       * @param dir - direction
-       * @returns {*}
-       */
-      checkUserDefined: function ( $el, dir ) {
-          var ep = $el.data('nav_ud'),
-              result = false,
-              res = $el.data('nav_ud_' + dir);
-          if (!ep && !res) {
-              return false;
-          }
-
-          if ( !res ) {
-              var sides = ep.split(','),
-                  dirs = ['up', 'right', 'down', 'left'];
-              if(sides.length !== 4) {
-                  return false;
-              }
-
-              $el.data({
-                  'nav_ud_up': sides[0],
-                  'nav_ud_right': sides[1],
-                  'nav_ud_down': sides[2],
-                  'nav_ud_left': sides[3]
-              });
-
-              res = sides[dirs.indexOf(dir)];
-          }
-
-          if ( res == 'none' ) {
-              result = 'none';
-          } else if( res == '0' ) {
-              result = false;
-          } else if ( res ) {
-              result = $(res).first();
-          }
-          return result;
-      },
-
-      /**
-       * Проверяет можно ли войти в элемент с определенной стороны.
-       * Работает если у элемента задан атрибут data-nav_ep. Точки входа задаются в атрибуте с помощью 0 и 1 через запятые
-       * 0 - входить нельзя
-       * 1 - входить можно
-       * Стороны указываются в порядке CSS - top, right, bottom, left
-       *
-       * data-nav_ep="0,0,0,0" - в элемент зайти нельзя, поведение такое же как у элемента не являющегося элементом навигации
-       * data-nav_ep="1,1,1,1" - поведение по умолчанию, как без задания этого атрибута
-       * data-nav_ep="0,1,0,0" - в элемент можно зайти справа
-       * data-nav_ep="1,1,0,1" - в элемент нельзя зайти снизу
-       * data-nav_ep="0,1,0,1" - можно зайти слева и справа, но нельзя сверху и снизу
-       *
-       * @param elem -  проверяемый элемент
-       * @param dir - направление
-       * @returns {boolean}
-       */
-      checkEntryPoint: function ( elem, dir ) {
-        var $el = $(elem),
-          ep = $el.attr('data-nav_ep'),
-          res = null;
-
-        if ( !ep ) {
-          return true;
-        }
-
-        res = $el.attr('data-nav_ep_' + dir);
-
-        if ( res === undefined ) {
-          var sides = ep.split(',');
-          $el.attr('data-nav_ep_top', sides[0]);
-          $el.attr('data-nav_ep_right', sides[1]);
-          $el.attr('data-nav_ep_bottom', sides[2]);
-          $el.attr('data-nav_ep_left', sides[3]);
-          res = $el.attr('data-nav_ep_' + dir);
-        }
-
-        return !!parseInt(res);
-      }
-    };
-  }
-
-  nav = window.$$nav = new Navigation();
-
-  $(function () {
-    // Navigation events handler
-    $(document.body).bind('nav_key:left nav_key:right nav_key:up nav_key:down', function ( e ) {
-      var cur = nav.current(),
-        $navs,
-        n;
-
-      $navs = nav.$container.find(nav.area_selector).filter(':visible');
-      n = nav.findNav(cur, e.keyName, $navs);
-      n && nav.current(n);
     });
-  });
+
+    function Navigation () {
+
+
+        // for methods save и restore
+        var savedNavs = [],
+
+        // object for store throttled color keys  methods
+            throttledMethods = {},
+
+        // current el in focus
+            navCur = null,
+
+        // arrays
+            numsKeys = ['n0', 'n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8', 'n9'],
+            colorKeys = ['green', 'red', 'yellow', 'blue'],
+
+        // pause counter
+            paused = 0;
+
+        function onKeyDown ( e ) {
+            var key,
+                data = {},
+                keyCode = e.keyCode;
+
+            if ( paused || !navCur ) {
+                return;
+            }
+
+            key = invertedKeys[keyCode];
+            if ( key ) {
+                if ( colorKeys.indexOf(key) > -1 ) {
+                    throttleEvent(key);
+                } else {
+                    if ( numsKeys.indexOf(key) > -1 ) {
+                        data.num = key[1];
+                        key = 'num';
+                    }
+
+                    triggerKeyEvent(key, data);
+                }
+            }
+        }
+
+        /**
+         * 'nav_key:' event trigger
+         * @param key key name
+         * @param data event data
+         */
+        function triggerKeyEvent ( key, data ) {
+            var ev,
+                commonEvent;
+            if ( navCur ) {
+                ev = $.Event("nav_key:" + key, data || {});
+                commonEvent = $.Event("nav_key");
+
+                ev.keyName = key;
+                commonEvent.keyName = key;
+                navCur.trigger(ev);
+                //первый trigger мог уже сменить текщий элемент
+                navCur && navCur.trigger(commonEvent);
+            }
+        }
+
+        function throttleEvent ( key ) {
+            var keyMethod = throttledMethods[key];
+
+            // lazy init
+            if ( !keyMethod ) {
+                keyMethod = throttledMethods[key] = _.throttle(function () {
+                    triggerKeyEvent(key);
+                }, 800, {
+                    leading: true
+                });
+            }
+
+            keyMethod(key);
+        }
+
+        /**
+         * trigger click on current element
+         */
+        function onClick () {
+            navCur && navCur.click();
+        }
+
+        return {
+
+            // nav els selector
+            area_selector: '.nav-item',
+
+            /**
+             * Current el class
+             * @type {string}
+             */
+            higlight_class: 'focus',
+
+            /**
+             * navigation container
+             * @type {jQuery}
+             */
+            $container: null,
+
+            /**
+             * Current looping type
+             * false/hbox/vbox
+             * @type {boolean|string}
+             */
+            loopType: null,
+
+            /**
+             * Phantom els selector
+             * @type {string}
+             */
+            phantom_selector: '[data-nav-phantom]',
+
+            /**
+             * Returns current navigation state
+             * @returns {boolean}
+             */
+            isPaused: function () {
+                return !!paused;
+            },
+
+            /**
+             * Stop navigation. Increase pause counter
+             * @returns {Navigation}
+             */
+            pause: function () {
+                paused++;
+                return this;
+            },
+
+            /**
+             * Resume navigation if force or pause counter is zero
+             * @param force {Boolean} force navigation resume
+             * @returns {Navigation}
+             */
+            resume: function ( force ) {
+                paused--;
+                if ( paused < 0 || force ) {
+                    paused = 0;
+                }
+                return this;
+            },
+
+            /**
+             * Save current navigation state
+             * @returns {Navigation}
+             */
+            save: function () {
+
+                savedNavs.push({
+                    navCur: navCur,
+                    area_selector: this.area_selector,
+                    higlight_class: this.higlight_class,
+                    $container: this.$container
+                });
+                return this;
+            },
+
+            /**
+             * Restore navigation state
+             * @returns {Navigation}
+             */
+            restore: function () {
+                if ( savedNavs.length ) {
+                    this.off();
+                    var foo = savedNavs.pop();
+                    this.area_selector = foo.area_selector;
+                    this.higlight_class = foo.higlight_class;
+                    this.on(foo.$container, foo.navCur);
+                }
+
+                return this;
+            },
+
+            /**
+             * Setting focus on element
+             * @param element {*} - HTMLElement, selector or Jquery object
+             * @param originEvent {string} - event source(nav_key, mousemove, voice etc.)
+             * @return {Navigation}
+             */
+            current: function ( element, originEvent ) {
+                if ( !element ) {
+                    return navCur;
+                }
+
+                originEvent = originEvent || 'nav_key';
+
+                var $el = $(element);
+                if ( $el.is(this.phantom_selector) ) {
+                    $el = $($($el.attr('data-nav-phantom'))[0]);
+                }
+                if ( $el.length > 1 ) {
+                    throw new Error('Focused element must be only one!');
+                }
+                if ( !$el.length ) {
+                    return this;
+                }
+                var old = navCur;
+                if ( navCur ) {
+                    navCur.removeClass(this.higlight_class).trigger('nav_blur', [originEvent, $el]);
+                }
+
+                navCur = $el;
+
+                $el.addClass(this.higlight_class).trigger('nav_focus', [originEvent, old]);
+                return this;
+            },
+
+            /**
+             * Turn on navigation in container, turn off previous navigation
+             * @param container - HTMLElement, selector or Jquery object (body by default)
+             * @param cur - HTMLElement, selector or Jquery object(first nav el by default)
+             * @return {Navigation}
+             */
+            on: function ( container, cur ) {
+
+                var self = this,
+                    $navTypeEls;
+
+                $body = $body || $(document.body);
+
+                this.off();
+
+                this.$container = container ? $(container) : $body;
+
+                if ( SB.platform != 'philips' ) {
+                    this.$container.on('mouseenter.nav', this.area_selector, function ( e ) {
+                        if ( !$(this).is(self.phantom_selector) ) {
+                            self.current(this, 'mouseenter');
+                        }
+                    });
+                }
+
+                $navTypeEls = this.$container.find('[data-nav_type]');
+
+                if ( this.$container.attr('data-nav_type') ) {
+                    $navTypeEls = $navTypeEls.add(this.$container);
+                }
+
+                $navTypeEls.each(function () {
+                    var $el = $(this);
+                    var navType = $el.attr("data-nav_type");
+                    $el.removeAttr('data-nav_type');
+                    //self.setLoop($el);
+                    var loop = $el.attr("data-nav_loop");
+
+                    self.siblingsTypeNav($el, navType, loop);
+                });
+
+                $body
+                    .bind('keydown.navigation', onKeyDown)
+                    .bind('nav_key:enter.navigation', onClick);
+
+                if ( !cur ) {
+                    cur = this.$container.find(this.area_selector).filter(':visible')[0];
+                }
+                this.current(cur);
+                return this;
+            },
+
+            siblingsTypeNav: function ( $container, type, loop ) {
+                var self = this;
+                $container.on('nav_key:left nav_key:right nav_key:up nav_key:down', this.area_selector,
+                    function ( e ) {
+                        var last = 'last',
+                            cur = self.current(),
+                            next,
+                            fn;
+
+                        //check if direction concur with declared
+                        if ( (type == 'hbox' && e.keyName == 'left') ||
+                            (type == 'vbox' && e.keyName == 'up') ) {
+                            fn = 'prev';
+                        } else if ( (type == 'hbox' && e.keyName == 'right') ||
+                            (type == 'vbox' && e.keyName == 'down') ) {
+                            fn = 'next';
+                        }
+
+                        if ( fn == 'next' ) {
+                            last = 'first';
+                        }
+
+                        if ( fn ) {
+                            next = cur[fn](self.area_selector);
+
+                            while ( next.length && !next.is(':visible') ) {
+                                next = next[fn](self.area_selector);
+                            }
+
+                            if ( !next.length && loop ) {
+                                next = $container.find(self.area_selector).filter(':visible')[last]();
+                            }
+
+                            if ( next.length ) {
+                                nav.current(next);
+                                return false;
+                            }
+                        }
+                    });
+            },
+
+            /**
+             * Turn off navigation from container, disable navigation from current element
+             * @return {Navigation}
+             */
+            off: function () {
+                if ( navCur ) {
+                    navCur.removeClass(this.higlight_class).trigger('nav_blur');
+                }
+                this.$container && this.$container.off('mouseenter.nav').off('.loop');
+                $body.unbind('.navigation');
+                navCur = null;
+                return this;
+            },
+
+            /**
+             * Find first nav el & set navigation on them
+             */
+            findSome: function () {
+                var cur;
+
+                if ( !(navCur && navCur.is(':visible')) ) {
+                    cur = this.$container.find(this.area_selector).filter(':visible').eq(0);
+                    this.current(cur);
+                }
+
+                return this;
+            },
+
+            /**
+             * Find closest to $el element by dir direction
+             * @param $el {jQuery} - source element
+             * @param dir {string} - direction up, right, down, left
+             * @param navs {jQuery} - object, contains elements to search
+             * @returns {*}
+             */
+            findNav: function ( $el, dir, navs ) {
+                var user_defined = this.checkUserDefined($el, dir);
+
+                if ( user_defined ) {
+                    if (user_defined === 'none') {
+                        return false;
+                    } else {
+                        return user_defined;
+                    }
+                }
+
+                var objBounds = $el[0].getBoundingClientRect(),
+                    arr = [],
+                    curBounds = null,
+                    cond1, cond2, i , l;
+
+                for ( i = 0, l = navs.length; i < l; i++ ) {
+                    curBounds = navs[i].getBoundingClientRect();
+
+                    if ( curBounds.left == objBounds.left &&
+                        curBounds.top == objBounds.top ) {
+                        continue;
+                    }
+
+                    switch ( dir ) {
+                        case 'left':
+                            cond1 = objBounds.left > curBounds.left;
+                            break;
+                        case 'right':
+                            cond1 = objBounds.right < curBounds.right;
+                            break;
+                        case 'up':
+                            cond1 = objBounds.top > curBounds.top;
+                            break;
+                        case 'down':
+                            cond1 = objBounds.bottom < curBounds.bottom;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if ( cond1 ) {
+                        arr.push({
+                            'obj': navs[i],
+                            'bounds': curBounds
+                        });
+                    }
+                }
+
+                var min_dy = 9999999, min_dx = 9999999, min_d = 9999999, max_intersection = 0;
+                var dy = 0, dx = 0, d = 0;
+
+                function isIntersects ( b1, b2, dir ) {
+                    var temp = null;
+                    switch ( dir ) {
+                        case 'left':
+                        case 'right':
+                            if ( b1.top > b2.top ) {
+                                temp = b2;
+                                b2 = b1;
+                                b1 = temp;
+                            }
+                            if ( b1.bottom > b2.top ) {
+                                if ( b1.top > b2.right ) {
+                                    return b2.top - b1.right;
+                                }
+                                else {
+                                    return b2.height;
+                                }
+                            }
+                            break;
+                        case 'up':
+                        case 'down':
+                            if ( b1.left > b2.left ) {
+                                temp = b2;
+                                b2 = b1;
+                                b1 = temp;
+                            }
+                            if ( b1.right > b2.left ) {
+                                if ( b1.left > b2.right ) {
+                                    return b2.left - b1.right;
+                                }
+                                else {
+                                    return b2.width;
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    return false;
+                }
+
+                var intersects_any = false;
+                var found = false;
+
+                for ( i = 0, l = arr.length; i < l; i++ ) {
+                    if ( !this.checkEntryPoint(arr[i].obj, dir) ) {
+                        continue;
+                    }
+
+                    var b = arr[i].bounds;
+                    var intersects = isIntersects(objBounds, b, dir);
+                    dy = Math.abs(b.top - objBounds.top);
+                    dx = Math.abs(b.left - objBounds.left);
+                    d = Math.sqrt(dy * dy + dx * dx);
+                    if ( intersects_any && !intersects ) {
+                        continue;
+                    }
+                    if ( intersects && !intersects_any ) {
+                        min_dy = dy;
+                        min_dx = dx;
+                        max_intersection = intersects;
+                        found = arr[i].obj;
+                        intersects_any = true;
+                        continue;
+                    }
+
+                    switch ( dir ) {
+                        case 'left':
+                        case 'right':
+                            if ( intersects_any ) {
+                                cond2 = dx < min_dx || (dx == min_dx && dy < min_dy);
+                            }
+                            else {
+                                cond2 = dy < min_dy || (dy == min_dy && dx < min_dx);
+                            }
+                            break;
+                        case 'up':
+                        case 'down':
+                            if ( intersects_any ) {
+                                cond2 = dy < min_dy || (dy == min_dy && dx < min_dx);
+                            }
+                            else {
+                                cond2 = dx < min_dx || (dx == min_dx && dy < min_dy);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    if ( cond2 ) {
+                        min_dy = dy;
+                        min_dx = dx;
+                        min_d = d;
+                        found = arr[i].obj;
+                    }
+                }
+
+                return found;
+            },
+
+            /**
+             * Return element defied by user
+             * Если юзером ничего не определено или направление равно 0, то возвращает false
+             * Если направление определено как none, то переход по этому направлению запрещен
+             *
+             * @param $el - current element
+             * @param dir - direction
+             * @returns {*}
+             */
+            checkUserDefined: function ( $el, dir ) {
+                var ep = $el.data('nav_ud'),
+                    result = false,
+                    res = $el.data('nav_ud_' + dir);
+                if (!ep && !res) {
+                    return false;
+                }
+
+                if ( !res ) {
+                    var sides = ep.split(','),
+                        dirs = ['up', 'right', 'down', 'left'];
+                    if(sides.length !== 4) {
+                        return false;
+                    }
+
+                    $el.data({
+                        'nav_ud_up': sides[0],
+                        'nav_ud_right': sides[1],
+                        'nav_ud_down': sides[2],
+                        'nav_ud_left': sides[3]
+                    });
+
+                    res = sides[dirs.indexOf(dir)];
+                }
+
+                if ( res == 'none' ) {
+                    result = 'none';
+                } else if( res == '0' ) {
+                    result = false;
+                } else if ( res ) {
+                    result = $(res).first();
+                }
+                return result;
+            },
+
+            /**
+             * Проверяет можно ли войти в элемент с определенной стороны.
+             * Работает если у элемента задан атрибут data-nav_ep. Точки входа задаются в атрибуте с помощью 0 и 1 через запятые
+             * 0 - входить нельзя
+             * 1 - входить можно
+             * Стороны указываются в порядке CSS - top, right, bottom, left
+             *
+             * data-nav_ep="0,0,0,0" - в элемент зайти нельзя, поведение такое же как у элемента не являющегося элементом навигации
+             * data-nav_ep="1,1,1,1" - поведение по умолчанию, как без задания этого атрибута
+             * data-nav_ep="0,1,0,0" - в элемент можно зайти справа
+             * data-nav_ep="1,1,0,1" - в элемент нельзя зайти снизу
+             * data-nav_ep="0,1,0,1" - можно зайти слева и справа, но нельзя сверху и снизу
+             *
+             * @param elem -  проверяемый элемент
+             * @param dir - направление
+             * @returns {boolean}
+             */
+            checkEntryPoint: function ( elem, dir ) {
+                var $el = $(elem),
+                    ep = $el.attr('data-nav_ep'),
+                    res = null;
+
+                if ( !ep ) {
+                    return true;
+                }
+
+                res = $el.attr('data-nav_ep_' + dir);
+
+                if ( res === undefined ) {
+                    var sides = ep.split(',');
+                    $el.attr('data-nav_ep_top', sides[0]);
+                    $el.attr('data-nav_ep_right', sides[1]);
+                    $el.attr('data-nav_ep_bottom', sides[2]);
+                    $el.attr('data-nav_ep_left', sides[3]);
+                    res = $el.attr('data-nav_ep_' + dir);
+                }
+
+                return !!parseInt(res);
+            }
+        };
+    }
+
+    nav = window.$$nav = new Navigation();
+
+    $(function () {
+        // Navigation events handler
+        $(document.body).bind('nav_key:left nav_key:right nav_key:up nav_key:down', function ( e ) {
+            var cur = nav.current(),
+                $navs,
+                n;
+
+            $navs = nav.$container.find(nav.area_selector).filter(':visible');
+            n = nav.findNav(cur, e.keyName, $navs);
+            n && nav.current(n);
+        });
+    });
 
 })(this);
 /**
@@ -2877,9 +2878,9 @@ $(function () {
                 }
                 else {
                     $buble.append('<div class="voice_group_head">' + group + '</div>' +
-                        '<div class="voice_group_body" id="voice_group_body_' + groupNames[group] + '">' +
-                        '<div class="voice_help_item">' + commands + '</div>' +
-                        '</div>');
+                    '<div class="voice_group_body" id="voice_group_body_' + groupNames[group] + '">' +
+                    '<div class="voice_help_item">' + commands + '</div>' +
+                    '</div>');
                 }
             }
 
@@ -2948,14 +2949,14 @@ SB.readyForPlatform('browser', function () {
             this.$video_container.on('loadstart',function (e) {
                 self.trigger('bufferingBegin');
             }).on('playing',function () {
-                    self.trigger('bufferingEnd');
-                }).on('timeupdate',function () {
-                    self.videoInfo.currentTime = video.currentTime;
-                    self.trigger('update');
-                }).on('ended', function () {
-                    self.state = "stop";
-                    self.trigger('complete');
-                });
+                self.trigger('bufferingEnd');
+            }).on('timeupdate',function () {
+                self.videoInfo.currentTime = video.currentTime;
+                self.trigger('update');
+            }).on('ended', function () {
+                self.state = "stop";
+                self.trigger('complete');
+            });
 
 
             this.$video_container.on('abort canplay canplaythrough canplaythrough durationchange emptied ended error loadeddata loadedmetadata loadstart mozaudioavailable pause play playing ratechange seeked seeking suspend volumechange waiting', function (e) {
@@ -3139,18 +3140,7 @@ SB.createPlatform('browser', {
             this.DUID = 'FIREFOXISBEST';
         }
         return this.DUID;
-    },
-
-    volumeUp: function () {
-    },
-
-    volumeDown: function () {
-    },
-
-    getVolume: function () {
     }
-
-
 });
 
 (function ($) {
@@ -3529,37 +3519,42 @@ SB.readyForPlatform('mag', function () {
 
             stb = window.gSTB;
 
+            // prohibition of keyboard showing on click keyboard button
+            stb.EnableVKButton(false);
+
             window.moveTo(0, 0);
             window.resizeTo(1280, 720);
 
             SB(function () {
-              var $body = $(document.body);
-              $body.on('nav_key:power', function () {
-                var eventName = 'standby_';
-                isStandBy = !isStandBy;
+                var $body = $(document.body);
+                $body.on('nav_key:power', function () {
+                    var eventName = 'standby_';
+                    isStandBy = !isStandBy;
 
-                eventName += isStandBy ? 'set' : 'unset';
-                stb.StandBy(isStandBy);
+                    eventName += isStandBy ? 'set' : 'unset';
+                    stb.StandBy(isStandBy);
 
-                // TODO: trigger events on SB
-                $$log('trigger standby event ' + eventName, 'standby');
-                $body.trigger(eventName);
-              });
+                    // TODO: trigger events on SB
+                    $$log('trigger standby event ' + eventName, 'standby');
+                    $body.trigger(eventName);
+                });
             });
 
-
             window.localStorage = {
-                setItem: function (name, data) {
-
+                setItem: function ( name, data ) {
+                    if (typeof data === 'object') {
+                        data = JSON.stringify(data);
+                    }
+                    stb.SaveUserData(name, data);
                 },
                 clear: function () {
 
                 },
-                getItem: function () {
-
+                getItem: function (name) {
+                    return stb.LoadUserData(name);
                 },
-                removeItem: function () {
-
+                removeItem: function (name) {
+                    stb.SaveUserData(name, null);
                 }
             }
         },
@@ -3579,17 +3574,12 @@ SB.readyForPlatform('mag', function () {
             this.exit();
         },
 
+        getMac: function () {
+            return stb.GetDeviceMacAddress();
+        },
+
         getNativeDUID: function () {
-
-        },
-
-        volumeUp: function () {
-        },
-
-        volumeDown: function () {
-        },
-
-        getVolume: function () {
+            return stb.GetDeviceSerialNumber();
         }
     });
 
@@ -3737,76 +3727,76 @@ SB.createPlatform('philips', {
 });
 (function () {
 
-	var localStorage = window.localStorage,
-		fileSysObj,
-		commonDir,
-		fileName,
-		fileObj;
+    var localStorage = window.localStorage,
+        fileSysObj,
+        commonDir,
+        fileName,
+        fileObj;
 
-	//if Samsung 11
+    //if Samsung 11
 
-	if (_.isFunction(window.FileSystem)) {
+    if (_.isFunction(window.FileSystem)) {
 
-		fileSysObj = new FileSystem();
-		commonDir = fileSysObj.isValidCommonPath(curWidget.id);
+        fileSysObj = new FileSystem();
+        commonDir = fileSysObj.isValidCommonPath(curWidget.id);
 
-		if ( !commonDir ) {
-			fileSysObj.createCommonDir(curWidget.id);
-		}
-		fileName = curWidget.id + "_localStorage.db";
-		fileObj = fileSysObj.openCommonFile(fileName, "r+");
+        if ( !commonDir ) {
+            fileSysObj.createCommonDir(curWidget.id);
+        }
+        fileName = curWidget.id + "_localStorage.db";
+        fileObj = fileSysObj.openCommonFile(fileName, "r+");
 
-		if ( fileObj ) {
-			try {
-				JSON.parse(fileObj.readAll());
-			} catch (e) {
-				localStorage && localStorage.clear();
-			}
-		} else {
-			fileObj = fileSysObj.openCommonFile(fileName, "w");
-			fileObj.writeAll("{}");
-		}
-		fileSysObj.closeCommonFile(fileObj);
+        if ( fileObj ) {
+            try {
+                JSON.parse(fileObj.readAll());
+            } catch (e) {
+                localStorage && localStorage.clear();
+            }
+        } else {
+            fileObj = fileSysObj.openCommonFile(fileName, "w");
+            fileObj.writeAll("{}");
+        }
+        fileSysObj.closeCommonFile(fileObj);
 
-		if ( !localStorage) {
-			var lStorage = {},
-				changed = false;
+        if ( !localStorage) {
+            var lStorage = {},
+                changed = false;
 
-			var saveStorage = _.debounce(function saveStorage() {
-				if (changed) {
-					fileObj = fileSysObj.openCommonFile(fileName, "w");
-					fileObj.writeAll(JSON.stringify(window.localStorage));
-					fileSysObj.closeCommonFile(fileObj);
-					changed = false;
-				}
-			},100);
+            var saveStorage = _.debounce(function saveStorage() {
+                if (changed) {
+                    fileObj = fileSysObj.openCommonFile(fileName, "w");
+                    fileObj.writeAll(JSON.stringify(window.localStorage));
+                    fileSysObj.closeCommonFile(fileObj);
+                    changed = false;
+                }
+            },100);
 
 
-			lStorage.setItem = function ( key, value ) {
-				changed = true;
-				this[key] = value;
-				saveStorage();
-				return this[key];
-			};
-			lStorage.getItem = function ( key ) {
-				return this[key];
-			};
-			lStorage.removeItem = function ( key ) {
-				delete this[key];
-				saveStorage();
-			};
-			lStorage.clear = function () {
-				var self = this;
-				for ( var key in self ) {
-					if ( typeof self[key] != 'function' ) {
-						delete self[key];
-					}
-				}
-				saveStorage();
-			};
-			window.localStorage = lStorage;
-		}
-	}
+            lStorage.setItem = function ( key, value ) {
+                changed = true;
+                this[key] = value;
+                saveStorage();
+                return this[key];
+            };
+            lStorage.getItem = function ( key ) {
+                return this[key];
+            };
+            lStorage.removeItem = function ( key ) {
+                delete this[key];
+                saveStorage();
+            };
+            lStorage.clear = function () {
+                var self = this;
+                for ( var key in self ) {
+                    if ( typeof self[key] != 'function' ) {
+                        delete self[key];
+                    }
+                }
+                saveStorage();
+            };
+            window.localStorage = lStorage;
+        }
+    }
 }());
 SB.readyForPlatform('samsung', function () {
     var curAudio = 0,
@@ -4069,7 +4059,7 @@ SB.readyForPlatform('samsung', function () {
          * id: clsid (DOM element id : CLSID)
          * @type {{object}}
          */
-            plugins = {
+        plugins = {
             audio: 'SAMSUNG-INFOLINK-AUDIO',
             pluginObjectTV: 'SAMSUNG-INFOLINK-TV',
             pluginObjectTVMW: 'SAMSUNG-INFOLINK-TVMW',
@@ -4136,11 +4126,11 @@ SB.readyForPlatform('samsung', function () {
         },
 
         setPlugins: function () {
-          var self = this,
-            PL_NNAVI_STATE_BANNER_NONE = 0,
-            PL_NNAVI_STATE_BANNER_VOL = 1,
-            PL_NNAVI_STATE_BANNER_VOL_CH = 2,
-            tvKey;
+            var self = this,
+                PL_NNAVI_STATE_BANNER_NONE = 0,
+                PL_NNAVI_STATE_BANNER_VOL = 1,
+                PL_NNAVI_STATE_BANNER_VOL_CH = 2,
+                tvKey;
 
             _.each(plugins, function (clsid, id) {
                 self.$plugins[id] = document.getElementById(id);
@@ -4166,15 +4156,15 @@ SB.readyForPlatform('samsung', function () {
             this.setKeys();
 
             if(this.pluginAPI.SetBannerState){
-              NNAVIPlugin.SetBannerState(PL_NNAVI_STATE_BANNER_VOL_CH);
+                NNAVIPlugin.SetBannerState(PL_NNAVI_STATE_BANNER_VOL_CH);
             }
 
             function unregisterKey(key){
-              try{
-                self.pluginAPI.unregistKey(tvKey['KEY_'+key]);
-              }catch(e){
-                $$error(e);
-              }
+                try{
+                    self.pluginAPI.unregistKey(tvKey['KEY_'+key]);
+                }catch(e){
+                    $$error(e);
+                }
             }
 
             unregisterKey('VOL_UP');
@@ -4189,23 +4179,23 @@ SB.readyForPlatform('samsung', function () {
          */
         setKeys: function () {
 
-          this.keys = sf.key;
+            this.keys = sf.key;
 
-          document.body.onkeydown = function ( event ) {
-            var keyCode = event.keyCode;
-            $$log('keyDown ' + keyCode);
+            document.body.onkeydown = function ( event ) {
+                var keyCode = event.keyCode;
+                $$log('keyDown ' + keyCode);
 
-            switch ( keyCode ) {
-              case sf.key.RETURN:
-              //case sf.key.EXIT:
-              case 147:
-              case 261:
-                sf.key.preventDefault();
-                break;
-              default:
-                break;
+                switch ( keyCode ) {
+                    case sf.key.RETURN:
+                    //case sf.key.EXIT:
+                    case 147:
+                    case 261:
+                        sf.key.preventDefault();
+                        break;
+                    default:
+                        break;
+                }
             }
-          }
         },
 
         /**
@@ -4260,13 +4250,13 @@ SB.readyForPlatform('samsung', function () {
                 case "EVENT_VOICE_BTSOUND_START":
                     //this.updateVoiceKeyHelp();
                     /*if (paused) {
-                        break;
-                    }
-                    $('body').trigger('voiceStart');
-                    if (helperWasShowed < defaults.showHelperTimes) {
-                        helperWasShowed++;
-                        $helpBubble.html(defaults.helpText).show();
-                    }*/
+                     break;
+                     }
+                     $('body').trigger('voiceStart');
+                     if (helperWasShowed < defaults.showHelperTimes) {
+                     helperWasShowed++;
+                     $helpBubble.html(defaults.helpText).show();
+                     }*/
 
 
                     $$voice.refresh();
@@ -4274,9 +4264,9 @@ SB.readyForPlatform('samsung', function () {
                     $$voice._resetVisibilityTimeout();
 
                     /*
-                    if ($curTarget) {
-                        doAll.call($curTarget, curOptions);
-                    }*/
+                     if ($curTarget) {
+                     doAll.call($curTarget, curOptions);
+                     }*/
                     break;
                 case "EVENT_VOICE_RECOG_RESULT":
 

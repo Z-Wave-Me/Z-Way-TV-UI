@@ -2,8 +2,8 @@
     "use strict";
 
     Backbone.sync = function (method, model, options) {
-        console.log('-- SYNC --');
-        console.log(model.toJSON());
+        //console.log('-- SYNC --');
+        //console.log(model.toJSON());
 
         var methodMap = { 'create': 'POST', 'update': 'PUT', 'delete': 'DELETE', 'read': 'GET' },
             type = methodMap[method],

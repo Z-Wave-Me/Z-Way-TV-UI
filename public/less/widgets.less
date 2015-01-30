@@ -32,8 +32,11 @@
       display: inline;
     }
     .onoffswitch {
-      position: relative; width: 123px;
-      -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+      position: relative;
+      width: 123px;
+      -webkit-user-select:none;
+      -moz-user-select:none;
+      -ms-user-select: none;
       margin-top: 13px;
       display: none;
       .onoffswitch-checkbox {
@@ -41,10 +44,13 @@
       }
       .onoffswitch-label {
         display: block; overflow: hidden; cursor: pointer;
-        border: 2px solid #FFFFFF; border-radius: 24px;
+        border-radius: 24px;
+        border: 2px solid #A2A7A6;
+        background: #A2A7A6;
       }
       .onoffswitch-inner {
-        width: 200%; margin-left: -100%;
+        width: 200%;
+        margin-left: -100%;
         -moz-transition: margin 0.3s ease-in 0s; -webkit-transition: margin 0.3s ease-in 0s;
         -o-transition: margin 0.3s ease-in 0s; transition: margin 0.3s ease-in 0s;
       }
@@ -65,9 +71,11 @@
         text-align: right;
       }
       .onoffswitch-switch {
-        width: 25px; margin: 6.5px;
+        width: 36px;
+        height: 36px;
+        margin: 3px;
         background: #FFFFFF;
-        border: 2px solid #FFFFFF; border-radius: 24px;
+        border-radius: 50%;
         position: absolute; top: 0; bottom: 0; right: 81px;
         -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
         -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s;
@@ -78,8 +86,24 @@
       .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
         right: 0px;
       }
+      .onoffswitch-checkbox:checked + .onoffswitch-label {
+          border: 2px solid #C0F937;
+          background: #C0F937;
+      }
     }
+    &.doorlock {
+      .onoffswitch-inner:before {
+        content: "OPEN";
+        padding-right: 7px;
+        line-height: 41px;
+      }
+      .onoffswitch-inner:after {
+        content: "CLOSED";
+        padding-right: 7px;
 
+        line-height: 41px;
+      }
+    }
   }
 }
 

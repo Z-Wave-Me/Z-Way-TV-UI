@@ -1,14 +1,14 @@
 (function () {
     "use strict";
 
-    window.App.views.probe = Backbone.View.extend({
+    window.App.views.multilevel = Backbone.View.extend({
 
         el: '.container-devices',
         template:
             '<div class="widget widget-probe just-hidden">' +
                 '<span class="icon icons <%= metrics.icon %> "></span>' +
                 '<span class="title"><%= metrics.title %></span>' +
-                '<span class="metrics"><%= metrics.level %><% if (metrics.scaleTitle !== null) { %> <% metrics.scaleTitle %><% } %></span>' +
+                '<span class="metrics"><%= metrics.level %> <%= metrics.scaleTitle %></span>' +
             '</div>',
 
         initialize: function () {
@@ -41,16 +41,14 @@
                     that.$template.fadeOut('fast');
                 }
             });
+
             that.listenTo(that.model, 'change', function () {
                 var $title = that.$template.find('.title'),
                     $level = that.$template.find('.metrics');
 
-                $title.text(that.model.get('metrics').title);
-                $level.text(that.model.get('metrics').level + ' ' + that.model.get('metrics').scaleTitle || '');
-
                 [
                     ['title', $title, that.model.get('metrics').title],
-                    ['level', $level, that.model.get('metrics').level + ' ' + that.model.get('metrics').scaleTitle || '']
+                    ['level', $level, that.model.get('metrics').level + ' ' + that.model.get('metrics').scaleTitle]
                 ].forEach(function (group) {
                     if (group[1].text() !== group[2]) {
                         group[1].text(group[2]);

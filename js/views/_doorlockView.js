@@ -1,17 +1,17 @@
 (function () {
     "use strict";
 
-    window.App.views.switch = Backbone.View.extend({
+    window.App.views.doorlock = Backbone.View.extend({
 
         el: '.container-devices',
         template:
-            '<div class="widget widget-switch just-hidden">' +
+            '<div class="widget widget-switch doorlock just-hidden">' +
                 '<span class="icon icons <%= metrics.icon %> "></span>' +
                 '<span class="title"><%= metrics.title %></span>' +
                 '<span class="metrics">' +
                     '<span class="text-level"> <%= metrics.level.toUpperCase() %></span>' +
                     '<div class="onoffswitch">' +
-                        '<input type="checkbox" name="<%= id %>-onoffswitch" class="onoffswitch-checkbox" id="<%= id %>-onoffswitch" <% if (metrics.level === "on") { print("checked"); } %>>' +
+                        '<input type="checkbox" name="<%= id %>-onoffswitch" class="onoffswitch-checkbox" id="<%= id %>-onoffswitch" <% if (metrics.level === "open") { print("checked"); } %>>' +
                         '<label class="onoffswitch-label" for="<%= id %>-onoffswitch">' +
                         '<div class="onoffswitch-inner"></div>' +
                         '<div class="onoffswitch-switch"></div>' +
@@ -44,17 +44,17 @@
 
             that.listenTo(that.model, 'change', function () {
                 var $title = that.$template.find('.title'),
-                    $level = that.$template.find('.text-level'),
+                    $mode = that.$template.find('.text-level'),
                     $switchBox = that.$template.find('.onoffswitch-checkbox');
 
                 [
                     ['title', $title, that.model.get('metrics').title],
-                    ['level', $level, that.model.get('metrics').level.toUpperCase()]
+                    ['mode', $mode, that.model.get('metrics').level.toUpperCase()]
                 ].forEach(function (group) {
                     if (group[1].text() !== group[2]) {
                         group[1].text(group[2]);
-                        if (group[0] === 'level') {
-                            if (group[2] === 'ON') {
+                        if (group[0] === 'mode') {
+                            if (group[2] === 'OPEN') {
                                 $switchBox.prop('checked', true);
                             } else {
                                 $switchBox.prop('checked', false);
@@ -62,8 +62,6 @@
                         }
                     }
                 });
-
-
             });
         },
 
@@ -78,15 +76,15 @@
                 $switchBox = that.$template.find('.onoffswitch-checkbox');
 
             if ($switchBox.is(':checked')) {
-                that.model.command('off');
+                that.model.command('open');
                 that.model.set({
-                    metrics: _.extend(that.model.get('metrics'), {level: 'off'})
+                    metrics: _.extend(that.model.get('metrics'), {mode: 'open'})
                 });
                 $switchBox.prop('checked', false);
             } else {
-                that.model.command('on');
+                that.model.command('close');
                 that.model.set({
-                    metrics: _.extend(that.model.get('metrics'), {level: 'on'})
+                    metrics: _.extend(that.model.get('metrics'), {mode: 'closed'})
                 });
                 $switchBox.prop('checked', true);
             }

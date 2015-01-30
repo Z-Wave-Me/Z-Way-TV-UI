@@ -30,11 +30,11 @@
                 } else if (model.get('deviceType') === "fan") {
                     view = new views.probe({model: model});
                 } else if (model.get('deviceType') === "switchMultilevel") {
-                    view = new views.probe({model: model});
+                    view = new views.multilevel({model: model});
                 } else if (model.get('deviceType') === "thermostat") {
                     view = new views.probe({model: model});
                 } else if (model.get('deviceType') === "doorlock") {
-                    view = new views.probe({model: model});
+                    view = new views.doorlock({model: model});
                 } else if (model.get('deviceType') === "switchBinary" || model.get('deviceType') === "switchRGBW") {
                     view = new views.switch({model: model});
                 } else if (model.get('deviceType') === "toggleButton") {
