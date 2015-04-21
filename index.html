@@ -6,83 +6,48 @@
     <meta http-equiv="Content-Type" content="text/html; Charset=UTF-8"/>
     <title>z-wave>me</title>
 
-    <!-- less -->
-    <link rel="stylesheet/less" type="text/css" href="public/less/all.less" />
-
-    <!-- libs -->
-    <script type="text/javascript" src="js/lib/jquery.js"></script>
-    <script type="text/javascript" src="js/lib/less-1.7.0.min.js"></script>
-    <script type="text/javascript" src="js/lib/lodash.js"></script>
-    <script type="text/javascript" src="js/lib/backbone.js"></script>
-    <script type="text/javascript" src="js/lib/smartbox.js"></script>
-
-    <!-- helpers -->
-    <script type="text/javascript" src="js/helpers/bb-sync.js"></script>
-
-    <!-- apps -->
-    <script type="text/javascript" src="js/app.js"></script>
-
-    <!-- models -->
-    <script type="text/javascript" src="js/models/deviceModel.js"></script>
-    <script type="text/javascript" src="js/models/locationModel.js"></script>
-    <script type="text/javascript" src="js/models/profileModel.js"></script>
-
-    <!-- collections -->
-    <script type="text/javascript" src="js/collections/devicesCollection.js"></script>
-    <script type="text/javascript" src="js/collections/locationsCollection.js"></script>
-    <script type="text/javascript" src="js/collections/profilesCollection.js"></script>
-
-    <!-- views -->
-    <script type="text/javascript" src="js/views/_probeView.js"></script>
-    <script type="text/javascript" src="js/views/_switchView.js"></script>
-    <script type="text/javascript" src="js/views/_doorlockView.js"></script>
-    <script type="text/javascript" src="js/views/_multilevelView.js"></script>
-    <script type="text/javascript" src="js/views/devicesView.js"></script>
-    <script type="text/javascript" src="js/views/filterView.js"></script>
-
-    <!-- scenes -->
-    <script type="text/javascript" src="js/legendTriggers.js"></script>
-
+    <link rel="stylesheet" type="text/css" href="build/css/styles.css" />
+    <script type="text/javascript" src="build/js/build.js"></script>
 </head>
 <body>
 
-    <!--for dune-->
-    <object type="application/x-dune-stb-api" id="duneapi"></object>
+<!--for dune-->
+<object type="application/x-dune-stb-api" id="duneapi"></object>
 
-    <!--for better view in browser-->
-    <div class="bg"></div>
+<!--for better view in browser-->
+<div class="bg"></div>
 
-    <div class="wrap">
+<div class="wrap">
 
-        <div class="menu">
-            <div class="logo"></div>
-            <div class="choose-wrapper active-menu">
-                <ul class="menu-items first" data-nav_type="vbox" data-nav_loop="true">
-                    <li data-type='favourites' class="menu-item nav-item">Favourites</li>
-                    <li data-type='rooms' class="menu-item nav-item">Rooms</li>
-                    <li data-type='deviceType' class="menu-item nav-item">Types</li>
-                    <li data-type='tags' class="menu-item nav-item">Tags</li>
-                </ul>
-                <div class="menu-active-field first"></div>
-            </div>
-            <div class="filter-wrapper">
-                <ul class="menu-items second filter-items rooms-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
-                <ul class="menu-items second filter-items deviceType-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
-                <ul class="menu-items second filter-items tags-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
-                <div class="menu-active-field second just-hidden"></div>
-            </div>
+    <div class="menu">
+        <div class="logo"></div>
+        <div class="choose-wrapper active-menu">
+            <ul class="menu-items first" data-nav_type="vbox" data-nav_loop="true">
+                <li data-type='favourites' class="menu-item nav-item">Favourites</li>
+                <li data-type='rooms' class="menu-item nav-item">Rooms</li>
+                <li data-type='deviceType' class="menu-item nav-item">Types</li>
+                <li data-type='tags' class="menu-item nav-item">Tags</li>
+            </ul>
+            <div class="menu-active-field first"></div>
         </div>
-
-        <div class="scenes-wrapper" data-nav_type="vbox" data-nav_loop="true">
-            <div data-type='widget-element' class="scene js-scene-devices nav-item">
-                <div class="container-devices"></div>
-            </div>
-            <div class="border-container"></div>
+        <div class="filter-wrapper">
+            <ul class="menu-items second filter-items rooms-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
+            <ul class="menu-items second filter-items deviceType-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
+            <ul class="menu-items second filter-items tags-items just-hidden" data-nav_type="vbox" data-nav_loop="true"></ul>
+            <div class="menu-active-field second just-hidden"></div>
         </div>
-
     </div>
 
-    <div class="overlay"></div>
+    <div class="scenes-wrapper" data-nav_type="vbox" data-nav_loop="true">
+        <div data-type='widget-element' class="scene js-scene-devices nav-item">
+            <div class="container-devices"></div>
+        </div>
+        <div class="border-container"></div>
+    </div>
+
+</div>
+
+<div class="overlay"></div>
 
 </body>
 </html>

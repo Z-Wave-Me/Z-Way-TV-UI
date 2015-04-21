@@ -1,0 +1,32 @@
+{
+  "globals": {
+    "define": true,
+    "require": true,
+    "Backbone": true,
+    "_": true,
+    "$": true,
+    "SB": true
+  },
+  "maxerr": 50,
+  "camelcase": true,
+  "curly": true,
+  "eqeqeq": true,
+  "forin": true,
+  "indent": 4,
+  "immed": true,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "noempty": true,
+  "quotmark": "single",
+  "regexp": true,
+  "undef": true,
+  "unused": false,
+  "strict": false,
+  "trailing": true,
+  "smarttabs": true,
+  "white": true,
+  "browser": true,
+  "node": true,
+  "jquery": true
+}

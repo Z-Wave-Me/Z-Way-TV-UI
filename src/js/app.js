@@ -1,0 +1,207 @@
+'use strict';
+
+var $ = require('jquery');
+var Backbone = require('backbone');
+Backbone.$ = $;
+
+
+var BackboneSyncHelpers = require('./helpers/bb_sync'),
+    DevicesCollection = require('./collections/devices_collection'),
+    LocationsCollection = require('./collections/locations_collection'),
+    ProfilesCollection = require('./collections/profiles_collection');
+
+// define Backbone.sync
+Backbone.sync = BackboneSyncHelpers;
+
+window.App = {
+    Constants: {
+        API_BASE: '/ZAutomation/api/v1'
+    },
+    currentScene: null,
+    scenes: {
+        devices: {}
+    },
+    views: {
+        devices: {},
+        filters: {}
+    },
+    tags: [],
+    types: [],
+    models: {},
+    collections: {},
+    isShown: true,
+    initialize: function () {
+        var self = this,
+            query = self.getQueryParams(document.location.search);
+
+        //self.apiPort = query.hasOwnProperty('port') ? query.port : window.location.port !== '' ? window.location.port : 8083;
+        //self.apiHost = query.hasOwnProperty('host') ? query.host : window.location.hostname;
+        
+        self.apiPort = 8583;
+        self.apiHost = 'mskoff.z-wave.me';
+
+        self.preFilterAjax();
+
+        // init collections
+        self.devices = new DevicesCollection();
+        self.locations = new LocationsCollection();
+        self.profiles = new ProfilesCollection();
+
+        // views
+        self.devicesView = new self.views.devices({collection: self.devices});
+        self.filtersView = new self.views.filters({
+            devices: self.devices,
+            locations: self.locations,
+            tags: self.tags,
+            types: self.types
+        });
+
+        self.filtersView.render();
+
+        self.setEvents();
+
+        // start navigation
+        $$nav.on();
+
+        // fetch collections
+        self.devices.fetch({
+            success: function () {
+                self.devices.first().set({selected: true});
+                self.locations.fetch();
+                self.profiles.fetch({
+                    remove: false,
+                    merge: true
+                });
+
+                setInterval(function () {
+                    self.devices.fetch({
+                        remove: false,
+                        merge: true
+                    });
+                }, 2000);
+            }
+        });
+    },
+    setEvents: function () {
+        var self = this,
+            $bg = $('.bg'),
+            $sceneWrapper = $('.scenes-wrapper'),
+            selected,
+            index,
+            collection;
+
+        // click on menu item
+        $('.menu').on('nav_focus', '.menu-item', function (e) {
+            var scene = e.currentTarget.getAttribute('data-type'),
+                id = e.currentTarget.getAttribute('data-id');
+
+            $$legend.show();
+            $$legend.clear();
+            self.showContent(scene, id);
+        });
+
+        $sceneWrapper.on('nav_key', function (e) {
+            collection = self.devices.where({show: true});
+            selected = self.devices.findWhere({show: true, selected: true});
+            index = selected ? collection.indexOf(selected) : 0;
+
+            if (e.keyName === 'down' || e.keyName === 'right' || e.keyName === 'up') {
+
+                if (e.keyName === 'down' || e.keyName === 'up') {
+                    if (e.keyName === 'up') {
+                        index -= 1;
+                    } else if (e.keyName === 'down') {
+                        index += 1;
+                    }
+
+                    if (index < 0) {
+                        index = collection.length - 1;
+                    } else if (index > collection.length - 1) {
+                        index = 0;
+                    }
+                }
+
+                collection.forEach(function (model) {
+                    model.set({selected: false});
+                });
+
+                collection[index].set({selected: true});
+
+                if (e.keyName === 'right') {
+                    self.filtersView.clear();
+                    $('.scenes-wrapper').addClass('active-menu');
+                }
+            } else if (e.keyName === 'enter') {
+                self.devices.findWhere({selected: true}).trigger('enter');
+            } else if (e.keyName === 'yellow') {
+
+            }
+        });
+
+        $(document.body).on({
+            /*
+             // on keyboard 'd' by default
+             'nav_key:blue': _.bind(this.toggleLegend, this),
+
+             // remote events
+             'nav_key:stop': function () {
+             Player.stop();
+             },
+             'nav_key:pause': function () {
+             Player.togglePause();
+             },
+             */
+            'nav_key:exit': function () {
+                SB.exit();
+            }
+        });
+
+        // toggling background when player start/stop
+        /*
+         Player.on('ready', function () {
+         $bg.hide();
+         $$log('player ready');
+         });
+         Player.on('stop', function () {
+         $bg.show();
+         $$log('player stop');
+         });
+         */
+
+        $('.choose-wrapper').find('li:first').focus(); // start element
+    },
+    showContent: function (scene, id) {
+        var self = this;
+
+        self.filtersView.select(scene, id);
+    },
+    preFilterAjax: function () {
+        var self = this,
+            url;
+
+        $.ajaxPrefilter(function (options) {
+            // Your server goes below
+            options = options || {};
+
+            options.crossDomain = {
+                crossDomain: true
+            };
+            options.url = 'http://' + self.apiHost + ':' + self.apiPort + self.Constants.API_BASE + options.url;
+        });
+    },
+    getQueryParams: function (qs) {
+        qs = qs.split("+").join(" ");
+
+        var params = {}, tokens,
+            re = /[?&]?([^=]+)=([^&]*)/g;
+
+        while (tokens = re.exec(qs)) {
+            params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+        }
+
+        return params;
+    }
+};
+
+//// main app initialize when smartbox ready
+//SB(_.bind(window.App.initialize, window.App));
