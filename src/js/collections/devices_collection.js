@@ -1,28 +1,18 @@
 'use strict';
-
-var DeviceModel = require('../models/device_model'),
+var Collection = require('ampersand-collection'),
+    restMixin = require('ampersand-collection-rest-mixin'),
+    underscoreMixin = require('ampersand-collection-underscore-mixin'),
+    ajaxSettings = require('../helpers/ajaxSettings'),
+    DeviceModel = require('../models/device_model'),
     DevicesCollection;
 
     /**
      * @constructor DevicesCollection
      * Collection of virtual devices
      * */
-    DevicesCollection = Backbone.Collection.extend({
+    DevicesCollection = Collection.extend(underscoreMixin, restMixin, ajaxSettings, {
         model: DeviceModel,
-        methodToURL: {
-            read: '/devices',
-            create: '/devices',
-            update: '/devices',
-            delete: '/devices'
-        },
-        sync: function (method, model, options) {
-            var self = this;
-
-            options = options || {};
-            options.data = {since: self.updateTime || 0};
-            options.url = model.methodToURL[method.toLowerCase()];
-            Backbone.sync(method, model, options);
-        },
+        updateTime: 0,
         parse: function (response) {
             var self = this;
 
@@ -30,8 +20,11 @@ var DeviceModel = require('../models/device_model'),
 
             return response.data.devices;
         },
-        initialize: function () {
-            console.log('Init collection');
+        methodToURL: {
+            read: '/devices',
+            create: '/devices',
+            update: '/devices',
+            delete: '/devices'
         }
     });
 

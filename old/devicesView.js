@@ -62,7 +62,9 @@
         changeSelected: function () {
             var that = this,
                 collection = that.collection.where({show: true}),
-                selected = _.find(collection, function (model) { return model.get('selected'); }),
+                selected = _.find(collection, function (model) {
+                    return model.get('selected');
+                }),
                 offset = 3,// 3 - default offset
                 index = collection.indexOf(selected) - offset,
                 top;

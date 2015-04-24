@@ -1,21 +1,23 @@
 'use strict';
-var LocationModel = require('../models/location_model'),
-    LocationsCollection = Backbone.Collection.extend({
+var Collection = require('ampersand-collection'),
+    restMixin = require('ampersand-collection-rest-mixin'),
+    underscoreMixin = require('ampersand-collection-underscore-mixin'),
+    ajaxSettings = require('../helpers/ajaxSettings'),
+    LocationModel = require('../models/location_model'),
+    LocationCollection;
+
+    /**
+     * @constructor DevicesCollection
+     * Collection of rooms
+     * */
+    LocationCollection = Collection.extend(underscoreMixin, restMixin, ajaxSettings, {
         model: LocationModel,
         methodToURL: {
-            'read': '/locations',
-            'create': '/locations',
-            'update': '/locations',
-            'delete': '/locations'
-        },
-        sync: function (method, model, options) {
-            options = options || {};
-            options.url = model.methodToURL[method.toLowerCase()];
-            Backbone.sync(method, model, options);
-        },
-        parse: function (response) {
-            return response.data;
+            read: '/locations',
+            create: '/locations',
+            update: '/locations',
+            delete: '/locations'
         }
     });
 
-module.exports = LocationsCollection;
+module.exports = LocationCollection;

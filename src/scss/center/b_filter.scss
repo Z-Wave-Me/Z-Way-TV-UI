@@ -1,0 +1,14 @@
+.bFilter {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.eFilter_item {
+  padding: 10px 10px;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  height: 60px;
+  @extend .text-uppercase;
+}

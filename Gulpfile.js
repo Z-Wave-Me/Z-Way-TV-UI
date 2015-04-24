@@ -94,7 +94,7 @@ var tasks = {
     // SASS (libsass)
     // --------------------------
     sass: function () {
-        return gulp.src('./src/scss/*.scss')
+        return gulp.src(['./src/scss/**/*.scss', './src/scss/*.scss'])
             // sourcemaps + sass + error handling
             .pipe(gulpif(!production, sourcemaps.init()))
             .pipe(sass({
@@ -236,8 +236,7 @@ gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync']
     // --------------------------
     // watch:sass
     // --------------------------
-    gulp.watch('./src/scss/**/*.scss', ['reload-sass']);
-
+    gulp.watch(['./src/scss/**/*.scss', './src/scss/**/**/*.scss'], ['reload-sass']);
     // --------------------------
     // watch:js
     // --------------------------
@@ -246,7 +245,7 @@ gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync']
     // --------------------------
     // watch:html
     // --------------------------
-    gulp.watch('./src/templates/**/*.html', ['reload-templates']);
+    gulp.watch('./src/templates/**/*.dom', ['reload-templates']);
 
     gutil.log(gutil.colors.bgGreen('Watching for changes...'));
 });

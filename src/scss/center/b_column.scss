@@ -1,0 +1,31 @@
+.bColumn {
+  display: flex;
+  width: 175px;
+  min-height: 20px;
+  height: 600px;
+  overflow: hidden;
+  padding-top: 200px;
+  box-sizing: border-box;
+}
+
+.bColumn.focus:before {
+  content: '';
+  display: inline-block;
+  top: 300px;
+  height: 60px;
+  width: 175px;
+  position: absolute;
+  border: 3px solid #11bfea;
+  box-sizing: border-box;
+}
+
+.bColumn.mThree {
+  width: 460px;
+  height: 90px;
+}
+
+.bColumn.mThree.focus:before {
+  width: 460px;
+  height: 90px;
+}
+
