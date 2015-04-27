@@ -1,6 +1,7 @@
 'use strict';
 
-var AmpersandState = require('ampersand-state'),
+var AmpersandModel = require('ampersand-model'),
+    AmpersandState = require('ampersand-state'),
     AmpersandApplicationState = AmpersandState.extend({
         props: {
             column: 'number',

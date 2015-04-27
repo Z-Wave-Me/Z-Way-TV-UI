@@ -2,8 +2,6 @@
 
 window.$ = require('jQuery');
 window._ = require('lodash', {expose: 'underscore'});
-window.Backbone = require('Backbone');
-window.Backbone.$ = window.$;
 window.jQuery = window.$;
 
 require('smartbox').call(window, $, _);
@@ -13,9 +11,8 @@ var DevicesCollection = require('./collections/devices_collection'),
     ProfilesCollection = require('./collections/profiles_collection'),
     Router = require('./router'),
     AppState = require('./appState'),
-    FilterView = require('./views/filter_view')
-    app = require('ampersand-app'),
-    model = requrie('ampersand-model');
+    FilterView = require('./views/filter_view'),
+    app = require('ampersand-app');
 
 app.extend({
     init: function () {
@@ -38,12 +35,15 @@ app.extend({
         });
 
         // prerender application views
-        self.filterView = new FilterView({el: $('.jsFilters')});
+        self.filterView = new FilterView({
+            el: $('.jsFilters').get(0),
+            model: self.state
+        });
         self.filterView.render();
 
         // start router
         self.router = new Router();
-        self.router.history.start()
+        self.router.history.start();
 
         // set event navigations
         self.setNavigationEvents();
@@ -63,15 +63,17 @@ app.extend({
         var self = this,
             $sceneWrapper = $('.jsSceneWrapper');
 
-        $sceneWrapper.find('.bColumn.nav-item').on('nav_key', function(event, originEvent) {
+        $sceneWrapper.find('.bColumn.nav-item').on('nav_key', function(event) {
             var currentColumn = self.state.get('column');
 
-            if (event.keyName === 'left' && currentColumn !== 0) {
+            if (event.keyName === 'left' && currentColumn > 0) {
                 self.state.set('column', currentColumn - 1);
-            } else if (event.keyName === 'right' && currentColumn !== 3) {
+            } else if (event.keyName === 'right' && currentColumn < 3) {
                 self.state.set('column', currentColumn + 1);
-            } else if (event.keyName === 'up'  && event.keyName === 'down') {
-                console.log('up')
+            } else if (event.keyName === 'up' || event.keyName === 'down') {
+                if (currentColumn === 0) {
+                    self.filterView.offsetTop(event.keyName === 'up' ? true : false);
+                }
             }
         });
     },
