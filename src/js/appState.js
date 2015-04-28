@@ -7,7 +7,9 @@ var AmpersandState = require('ampersand-state'),
 			filterType: 'string',
 			filterId: 'string',
 			deviceId: 'string',
-			filters: 'array'
+			filters: 'array',
+			filterItems: 'array',
+			collections: 'object'
 		}
 	});
 

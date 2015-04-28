@@ -68,5 +68,8 @@ module.exports = {
     },
     url: function () {
         return !this.id ? '' : '/' + this.id;
+    },
+    parse: function (response) {
+        return response.hasOwnProperty('data') ? response.data : response;
     }
 };

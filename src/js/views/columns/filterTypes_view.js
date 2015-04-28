@@ -2,14 +2,14 @@
 
 var app = require('ampersand-app'),
 	View = require('ampersand-view'),
-	filtersTemplate = require('../../templates/filters.hbs'),
+	filtersTemplate = require('../../../templates/filters.hbs'),
 	FiltersView = View.extend({
 		template: filtersTemplate,
 		autoRender: true,
 		initialize: function() {
 			var self = this;
 
-			_.bindAll(self, 'movePanel');
+			_.bindAll(self, 'movePanel', 'render');
 
 			app.state.bind('change:filterType', self.movePanel);
 		},

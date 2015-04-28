@@ -10,7 +10,10 @@ var AmpersandModel = require('ampersand-model'),
             delete: '/profile'
         },
         props: {
-            name: 'string'
+            id: 'number',
+            name: 'string',
+            positions: 'array',
+            description: 'string'
         },
         parse: function (response) {
             return response.hasOwnProperty('data') ? response.data : response;

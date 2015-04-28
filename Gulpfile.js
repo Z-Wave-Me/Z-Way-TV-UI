@@ -240,11 +240,10 @@ gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync']
     // watch:js
     // --------------------------
     gulp.watch(['./src/js/**/*.js', './package.json'], ['lint:js', 'reload-js']);
-
     // --------------------------
-    // watch:html
+    // watch:hbs
     // --------------------------
-    gulp.watch('./src/templates/**/*.dom', ['reload-templates']);
+    gulp.watch(['./src/templates/**/*.hbs', './packages.json'], ['reload-js']);
 
     gutil.log(gutil.colors.bgGreen('Watching for changes...'));
 });

@@ -10,10 +10,13 @@ var AmpersandModel = require('ampersand-model'),
             delete: '/devices'
         },
         props: {
-            metrics: 'object'
-        },
-        parse: function (response) {
-            return response.hasOwnProperty('data') ? response.data : response;
+            metrics: 'object',
+            id: 'string',
+            location: 'any',
+            tags: 'array',
+            creatorId: 'number',
+            deviceType: 'string',
+            permanently_hidden: 'boolean'
         },
         command: function (value, command, getParams) {
             var options = {};
