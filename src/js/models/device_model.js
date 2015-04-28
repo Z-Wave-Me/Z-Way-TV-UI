@@ -24,7 +24,6 @@ var AmpersandModel = require('ampersand-model'),
             _.extend(options, {data: getParams});
 
             options.url = this.methodToURL.read + this.url() + '/' + command + '/' + value;
-            Backbone.sync('read', this, options);
         }
     });
 

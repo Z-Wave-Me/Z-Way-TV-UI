@@ -131,10 +131,9 @@ var tasks = {
         ], {
             debug: !production,
             cache: {},
-            require: ['jquery', 'backbone/node_modules/underscore']
+            require: ['jquery', 'lodash']
         })
-            .require('backbone')
-            .require('underscore')
+            .require('lodash')
             .require('jquery');
         // determine if we're doing a build
         // and if so, bypass the livereload

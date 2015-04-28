@@ -36,11 +36,6 @@ module.exports = {
 
         params.contentType = 'application/json';
 
-        // Don't process data on a non-GET request.
-        if (params.type !== 'GET' && !Backbone.emulateJSON) {
-            params.processData = false;
-        }
-
         if (method.toLowerCase() === 'delete' || params.type === 'DELETE') {
             options.data = JSON.stringify(' ');
         }
