@@ -2,7 +2,6 @@
 
 window.$ = require('jQuery');
 window._ = require('lodash', {expose: 'underscore'});
-window.Handlebars = require('handlebars');
 window.jQuery = window.$;
 
 require('smartbox').call(window, $, _);
@@ -13,6 +12,7 @@ var DevicesCollection = require('./collections/devices_collection'),
 	AppState = require('./appState'),
 	FilterView = require('./views/columns/filterTypes_view'),
 	FilterItemsView = require('./views/columns/filterItems_view'),
+	DevicesView = require('./views/columns/filterDevices_view'),
 	app = require('ampersand-app');
 
 app.extend({
@@ -48,6 +48,11 @@ app.extend({
 			filtersItems: new FilterItemsView({
 				el: $('.jsFilterItems').get(0),
 				model: self.state
+			}),
+			devices: new DevicesView({
+				el: $('.jsDevices').get(0),
+				model: self.state,
+				collection: collections.devices
 			})
 		};
 

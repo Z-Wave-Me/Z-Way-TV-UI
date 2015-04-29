@@ -9,6 +9,7 @@ var AmpersandState = require('ampersand-state'),
 			deviceId: 'string',
 			filters: 'array',
 			filterItems: 'array',
+			devicesItems: 'array',
 			collections: 'object'
 		}
 	});

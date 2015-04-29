@@ -3,9 +3,9 @@
   width: 175px;
   min-height: 20px;
   height: 600px;
-  overflow: hidden;
   padding-top: 200px;
   box-sizing: border-box;
+  margin-right: 10px;
 }
 
 .bColumn.focus:before {
@@ -27,5 +27,7 @@
 .bColumn.mThree.focus:before {
   width: 460px;
   height: 90px;
+  border-radius: 10px;
+  top: 284px;
 }
 
