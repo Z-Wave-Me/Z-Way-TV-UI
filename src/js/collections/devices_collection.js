@@ -6,26 +6,26 @@ var Collection = require('ampersand-collection'),
     DeviceModel = require('../models/device_model'),
     DevicesCollection;
 
-    /**
-     * @constructor DevicesCollection
-     * Collection of virtual devices
-     * */
-    DevicesCollection = Collection.extend(underscoreMixin, restMixin, ajaxSettings, {
-        model: DeviceModel,
-        updateTime: 0,
-        parse: function (response) {
-            var self = this;
+/**
+ * @constructor DevicesCollection
+ * Collection of virtual devices
+ * */
+DevicesCollection = Collection.extend(underscoreMixin, restMixin, ajaxSettings, {
+    model: DeviceModel,
+    updateTime: 0,
+    parse: function(response) {
+        var self = this;
 
-            self.updateTime = response.data.updateTime;
+        self.updateTime = response.data.updateTime;
 
-            return response.data.devices;
-        },
-        methodToURL: {
-            read: '/devices',
-            create: '/devices',
-            update: '/devices',
-            delete: '/devices'
-        }
-    });
+        return response.data.devices;
+    },
+    methodToURL: {
+        read: '/devices',
+        create: '/devices',
+        update: '/devices',
+        delete: '/devices'
+    }
+});
 
 module.exports = DevicesCollection;

@@ -1,7 +1,7 @@
 /*! HTML5 Boilerplate v5.0 | MIT License | http://h5bp.com/ */
 
 html {
-  color: #fff;
+  color: #ccc;
   font-size: 1em;
   line-height: 1.4;
   overflow: hidden;
@@ -50,8 +50,9 @@ textarea {
    ========================================================================== */
 
 body {
-  font: 16px/26px Helvetica, Helvetica Neue, Arial;
+  font: 16px/26px 'Droid Sans', sans-serif;
   background: #151515;
+  color: #ccc;
 }
 
 .wrapper {

@@ -5,7 +5,7 @@ var del = require('del');
 var uglify = require('gulp-uglify');
 var gulpif = require('gulp-if');
 var exec = require('child_process').exec;
-
+var svgSprite = require('gulp-svg-sprites');
 
 var notify = require('gulp-notify');
 
@@ -41,7 +41,7 @@ var watch = argv._.length ? argv._[0] === 'watch' : true;
 // ----------------------------
 // Error notification methods
 // ----------------------------
-var beep = function () {
+var beep = function() {
     var os = require('os');
     var file = 'gulp/error.wav';
     if (os.platform() === 'linux') {
@@ -53,8 +53,8 @@ var beep = function () {
         exec("afplay " + file);
     }
 };
-var handleError = function (task) {
-    return function (err) {
+var handleError = function(task) {
+    return function(err) {
         beep();
 
         notify.onError({
@@ -72,13 +72,13 @@ var tasks = {
     // --------------------------
     // Delete build folder
     // --------------------------
-    clean: function (cb) {
+    clean: function(cb) {
         del(['build/'], cb);
     },
     // --------------------------
     // Copy static assets
     // --------------------------
-    assets: function () {
+    assets: function() {
         return gulp.src('./src/assets/**/*')
             .pipe(gulp.dest('build/assets/'));
     },
@@ -86,14 +86,14 @@ var tasks = {
     // HTML
     // --------------------------
     // html templates (when using the connect server)
-    templates: function () {
+    templates: function() {
         gulp.src('templates/*.html')
             .pipe(gulp.dest('build/'));
     },
     // --------------------------
     // SASS (libsass)
     // --------------------------
-    sass: function () {
+    sass: function() {
         return gulp.src(['./src/scss/**/*.scss', './src/scss/*.scss'])
             // sourcemaps + sass + error handling
             .pipe(gulpif(!production, sourcemaps.init()))
@@ -125,7 +125,7 @@ var tasks = {
     // --------------------------
     // Browserify
     // --------------------------
-    browserify: function () {
+    browserify: function() {
         var bundler = browserify([
             './src/js/app.js'
         ], {
@@ -141,7 +141,7 @@ var tasks = {
         if (watch) {
             bundler = watchify(bundler);
         }
-        var rebundle = function () {
+        var rebundle = function() {
             return bundler
                 .bundle()
                 .on('error', handleError('Browserify'))
@@ -156,21 +156,21 @@ var tasks = {
     // --------------------------
     // linting
     // --------------------------
-    lintjs: function () {
+    lintjs: function() {
         return gulp.src([
             'gulpfile.js',
             './src/js/app.js',
             './src/js/**/*.js'
         ]).pipe(jshint())
             .pipe(jshint.reporter(stylish))
-            .on('error', function () {
+            .on('error', function() {
                 beep();
             });
     },
     // --------------------------
     // Optimize asset images
     // --------------------------
-    optimize: function () {
+    optimize: function() {
         return gulp.src('./src/assets/**/*.{gif,jpg,png,svg}')
             .pipe(imagemin({
                 progressive: true,
@@ -183,32 +183,45 @@ var tasks = {
     // --------------------------
     // Testing with mocha
     // --------------------------
-    test: function () {
+    test: function() {
         return gulp.src('./__test__/**/*.js', {read: false})
             .pipe(mocha({
                 'ui': 'bdd',
                 'reporter': 'spec'
             })
         );
+    },
+    // --------------------------
+    // Generate font icon from svg
+    //
+    sprites: function() {
+        {
+            return gulp.src('./src/assets/svg/*.svg')
+                .pipe(svgSprite())
+                .pipe(gulp.dest('build'));
+        }
     }
 };
 
-gulp.task('browser-sync', function () {
+gulp.task('browser-sync', function() {
     browserSync({
         server: {
-            baseDir: "./"
+            baseDir: './'
         },
         port: process.env.PORT || 3000
     });
 });
 
-gulp.task('reload-sass', ['sass'], function () {
+gulp.task('reload-sass', ['sass'], function() {
     browserSync.reload();
 });
-gulp.task('reload-js', ['browserify'], function () {
+gulp.task('reload-js', ['browserify'], function() {
     browserSync.reload();
 });
-gulp.task('reload-templates', ['templates'], function () {
+gulp.task('reload-templates', ['templates'], function() {
+    browserSync.reload();
+});
+gulp.task('reload-sprites', ['sprites'], function() {
     browserSync.reload();
 });
 
@@ -226,11 +239,12 @@ gulp.task('browserify', req, tasks.browserify);
 gulp.task('lint:js', tasks.lintjs);
 gulp.task('optimize', tasks.optimize);
 gulp.task('test', tasks.test);
+gulp.task('sprites', tasks.sprites);
 
 // --------------------------
 // DEV/WATCH TASK
 // --------------------------
-gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync'], function () {
+gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync'], function() {
 
     // --------------------------
     // watch:sass
@@ -239,11 +253,15 @@ gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync']
     // --------------------------
     // watch:js
     // --------------------------
-    gulp.watch(['./src/js/**/*.js', './package.json'], ['lint:js', 'reload-js']);
+    gulp.watch(['./src/js/**/*.js', './package.json'], ['reload-js']);
     // --------------------------
     // watch:hbs
     // --------------------------
     gulp.watch(['./src/templates/**/*.hbs', './packages.json'], ['reload-js']);
+    // --------------------------
+    // watch:svg
+    // --------------------------
+    gulp.watch(['./src/assets/svg/*.svg'], ['reload-sprites']);
 
     gutil.log(gutil.colors.bgGreen('Watching for changes...'));
 });
@@ -253,6 +271,7 @@ gulp.task('build', [
     'clean',
     'templates',
     'assets',
+    'sprites',
     'sass',
     'browserify'
 ]);

@@ -25,8 +25,10 @@
   "browser": true,
   "jquery": true,
   "underscore": true,
+  "browserify": true,
   "globals": {
     "$": true,
+    "$$": true,
     "_": true,
     "SB": true,
     "console": true,

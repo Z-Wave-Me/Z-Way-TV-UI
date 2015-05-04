@@ -50,8 +50,9 @@ var app = require('ampersand-app'),
             self.model.set('filterItems', items);
             self.items = items;
             self.render();
-            $(self.el).parent()[items.length > 0 ? 'addClass' : 'removeClass']('nav-item');
+            //$(self.el).parent()[items.length > 0 ? 'addClass' : 'removeClass']('nav-item');
             items.length > 0 && app.state.set('filterId', items[0]);
+            self.movePanel();
         },
         movePanel: function() {
             var self = this,
@@ -65,7 +66,11 @@ var app = require('ampersand-app'),
                 self.childHeight = childHeight;
             }
 
-            $el.animate({top: childHeight * -currentIdIndex + 'px'}, 'fast');
+            $el.children().removeClass('mActive');
+            $el.animate({top: childHeight * -currentIdIndex + 'px'}, 'fast', function() {
+                $el.children().removeClass('mActive').eq(currentIdIndex).addClass('mActive');
+            });
+
         },
         resetPosition: function() {
             var self = this,

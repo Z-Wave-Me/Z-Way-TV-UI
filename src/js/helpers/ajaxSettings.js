@@ -1,20 +1,24 @@
 'use strict';
 
+var app = require('ampersand-app');
+
 module.exports = {
-    _sync: function (method, model, options) {
-        var methodMap = { 'create': 'POST', 'update': 'PUT', 'delete': 'DELETE', 'read': 'GET' },
+    _sync: function(method, model, options) {
+        var self = this,
+            methodMap = {'create': 'POST', 'update': 'PUT', 'delete': 'DELETE', 'read': 'GET'},
             type = methodMap[method],
             params,
             getValue;
 
         function urlError() {
-            console.log("!!! URL NOT SET!");
+            console.log('Url didn\'t set!');
         }
 
-        getValue = function (object, prop) {
+        getValue = function(object, prop) {
             if (!(object && object[prop])) {
                 return;
             }
+
             return _.isFunction(object[prop]) ? object[prop]() : object[prop];
         };
 
@@ -41,9 +45,9 @@ module.exports = {
         }
 
         // Make the request, allowing the user to override any Ajax options.
-        return $.ajax(_.extend(params, options));
+        return $.ajax(_.extend(params, options)).then(self.postBack.bind(self));
     },
-    ajaxConfig: function () {
+    ajaxConfig: function() {
         var self = this;
 
         return {
@@ -56,7 +60,7 @@ module.exports = {
             }
         };
     },
-    sync: function (method, model, options) {
+    sync: function(method, model, options) {
         var self = this;
 
         options = options || {};
@@ -66,10 +70,16 @@ module.exports = {
         options.url = model.methodToURL[method.toLowerCase()];
         self._sync.apply(self, arguments);
     },
-    url: function () {
+    url: function() {
         return !this.id ? '' : '/' + this.id;
     },
-    parse: function (response) {
+    parse: function(response) {
         return response.hasOwnProperty('data') ? response.data : response;
+    },
+    postBack: function(data, result, xhr) {
+        var date = new Date(xhr.getResponseHeader('Date'));
+        console.log(date);
+
+        app.state.set('serverTime', date);
     }
 };

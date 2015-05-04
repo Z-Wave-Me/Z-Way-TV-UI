@@ -27,10 +27,10 @@
 	</author>
 
 
-    <ThumbIcon itemtype="string">public/icon/sb_demo_115x95.png</ThumbIcon>
-    <BigThumbIcon itemtype="string">public/icon/sb_demo_115x95.png</BigThumbIcon>
-    <BigListIcon itemtype="string">public/icon/sb_demo_95x78.png</BigListIcon>
-    <ListIcon itemtype="string">public/icon/sb_demo_85x70.png</ListIcon>
+    <ThumbIcon itemtype="string">src/assets/sb_demo_115x95.png</ThumbIcon>
+    <BigThumbIcon itemtype="string">src/assets/sb_demo_115x95.png</BigThumbIcon>
+    <BigListIcon itemtype="string">src/assets/sb_demo_95x78.png</BigListIcon>
+    <ListIcon itemtype="string">src/assets/sb_demo_85x70.png</ListIcon>
 
 </widget>
 

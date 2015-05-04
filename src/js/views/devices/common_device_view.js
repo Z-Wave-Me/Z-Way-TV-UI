@@ -1,7 +1,6 @@
 'use strict';
 
-var app = require('ampersand-app'),
-    View = require('ampersand-view'),
+var View = require('ampersand-view'),
     commonDeviceTemplate = require('../../../templates/devices/common.hbs'),
     CommonDeviceView = View.extend({
         template: commonDeviceTemplate,
@@ -11,7 +10,6 @@ var app = require('ampersand-app'),
 
             _.bindAll(self, 'render');
 
-            //app.state.bind('change:filterType', self.movePanel);
         },
         render: function() {
             var self = this;

@@ -7,10 +7,18 @@
 }
 
 .eFilter_item {
-  padding: 10px 10px;
   text-align: left;
   width: 100%;
   box-sizing: border-box;
-  height: 60px;
-  @extend .text-uppercase;
+  height: auto;
+  max-height: 60px;
+  min-height: 60px;
+  line-height: 60px;
+  vertical-align: middle;
+  padding-left: 15px;
+  text-transform: capitalize;
+  font-size: 17px;
+  &.mActive {
+    background: #333;
+  }
 }
