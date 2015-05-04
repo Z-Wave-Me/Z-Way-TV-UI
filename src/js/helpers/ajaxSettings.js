@@ -78,7 +78,6 @@ module.exports = {
     },
     postBack: function(data, result, xhr) {
         var date = new Date(xhr.getResponseHeader('Date'));
-        console.log(date);
 
         app.state.set('serverTime', date);
     }

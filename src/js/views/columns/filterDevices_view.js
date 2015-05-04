@@ -4,6 +4,7 @@ var app = require('ampersand-app'),
     _ = require('lodash'),
     View = require('ampersand-view'),
     CommonDeviceView = require('../devices/common_device_view'),
+    SwitchBinaryView = require('../devices/switchBinary_device_view'),
     FiltersView = View.extend({
         template: '<div class="bFilter jsDevices"></div>',
         autoRender: true,
@@ -11,10 +12,14 @@ var app = require('ampersand-app'),
             var self = this;
 
             self.cached = {
-                views: {}
+                views: {},
+                constructors: {
+                    common: CommonDeviceView,
+                    switchBinary: SwitchBinaryView
+                }
             };
 
-            _.bindAll(self, 'render', 'renderDevices', 'renderCommon');
+            _.bindAll(self, 'render', 'renderDevices', 'makeDevice');
 
             app.state.bind('change:filterType change:filterId', self.render);
             app.state.bind('change:deviceId', self.movePanel.bind(self));
@@ -57,23 +62,50 @@ var app = require('ampersand-app'),
 
             self.model.set('deviceItems', deviceIds);
             self.model.set('deviceId', _.first(deviceIds));
+            self.devices = devices;
 
             $el.parent()[devices.length === 0 ? 'addClass' : 'removeClass']('mEmpty');
 
-            _.each(devices, self.renderCommon.bind(self));
+            _.each(devices, function(device) {
+                if (device.get('id') === self.model.get('deviceId')) {
+                    self.makeDevice(device, true, true);
+                } else {
+                    self.makeDevice(device, false, true);
+                }
+            });
         },
-        renderCommon: function(device) {
+        makeDevice: function(device, special, insert) {
             var self = this,
                 deviceId = device.get('id'),
                 $el = $(self.el),
-                view = self.cached.views[deviceId] || new CommonDeviceView({model: device});
+                deviceType = device.get('deviceType'),
+                cachedView = self.cached.views[deviceId],
+                ConstructorView,
+                view;
 
-            if (!self.cached.views.hasOwnProperty(deviceId)) {
+            // get view constructor
+            if (special && self.cached.constructors.hasOwnProperty(deviceType)) {
+                ConstructorView = self.cached.constructors[deviceType];
+            } else {
+                ConstructorView = self.cached.constructors.common;
+            }
+
+            if (cachedView && cachedView instanceof ConstructorView) {
+                view = cachedView;
+            } else {
+                view = new ConstructorView({model: device});
                 self.cached.views[deviceId] = view;
             }
 
             view.render();
-            $el.append(view.el);
+
+            if (insert) {
+                $el.append(view.el);
+            } else if (Boolean(cachedView)) {
+                $(cachedView.el).replaceWith(view.el);
+            }
+
+            return view;
         },
         movePanel: function() {
             var self = this,
@@ -81,7 +113,7 @@ var app = require('ampersand-app'),
                 items = self.model.get('deviceItems'),
                 currentId = self.model.get('deviceId'),
                 currentIdIndex = items.indexOf(currentId),
-                childHeight = 90;
+                childHeight = self.childHeight || $el.children().eq(0).outerHeight(true);
 
             if (!self.childHeight) {
                 self.childHeight = childHeight;
@@ -91,7 +123,15 @@ var app = require('ampersand-app'),
             $el.animate({top: childHeight * -currentIdIndex + 'px'}, 'fast', function() {
                 $el.children().removeClass('mActive').eq(currentIdIndex).addClass('mActive');
             });
+        },
+        onSendEvent: function(keyName) {
+            var self = this,
+                currentDeviceId = self.model.get('deviceId'),
+                view = self.cached.views[currentDeviceId];
 
+            if (view) {
+                view.trigger('click.' + keyName);
+            }
         }
     });
 

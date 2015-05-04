@@ -9,7 +9,6 @@ var View = require('ampersand-view'),
             var self = this;
 
             _.bindAll(self, 'render');
-
         },
         render: function() {
             var self = this;

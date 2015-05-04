@@ -1,0 +1,57 @@
+.bSwitch {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.eSwitch_input {
+  position: absolute;
+  margin-left: -9999px;
+  visibility: hidden;
+}
+.eSwitch_input + label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+
+.eSwitch_input + label {
+  padding: 2px;
+  width: 80px;
+  height: 40px;
+  background-color: #ddd;
+  border-radius: 40px;
+  transition: background 0.4s;
+}
+.eSwitch_input + label:before,
+.eSwitch_input + label:after {
+  display: block;
+  position: absolute;
+  content: "";
+}
+.eSwitch_input + label:before {
+  top: 2px;
+  left: 2px;
+  bottom: 2px;
+  right: 2px;
+  background-color: #fff;
+  border-radius: 60px;
+  transition: background 0.4s;
+}
+.eSwitch_input + label:after {
+  top: 4px;
+  left: 4px;
+  bottom: 4px;
+  width: 36px;
+  background-color: #ddd;
+  border-radius: 50%;
+  transition: margin 0.4s, background 0.4s;
+}
+.eSwitch_input:checked + label {
+  background-color: #8ce196;
+}
+.eSwitch_input:checked + label:after {
+  margin-left: 40px;
+  background-color: #8ce196;
+}

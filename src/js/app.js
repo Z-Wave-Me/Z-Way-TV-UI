@@ -92,6 +92,8 @@ app.extend({
                 } else if (currentColumn === 2) { // third column(devices)
                     self.setDeviceId(event);
                 }
+            } else if (event.keyName === 'enter' && currentColumn === 2) {
+                self.views.devices.onSendEvent(event.keyName);
             }
         });
     },
