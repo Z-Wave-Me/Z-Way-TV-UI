@@ -5,7 +5,7 @@ html {
   font-size: 1em;
   line-height: 1.4;
   overflow: hidden;
-  pointer-events : none;
+
 }
 
 ::-moz-selection {
@@ -51,7 +51,7 @@ textarea {
    ========================================================================== */
 
 body {
-  font: 16px/26px 'Droid Sans', sans-serif;
+  font: 16px/26px 'Roboto', sans-serif;
   background: #151515;
   color: #ccc;
 }
