@@ -1,5 +1,5 @@
 {
-  "jshint nonew": true,
+  "nonew": true,
   "curly": true,
   "latedef": true,
   "unused": true,
@@ -21,17 +21,18 @@
   "white": false,
   "browserify": true,
   "node": true,
-  "requirejs": true,
   "browser": true,
   "jquery": true,
-  "underscore": true,
   "browserify": true,
   "globals": {
     "$": true,
     "$$": true,
+    "$$nav": true,
     "_": true,
     "SB": true,
     "console": true,
-    "require": true
+    "require": true,
+    "define": true,
+    "module": true
   }
 }

@@ -48,8 +48,6 @@ module.exports = {
         return $.ajax(_.extend(params, options)).then(self.postBack.bind(self));
     },
     ajaxConfig: function() {
-        var self = this;
-
         return {
             headers: {
                 'Content-Type': 'application/json'

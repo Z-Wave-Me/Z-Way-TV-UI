@@ -1,7 +1,6 @@
 'use strict';
 
-var app = require('ampersand-app'),
-    View = require('ampersand-view'),
+var View = require('ampersand-view'),
     footerTemplate = require('../../templates/footer.hbs'),
     FooterView = View.extend({
         template: footerTemplate,
