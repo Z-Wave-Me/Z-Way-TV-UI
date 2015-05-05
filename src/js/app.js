@@ -4,6 +4,8 @@ window.$ = require('jQuery');
 window._ = require('lodash', {expose: 'underscore'});
 window.jQuery = window.$;
 
+
+require('./helpers/handlebars_helpers').call(this);
 require('smartbox').call(window, $, _);
 
 var DevicesCollection = require('./collections/devices_collection'),
@@ -159,9 +161,6 @@ app.extend({
             query = self.getQueryParams(document.location.search),
             port = query.hasOwnProperty('port') ? query.port : window.location.port !== '' ? window.location.port : 8083,
             host = query.hasOwnProperty('host') ? query.host : window.location.hostname;
-
-        port = 8083;
-        host = '192.168.1.191';
 
         $.ajaxPrefilter(function(options) {
             // Your server goes below

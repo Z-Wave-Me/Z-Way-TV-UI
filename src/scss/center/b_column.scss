@@ -19,13 +19,13 @@
   top: 24.6em;
 }
 
-.bColumn.mThree {
+.bColumn.mDevices {
   width: 460px;
   padding-top: 17em;
   margin:0 10px;
 }
 
-.bColumn.mThree:before {
+.bColumn.mDevices:before {
   width: 460px;
   height: 90px;
   border-radius: 10px;
@@ -33,7 +33,7 @@
   border-color: #333;
 }
 
-.bColumn.mThree.mEmpty:before {
+.bColumn.mDevices.mEmpty:before {
   border-color: transparent;
 }
 

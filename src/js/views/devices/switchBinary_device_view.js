@@ -8,37 +8,40 @@ var CommonDeviceView = require('./common_device_view'),
         initialize: function() {
             var self = this;
 
-            _.bindAll(self, 'render', 'onEnter');
+            _.bindAll(self, 'render', 'onEnter', 'onChange');
 
             self.bind('click.enter', self.onEnter);
-            self.model.bind('change', self.render);
+            self.model.bind('change:metrics', self.onChange);
         },
         render: function() {
             var self = this;
 
-            if (self.model.get('deviceType') === 'doorlock') {
-                self.checked = self.model.get('metrics').level === 'open';
-            } else {
-                self.checked = self.model.get('metrics').level === 'on';
-            }
-
-            self.renderWithTemplate(self);
+            self.renderWithTemplate();
 
             return self;
         },
         onEnter: function() {
             var self = this,
-                metrics = self.model.get('metrics');
+                metrics = self.model.get('metrics'),
+                currentLevel = metrics.level,
+                nextLevel;
 
             if (self.model.get('deviceType') === 'doorlock') {
-                metrics.level = metrics.level === 'open' ? 'close' : 'open';
+                nextLevel = currentLevel === 'open' ? 'close' : 'open';
             } else {
-                metrics.level = metrics.level === 'on' ? 'off' : 'on';
+                nextLevel = currentLevel === 'on' ? 'off' : 'on';
             }
 
+            metrics.level = nextLevel;
             self.model.set('metrics', metrics);
-            $(self.el).find('.jsInput').prop('checked', ['on', 'open'].indexOf(metrics.level) !== -1);
-            self.model.command(metrics.level);
+            self.model.trigger('change:metrics');
+            self.model.command(nextLevel);
+        },
+        onChange: function() {
+            var self = this,
+                currentLevel = self.model.get('metrics').level;
+
+            $(self.el).find('.jsInput').prop('checked', ['on', 'open'].indexOf(currentLevel) !== -1);
         }
     });
 

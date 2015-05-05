@@ -2,7 +2,15 @@
     <span class="eDevice_icon icon {{model.metrics.icon}}"></span>
     <span class="eDevice_name">{{model.metrics.title}}</span>
     <div class="bSwitch">
-        <input class="eSwitch_input jsInput" type="checkbox" checked="{{#if checked}}checked{{/if}}">
+        <input
+                class="eSwitch_input jsInput"
+                type="checkbox"
+                {{#compare model.deviceType '===' 'doorlock'}}
+                    {{#compare model.metrics.level '===' 'open'}} checked="checked"{{/compare}}"
+                {{else}}
+                    {{#compare model.metrics.level '===' 'on'}} checked="checked"{{/compare}}"
+                {{/compare}}>
+
         <label class="eSwitch_label"></label>
     </div>
 </div>
