@@ -15,6 +15,7 @@ var DevicesCollection = require('./collections/devices_collection'),
     FilterView = require('./views/columns/filterTypes_view'),
     FilterItemsView = require('./views/columns/filterItems_view'),
     DevicesView = require('./views/columns/filterDevices_view'),
+    PanelDevicesView = require('./views/columns/panelDevices_view'),
     FooterView = require('./views/footer'),
     app = require('ampersand-app');
 
@@ -54,6 +55,11 @@ app.extend({
             }),
             devices: new DevicesView({
                 el: $('.jsDevices').get(0),
+                model: self.state,
+                collection: collections.devices
+            }),
+            panelDevices: new PanelDevicesView({
+                el: $('.jsDevicePanel').get(0),
                 model: self.state,
                 collection: collections.devices
             }),
@@ -175,7 +181,8 @@ app.extend({
     getQueryParams: function(qs) {
         qs = qs.split('+').join(' ');
 
-        var params = {}, tokens,
+        var params = {},
+            tokens,
             re = /[?&]?([^=]+)=([^&]*)/g;
 
         while (tokens = re.exec(qs)) {

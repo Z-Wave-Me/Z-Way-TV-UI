@@ -1,9 +1,8 @@
 'use strict';
 
 var View = require('ampersand-view'),
-    filtersTemplate = require('../../../templates/filters.hbs'),
     FiltersView = View.extend({
-        template: filtersTemplate,
+        template: '<div class="bFilter jsDevicePanel"></div>',
         autoRender: true,
         initialize: function() {
             var self = this;
