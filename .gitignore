@@ -16,3 +16,6 @@ npm-debug.log
 
 # ide
 .idea
+
+# os files
+.DS_Store
