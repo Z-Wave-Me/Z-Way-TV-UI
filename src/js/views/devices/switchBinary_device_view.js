@@ -16,7 +16,12 @@ var CommonDeviceView = require('./common_device_view'),
         render: function() {
             var self = this;
 
-            self.checked = self.model.get('metrics').level === 'on';
+            if (self.model.get('deviceType') === 'doorlock') {
+                self.checked = self.model.get('metrics').level === 'open';
+            } else {
+                self.checked = self.model.get('metrics').level === 'on';
+            }
+
             self.renderWithTemplate(self);
 
             return self;
@@ -25,9 +30,15 @@ var CommonDeviceView = require('./common_device_view'),
             var self = this,
                 metrics = self.model.get('metrics');
 
-            metrics.level = metrics.level === 'on' ? 'off' : 'on';
+            if (self.model.get('deviceType') === 'doorlock') {
+                metrics.level = metrics.level === 'open' ? 'close' : 'open';
+            } else {
+                metrics.level = metrics.level === 'on' ? 'off' : 'on';
+            }
+
             self.model.set('metrics', metrics);
-            $(self.el).find('.jsInput').prop('checked', metrics.level === 'on');
+            $(self.el).find('.jsInput').prop('checked', ['on', 'open'].indexOf(metrics.level) !== -1);
+            self.model.command(metrics.level);
         }
     });
 

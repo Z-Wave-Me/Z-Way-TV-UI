@@ -15,14 +15,15 @@ var app = require('ampersand-app'),
                 views: {},
                 constructors: {
                     common: CommonDeviceView,
-                    switchBinary: SwitchBinaryView
+                    switchBinary: SwitchBinaryView,
+                    doorlock: SwitchBinaryView
                 }
             };
 
             _.bindAll(self, 'render', 'renderDevices', 'makeDevice');
 
             app.state.bind('change:filterType change:filterId', self.render);
-            app.state.bind('change:deviceId', self.movePanel.bind(self));
+            app.state.bind('change:deviceId', self.onChangeDeviceId.bind(self));
         },
         render: function() {
             var self = this;
@@ -90,12 +91,8 @@ var app = require('ampersand-app'),
                 ConstructorView = self.cached.constructors.common;
             }
 
-            if (cachedView && cachedView instanceof ConstructorView) {
-                view = cachedView;
-            } else {
-                view = new ConstructorView({model: device});
-                self.cached.views[deviceId] = view;
-            }
+            view = new ConstructorView({model: device});
+            self.cached.views[deviceId] = view;
 
             view.render();
 
@@ -132,6 +129,31 @@ var app = require('ampersand-app'),
             if (view) {
                 view.trigger('click.' + keyName);
             }
+        },
+        deactivateDevices: function() {
+            var self = this;
+
+            Object.keys(self.cached.views).forEach(function(deviceId) {
+                var model = self.collection.get(deviceId);
+
+                self.makeDevice(model, false, false);
+            });
+        },
+        activate: function() {
+            var self = this,
+                currentDeviceId = self.model.get('deviceId'),
+                model = self.collection.get(currentDeviceId) || self.collection.first();
+
+            if (model) {
+                self.movePanel();
+                self.makeDevice(model, true, false);
+            }
+        },
+        onChangeDeviceId: function() {
+            var self = this;
+
+            self.deactivateDevices();
+            self.activate();
         }
     });
 

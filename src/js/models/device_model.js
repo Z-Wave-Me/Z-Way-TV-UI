@@ -18,15 +18,15 @@ var AmpersandModel = require('ampersand-model'),
             deviceType: 'string',
             permanently_hidden: 'boolean'
         },
-        command: function (value, command, getParams) {
-            var options = {};
+        command: function(value, command, getParams) {
+            var self = this,
+                url;
 
             getParams = getParams || {};
             command = command || 'command';
+            url = self.methodToURL.read + self.url() + '/' + command + '/' + value;
 
-            _.extend(options, {data: getParams});
-
-            options.url = this.methodToURL.read + this.url() + '/' + command + '/' + value;
+            $.get(url, getParams);
         }
     });
 
