@@ -74,3 +74,12 @@ $switchHeight: 40px;
   margin-left: $switchHeight * 2;
   background-color: #fff;
 }
+
+/* mDoorLock */
+.bSwitch.mDoorLock .eSwitch_input + label:before {
+  text-indent: $switchHeight * 1.15;
+}
+
+.bSwitch.mDoorLock .eSwitch_input:checked + label:before {
+  text-indent: $switchHeight / 2;
+}
