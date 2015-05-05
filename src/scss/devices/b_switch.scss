@@ -1,3 +1,5 @@
+$switchHeight: 40px;
+
 .bSwitch {
   display: table-cell;
   vertical-align: middle;
@@ -18,40 +20,57 @@
 
 .eSwitch_input + label {
   padding: 2px;
-  width: 80px;
-  height: 40px;
-  background-color: #ddd;
-  border-radius: 40px;
+  width: $switchHeight * 3;
+  height: $switchHeight;
+  background-color: #333;
+  border-radius: $switchHeight;
   transition: background 0.4s;
 }
+
 .eSwitch_input + label:before,
 .eSwitch_input + label:after {
   display: block;
   position: absolute;
   content: "";
+  transition: background 0.4s;
 }
+
 .eSwitch_input + label:before {
   top: 2px;
   left: 2px;
   bottom: 2px;
   right: 2px;
-  background-color: #fff;
-  border-radius: 60px;
+  background-color: #333;
+  border-radius: $switchHeight * 1.5;
   transition: background 0.4s;
+  content: attr(data-value);
+  color: #fff;
+  text-transform: uppercase;
+  line-height: $switchHeight + 2px;
+  text-indent: $switchHeight * 1.5;
+  font-size: 0.9em;
 }
+
 .eSwitch_input + label:after {
   top: 4px;
   left: 4px;
   bottom: 4px;
   width: 36px;
-  background-color: #ddd;
+  background-color: #fff;
   border-radius: 50%;
   transition: margin 0.4s, background 0.4s;
 }
-.eSwitch_input:checked + label {
-  background-color: #8ce196;
+.eSwitch_input:checked + label,
+.eSwitch_input:checked + label:before {
+  background-color: #ccff33;
+  color: #333;
 }
+
+.eSwitch_input:checked + label:before {
+  text-indent: $switchHeight / 2;
+}
+
 .eSwitch_input:checked + label:after {
-  margin-left: 40px;
-  background-color: #8ce196;
+  margin-left: $switchHeight * 2;
+  background-color: #fff;
 }

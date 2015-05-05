@@ -39,9 +39,11 @@ var CommonDeviceView = require('./common_device_view'),
         },
         onChange: function() {
             var self = this,
-                currentLevel = self.model.get('metrics').level;
+                currentLevel = self.model.get('metrics').level,
+                $el = $(self.el);
 
-            $(self.el).find('.jsInput').prop('checked', ['on', 'open'].indexOf(currentLevel) !== -1);
+            $el.find('.jsInput').prop('checked', ['on', 'open'].indexOf(currentLevel) !== -1);
+            $el.find('.jsLabel').attr('data-value', currentLevel);
         }
     });
 
