@@ -1,0 +1,16 @@
+<div class="bDevice">
+    <span class="eDevice_icon icon {{model.metrics.icon}}"></span>
+    <span class="eDevice_name">{{model.metrics.title}}</span>
+    <div class="bSwitch{{#compare model.deviceType '===' 'doorlock'}} mDoorLock{{/compare}}">
+        <input
+                class="eSwitch_input jsInput"
+                type="checkbox"
+                {{#compare model.deviceType '===' 'doorlock'}}
+                    {{#compare model.metrics.level '===' 'open'}} checked="checked"{{/compare}}"
+                {{else}}
+                    {{#compare model.metrics.level '===' 'on'}} checked="checked"{{/compare}}"
+                {{/compare}}>
+
+        <label data-value="{{model.metrics.level}}" class="eSwitch_label jsLabel"></label>
+    </div>
+</div>

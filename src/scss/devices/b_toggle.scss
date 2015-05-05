@@ -1,0 +1,20 @@
+.bToggle {
+  display: table-cell;
+  vertical-align: middle;
+  height: 40px;
+  width: 40px;
+  padding: 0;
+  background-color: #6496c8;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 10px #27496d;
+  transition: all .1s ease-out;
+  margin-top: -10px;
+}
+
+.bToggle.mActive,
+.bToggle:active {
+  background-color: #417cb8;
+  box-shadow: 0 5px #27496d;
+  transform: translateY(5px);
+}

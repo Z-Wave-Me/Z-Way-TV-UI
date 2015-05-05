@@ -1,0 +1,47 @@
+.icon {
+    font-size: 10px;
+}
+
+.icon:before {
+    content:' ';
+    vertical-align:middle;
+    display: inline-block;
+    background-image: url("../svg/sprite.svg");
+    background-repeat: no-repeat;
+    background-size: 3.2003999999999997em 13.7em;
+}
+
+.no-svg .icon:before {
+    background-image: url("../svg/sprite.png");
+}
+
+.icon.blind:before {
+    background-position: 0em 0em;
+    width: 3.2em;
+    height: 2.1em;
+}
+
+.icon.fan:before {
+    background-position: 0em -2.1em;
+    width: 2.8em;
+    height: 2.8em;
+}
+
+.icon.light:before {
+    background-position: 0em -4.9em;
+    width: 2.9387em;
+    height: 3.1999em;
+}
+
+.icon.motion:before {
+    background-position: 0em -8.1em;
+    width: 3.2003999999999997em;
+    height: 2.3255em;
+}
+
+.icon.thermostat:before {
+    background-position: 0em -10.5em;
+    width: 1.5178em;
+    height: 3.2em;
+}
+

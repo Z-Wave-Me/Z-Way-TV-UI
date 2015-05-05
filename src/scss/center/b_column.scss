@@ -1,0 +1,42 @@
+.bColumn {
+  display: flex;
+  width: 175px;
+  min-height: 20px;
+  height: 600px;
+  padding-top: 18em;
+  box-sizing: border-box;
+}
+
+.bColumn:before {
+  content: '';
+  display: inline-block;
+  height: 60px;
+  width: 175px;
+  position: absolute;
+  border: 3px solid transparent;
+  box-sizing: border-box;
+  z-index: 1;
+  top: 24.6em;
+}
+
+.bColumn.mDevices {
+  width: 460px;
+  padding-top: 17em;
+  margin:0 10px;
+}
+
+.bColumn.mDevices:before {
+  width: 460px;
+  height: 90px;
+  border-radius: 10px;
+  top: 23.6em;
+  border-color: #333;
+}
+
+.bColumn.mDevices.mEmpty:before {
+  border-color: transparent;
+}
+
+.bColumn.focus:before {
+  border-color: #11bfea;
+}
