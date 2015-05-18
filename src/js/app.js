@@ -40,7 +40,13 @@ app.extend({
             deviceId: '',
             filters: ['all', 'rooms', 'types', 'tags'],
             filterItems: [],
-            collections: collections
+            collections: collections,
+            activeDeviceType: ['doorlock', 'switchBinary', 'toggleButton', 'switchMultilevel'],
+            includePanels: {
+                switchMultilevel: 'decimal',
+                fan: 'modes',
+                thermostat: 'decimal'
+            }
         });
 
         // prerender application views
@@ -77,6 +83,8 @@ app.extend({
         collections.locations.fetch();
         collections.profiles.fetch();
 
+        self.collections = collections;
+
         // start navigation
         $$nav.on();
     },
@@ -85,12 +93,38 @@ app.extend({
             $sceneWrapper = $('.jsSceneWrapper');
 
         $sceneWrapper.find('.bColumn.nav-item').on('nav_key', function(event) {
-            var currentColumn = self.state.get('column');
+            var currentColumn = self.state.get('column'),
+                currentId = self.state.get('deviceId'),
+                device = self.collections.devices.get(currentId),
+                currentFilterType = self.state.get('filterType'),
+                currentFilterItems = self.state.get('filterItems'),
+                currentDeviceItems = self.state.get('deviceItems'),
+                deviceType = device ? device.get('deviceType') : null,
+                isIncludePanel = deviceType ? self.state.includePanels[deviceType] : null,
+                maxColumns = isIncludePanel ? 3 : 2;
 
             if (event.keyName === 'left' && currentColumn > 0) {
-                self.state.set('column', currentColumn - 1);
-            } else if (event.keyName === 'right' && currentColumn < 3) {
-                self.state.set('column', currentColumn + 1);
+                if (currentFilterType === 'all' && currentColumn === 2) {
+                    currentColumn -= 2;
+                } else {
+                    currentColumn -= 1;
+                }
+
+                self.state.set('column', currentColumn - 2);
+            } else if (event.keyName === 'right' && currentColumn < maxColumns) {
+                if (self.collections.devices.length !== 0) {
+                    if (currentColumn === 0 && currentFilterType === 'all' && currentDeviceItems.length > 0) { // if all
+                        currentColumn += 2;
+                    } else if (currentColumn === 0 && currentFilterType !== 'all' && currentFilterItems.length > 0) {
+                        currentColumn += 1;
+                    } else if (currentColumn === 1 && currentDeviceItems.length > 0) {
+                        currentColumn += 1;
+                    } else if (currentColumn === 2 && isIncludePanel) {
+                        currentColumn += 1;
+                    }
+
+                    self.state.set('column', currentColumn);
+                }
             } else if (event.keyName === 'up' || event.keyName === 'down') {
                 // TODO: combine methods in one
                 if (currentColumn === 0) { // first column (filterType)

@@ -67,8 +67,6 @@ var app = require('ampersand-app'),
             self.model.set('deviceId', _.first(deviceIds));
             self.devices = devices;
 
-            $el.parent()[devices.length === 0 ? 'addClass' : 'removeClass']('mEmpty');
-
             _.each(devices, function(device) {
                 if (device.get('id') === self.model.get('deviceId')) {
                     self.makeDevice(device, true, true);
@@ -112,6 +110,9 @@ var app = require('ampersand-app'),
                 items = self.model.get('deviceItems'),
                 currentId = self.model.get('deviceId'),
                 currentIdIndex = items.indexOf(currentId),
+                device = self.collection.get(currentId),
+                deviceType = device ? device.get('deviceType') : null,
+                isPassive = deviceType && self.model.get('activeDeviceType').indexOf(device.get('deviceType')) === -1,
                 childHeight = self.childHeight || $el.children().eq(0).outerHeight(true);
 
             if (!self.childHeight) {
@@ -119,8 +120,19 @@ var app = require('ampersand-app'),
             }
 
             $el.children().removeClass('mActive');
-            $el.animate({top: childHeight * -currentIdIndex + 'px'}, 'fast', function() {
-                $el.children().removeClass('mActive').eq(currentIdIndex).addClass('mActive');
+
+            $el.parent()[!isPassive ? 'removeClass' : 'addClass']('mPassive');
+            $el.parent()[items && items.length === 0 ? 'removeClass' : 'addClass']('nav-item');
+            $el.parent()[items.length === 0 ? 'addClass' : 'removeClass']('mEmpty');
+
+            $el.animate({top: childHeight * -currentIdIndex + 'px'}, {
+                duration: 'fast',
+                done: function() {
+                    $el.children()
+                        .removeClass('mActive')
+                        .eq(currentIdIndex)
+                        .addClass('mActive');
+                }
             });
         },
         onSendEvent: function(keyName) {

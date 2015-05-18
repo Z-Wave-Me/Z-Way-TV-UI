@@ -11,7 +11,9 @@ var AmpersandState = require('ampersand-state'),
 			filterItems: 'array',
 			deviceItems: 'array',
 			collections: 'object',
-			serverTime: 'object'
+			serverTime: 'object',
+			activeDeviceType: 'array',
+			includePanels: 'object'
 		}
 	});
 
