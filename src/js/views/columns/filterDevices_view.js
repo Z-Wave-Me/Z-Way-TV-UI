@@ -120,7 +120,6 @@ var app = require('ampersand-app'),
             }
 
             $el.children().removeClass('mActive');
-
             $el.parent()[!isPassive ? 'removeClass' : 'addClass']('mPassive');
             $el.parent()[items && items.length === 0 ? 'removeClass' : 'addClass']('nav-item');
             $el.parent()[items.length === 0 ? 'addClass' : 'removeClass']('mEmpty');
@@ -128,14 +127,11 @@ var app = require('ampersand-app'),
             $el.animate({top: childHeight * -currentIdIndex + 'px'}, {
                 duration: 'fast',
                 done: function() {
-                    $el.children()
-                        .removeClass('mActive')
-                        .eq(currentIdIndex)
-                        .addClass('mActive');
+                    $el.children().removeClass('mActive').eq(currentIdIndex).addClass('mActive');
                 }
             });
         },
-        onSendEvent: function(keyName) {
+        onListenKeyEvent: function(keyName) {
             var self = this,
                 currentDeviceId = self.model.get('deviceId'),
                 view = self.cached.views[currentDeviceId];

@@ -51,6 +51,18 @@ $deviceColumnHeight: 90px;
   border-color: transparent;
 }
 
-.bColumn.mPanelDevices {
-  @extend .bColumn.mDevices;
+
+.bColumn.mDevices.mDevicePanel,
+.bColumn.mDevices.mDevicePanel:before {
+  width: auto;
+  min-width: 100px;
+}
+
+.bColumn.mDevices.mDevicePanel {
+  opacity: 0;
+  transition: opacity .3s ease-out;
+}
+
+.bColumn.mDevices.mDevicePanel.mShow {
+  opacity: 1;
 }

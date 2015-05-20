@@ -41,7 +41,7 @@ app.extend({
             filters: ['all', 'rooms', 'types', 'tags'],
             filterItems: [],
             collections: collections,
-            activeDeviceType: ['doorlock', 'switchBinary', 'toggleButton', 'switchMultilevel'],
+            activeDeviceType: ['doorlock', 'switchBinary', 'toggleButton', 'switchMultilevel', 'thermostat'],
             includePanels: {
                 switchMultilevel: 'decimal',
                 fan: 'modes',
@@ -79,14 +79,17 @@ app.extend({
         self.setNavigationEvents();
 
         // fetching
-        collections.devices.fetch();
-        collections.locations.fetch();
-        collections.profiles.fetch();
+        collections.devices.fetch({
+            success: function() {
+                // start navigation
+                collections.locations.fetch();
+                collections.profiles.fetch();
+                self.state.trigger('change:filterType');
+                $$nav.on();
+            }
+        });
 
         self.collections = collections;
-
-        // start navigation
-        $$nav.on();
     },
     setNavigationEvents: function() {
         var self = this,
@@ -100,18 +103,18 @@ app.extend({
                 currentFilterItems = self.state.get('filterItems'),
                 currentDeviceItems = self.state.get('deviceItems'),
                 deviceType = device ? device.get('deviceType') : null,
-                isIncludePanel = deviceType ? self.state.includePanels[deviceType] : null,
+                isIncludePanel = deviceType ? self.state.get('includePanels').hasOwnProperty(deviceType) : null,
                 maxColumns = isIncludePanel ? 3 : 2;
 
             if (event.keyName === 'left' && currentColumn > 0) {
-                if (currentFilterType === 'all' && currentColumn === 2) {
+                if (self.state.get('filterItems').length === 0 && currentColumn === 2) {
                     currentColumn -= 2;
                 } else {
                     currentColumn -= 1;
                 }
 
-                self.state.set('column', currentColumn - 2);
-            } else if (event.keyName === 'right' && currentColumn < maxColumns) {
+                self.state.set('column', currentColumn);
+            } else if (event.keyName === 'right' && currentColumn <= maxColumns) {
                 if (self.collections.devices.length !== 0) {
                     if (currentColumn === 0 && currentFilterType === 'all' && currentDeviceItems.length > 0) { // if all
                         currentColumn += 2;
@@ -133,9 +136,13 @@ app.extend({
                     self.setFilterId(event);
                 } else if (currentColumn === 2) { // third column(devices)
                     self.setDeviceId(event);
+                } else if (currentColumn === 3) {
+                    if (self.views.panelDevices.panel) {
+                        self.views.panelDevices.panel.onListenKeyEvent(event);
+                    }
                 }
             } else if (event.keyName === 'enter' && currentColumn === 2) {
-                self.views.devices.onSendEvent(event.keyName);
+                self.views.devices.onListenKeyEvent(event.keyName);
             }
         });
     },

@@ -115,7 +115,9 @@ var tasks = {
             .pipe(gulpif(!production, sourcemaps.init({
                 'loadMaps': true
             })))
-            .pipe(postcss([autoprefixer({browsers: ['last 2 versions']})]))
+            .pipe(postcss([autoprefixer({
+                browsers: ['last 2 versions', 'opera 12.1']
+            })]))
             // we don't serve the source files
             // so include scss content inside the sourcemaps
             .pipe(sourcemaps.write({
@@ -190,7 +192,7 @@ var tasks = {
         var fontName = 'zwayfont',
             template = 'fontawesome-style'; // you can also choose 'foundation-style'
 
-        gulp.src('src/fonts/symbol-font-16px.sketch')
+        gulp.src('src/fonts/z-way-font.sketch')
             .pipe(sketch({
                 export: 'artboards',
                 formats: 'svg'
@@ -262,7 +264,7 @@ gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync']
     // --------------------------
     // watch:js
     // --------------------------
-    gulp.watch(['./src/js/**/*.js', './package.json'], ['reload-js']);
+    gulp.watch(['./src/js/**/*.js', '!./src/js/libs/*.js', './package.json'], ['reload-js']);
     // --------------------------
     // watch:hbs
     // --------------------------

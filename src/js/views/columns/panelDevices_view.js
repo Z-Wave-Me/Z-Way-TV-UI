@@ -2,29 +2,43 @@
 
 var app = require('ampersand-app'),
     View = require('ampersand-view'),
+    DecimalDevicePanel = require('../panels/decimal_panel_view'),
     FiltersView = View.extend({
-        template: '<div class="bFilter jsDevicePanel"></div>',
-        autoRender: true,
         initialize: function() {
             var self = this;
 
-            _.bindAll(self, 'render');
-
-            app.state.bind('change:filterType change:filterId', self.render);
+            _.bindAll(self, 'render', 'onChangeColumn');
+            app.state.bind('change:column change:filterType change:deviceId', self.render);
+            app.state.bind('change:column', self.onChangeColumn);
         },
         render: function() {
             var self = this,
-                currentId = self.model.get('deviceId'),
+                currentId = self.model.get('deviceId') || _.first(self.model.get('deviceItems')),
                 device = self.collection.get(currentId),
                 deviceType = device ? device.get('deviceType') : null,
-                panel = deviceType ? app.state.includePanels[deviceType] : null;
+                isShowPanel = deviceType ? app.state.get('includePanels').hasOwnProperty(deviceType) : null;
 
-            self.renderWithTemplate(self);
-            self.$el = $(self.el);
-
-            self.$el.parent()[panel ? 'addClass' : 'removeClass']('nav-item');
+            if (isShowPanel) {
+                if (app.state.get('includePanels')[deviceType] === 'decimal') {
+                    self.panel = new DecimalDevicePanel({
+                        el: $(self.el).find('.jsPanel').get(0),
+                        model: device
+                    });
+                }
+                $(self.el).addClass('mShow');
+            } else {
+                $(self.el).find('.jsPanel').empty();
+                $(self.el).removeClass('mShow');
+            }
 
             return self;
+        },
+        onChangeColumn: function() {
+            var self = this;
+
+            if (self.panel) {
+                $(self.panel.el)[app.state.get('column') === 3 ? 'addClass' : 'removeClass']('mActive');
+            }
         }
     });
 

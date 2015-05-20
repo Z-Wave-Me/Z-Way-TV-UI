@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "zautomation-tv-ui",
   "engines": {
-    "node" : ">=0.10.35" 
+    "node" : ">=0.10.35"
   },
   "devDependencies": {
     "autoprefixer-core": "^5.1.11",
