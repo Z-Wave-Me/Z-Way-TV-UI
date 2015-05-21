@@ -1,0 +1,56 @@
+$skyBlue: #11bfea;
+
+.bPanelDecimal {
+  height: 90px;
+  width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 7px 7px 9px 7px;
+  justify-content: space-between;
+  position: relative;
+  box-sizing: border-box;
+  top: 0;
+}
+
+.ePanelDecimal_point {
+  display: flex;
+  background-color: #333;
+  height: 5px;
+  width: 100%;
+  &.mActive {
+    background-color: $skyBlue;
+  }
+}
+
+/* mActive */
+
+.bPanelDecimal.mActive:before,
+.bPanelDecimal.mActive:after {
+  content: '';
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 10px 10px 10px;
+  border-color: transparent #11bfea transparent transparent;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+  position: absolute;
+  left: 36px;
+  top: -6px;
+  transform: rotate(-45deg);
+}
+
+.bPanelDecimal.mActive:after {
+  transform: rotate(135deg);
+  left: 44px;
+  bottom: -4px;
+  top: auto;
+}
+
+/* mHide */
+
+.bPanelDecimal.mHide {
+  display: none;
+  visibility: hidden;
+}

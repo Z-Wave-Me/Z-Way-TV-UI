@@ -29,9 +29,6 @@ app.extend({
                 profiles: new ProfilesCollection()
             };
 
-        // customizing ajax
-        self.preFilterAjax();
-
         // define application state
         self.state = new AppState({
             column: 0,
@@ -40,7 +37,13 @@ app.extend({
             deviceId: '',
             filters: ['all', 'rooms', 'types', 'tags'],
             filterItems: [],
-            collections: collections
+            collections: collections,
+            activeDeviceType: ['doorlock', 'switchBinary', 'toggleButton', 'switchMultilevel', 'thermostat'],
+            includePanels: {
+                switchMultilevel: 'decimal',
+                fan: 'modes',
+                thermostat: 'decimal'
+            }
         });
 
         // prerender application views
@@ -72,25 +75,60 @@ app.extend({
         // set event navigations
         self.setNavigationEvents();
 
-        // fetching
-        collections.devices.fetch();
-        collections.locations.fetch();
-        collections.profiles.fetch();
+        // customizing ajax
+        self.preSettings();
 
-        // start navigation
-        $$nav.on();
+        // fetching
+        collections.devices.fetch({
+            success: function() {
+                // start navigation
+                collections.locations.fetch();
+                collections.profiles.fetch();
+                self.state.trigger('change:filterType');
+                $$nav.on();
+                self.activateLogo();
+            }
+        });
+
+        self.collections = collections;
     },
     setNavigationEvents: function() {
         var self = this,
             $sceneWrapper = $('.jsSceneWrapper');
 
         $sceneWrapper.find('.bColumn.nav-item').on('nav_key', function(event) {
-            var currentColumn = self.state.get('column');
+            var currentColumn = self.state.get('column'),
+                currentId = self.state.get('deviceId'),
+                device = self.collections.devices.get(currentId),
+                currentFilterType = self.state.get('filterType'),
+                currentFilterItems = self.state.get('filterItems'),
+                currentDeviceItems = self.state.get('deviceItems'),
+                deviceType = device ? device.get('deviceType') : null,
+                isIncludePanel = deviceType ? self.state.get('includePanels').hasOwnProperty(deviceType) : null,
+                maxColumns = isIncludePanel ? 3 : 2;
 
             if (event.keyName === 'left' && currentColumn > 0) {
-                self.state.set('column', currentColumn - 1);
-            } else if (event.keyName === 'right' && currentColumn < 3) {
-                self.state.set('column', currentColumn + 1);
+                if (self.state.get('filterItems').length === 0 && currentColumn === 2) {
+                    currentColumn -= 2;
+                } else {
+                    currentColumn -= 1;
+                }
+
+                self.state.set('column', currentColumn);
+            } else if (event.keyName === 'right' && currentColumn <= maxColumns) {
+                if (self.collections.devices.length !== 0) {
+                    if (currentColumn === 0 && currentFilterType === 'all' && currentDeviceItems.length > 0) { // if all
+                        currentColumn += 2;
+                    } else if (currentColumn === 0 && currentFilterType !== 'all' && currentFilterItems.length > 0) {
+                        currentColumn += 1;
+                    } else if (currentColumn === 1 && currentDeviceItems.length > 0) {
+                        currentColumn += 1;
+                    } else if (currentColumn === 2 && isIncludePanel) {
+                        currentColumn += 1;
+                    }
+
+                    self.state.set('column', currentColumn);
+                }
             } else if (event.keyName === 'up' || event.keyName === 'down') {
                 // TODO: combine methods in one
                 if (currentColumn === 0) { // first column (filterType)
@@ -99,9 +137,13 @@ app.extend({
                     self.setFilterId(event);
                 } else if (currentColumn === 2) { // third column(devices)
                     self.setDeviceId(event);
+                } else if (currentColumn === 3) {
+                    if (self.views.panelDevices.panel) {
+                        self.views.panelDevices.panel.onListenKeyEvent(event);
+                    }
                 }
             } else if (event.keyName === 'enter' && currentColumn === 2) {
-                self.views.devices.onSendEvent(event.keyName);
+                self.views.devices.onListenKeyEvent(event.keyName);
             }
         });
     },
@@ -162,11 +204,12 @@ app.extend({
 
         self.state.set('deviceId', devices[featureDeviceIdIndex]);
     },
-    preFilterAjax: function() {
+    preSettings: function() {
         var self = this,
             query = self.getQueryParams(document.location.search),
             port = query.hasOwnProperty('port') ? query.port : window.location.port !== '' ? window.location.port : 8083,
-            host = query.hasOwnProperty('host') ? query.host : window.location.hostname;
+            host = query.hasOwnProperty('host') ? query.host : window.location.hostname,
+            baseUrl = '//' + host + ':' + port + '/ZAutomation/api/v1';
 
         $.ajaxPrefilter(function(options) {
             // Your server goes below
@@ -175,8 +218,18 @@ app.extend({
             options.crossDomain = {
                 crossDomain: true
             };
-            options.url = '//' + host + ':' + port + '/ZAutomation/api/v1' + options.url;
+            options.url = baseUrl + options.url;
         });
+
+        self.state.set({
+            host: host,
+            port: port,
+            baseUrl: baseUrl
+        });
+
+        if (query.mouse === 'enable') {
+            $('body').removeClass('mDisable');
+        }
     },
     getQueryParams: function(qs) {
         qs = qs.split('+').join(' ');
@@ -190,6 +243,16 @@ app.extend({
         }
 
         return params;
+    },
+    activateLogo: function() {
+        var self = this,
+            image = new Image();
+
+        image.onload = function() {
+            $('.jsLogo').addClass('mActive');
+        };
+
+        image.src = '/build/assets/logo_active.svg';
     }
 });
 

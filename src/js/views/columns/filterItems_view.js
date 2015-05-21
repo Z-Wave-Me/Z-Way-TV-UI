@@ -50,7 +50,7 @@ var app = require('ampersand-app'),
             self.model.set('filterItems', items);
             self.items = items;
             self.render();
-            //$(self.el).parent()[items.length > 0 ? 'addClass' : 'removeClass']('nav-item');
+            $(self.el).parent()[items.length > 0 || currentType !== 'all' ? 'addClass' : 'removeClass']('nav-item');
             items.length > 0 && app.state.set('filterId', items[0]);
             self.movePanel();
         },

@@ -6,6 +6,7 @@ var app = require('ampersand-app'),
     CommonDeviceView = require('../devices/common_device_view'),
     SwitchBinaryView = require('../devices/switchBinary_device_view'),
     ToggleButtonView = require('../devices/toggleButton_device_view'),
+    CameraView = require('../devices/camera_device_view'),
     FiltersView = View.extend({
         template: '<div class="bFilter jsDevices"></div>',
         autoRender: true,
@@ -18,7 +19,8 @@ var app = require('ampersand-app'),
                     common: CommonDeviceView,
                     switchBinary: SwitchBinaryView,
                     doorlock: SwitchBinaryView,
-                    toggleButton: ToggleButtonView
+                    toggleButton: ToggleButtonView,
+                    camera: CameraView
                 }
             };
 
@@ -67,8 +69,6 @@ var app = require('ampersand-app'),
             self.model.set('deviceId', _.first(deviceIds));
             self.devices = devices;
 
-            $el.parent()[devices.length === 0 ? 'addClass' : 'removeClass']('mEmpty');
-
             _.each(devices, function(device) {
                 if (device.get('id') === self.model.get('deviceId')) {
                     self.makeDevice(device, true, true);
@@ -112,6 +112,9 @@ var app = require('ampersand-app'),
                 items = self.model.get('deviceItems'),
                 currentId = self.model.get('deviceId'),
                 currentIdIndex = items.indexOf(currentId),
+                device = self.collection.get(currentId),
+                deviceType = device ? device.get('deviceType') : null,
+                isPassive = deviceType && self.model.get('activeDeviceType').indexOf(device.get('deviceType')) === -1,
                 childHeight = self.childHeight || $el.children().eq(0).outerHeight(true);
 
             if (!self.childHeight) {
@@ -119,11 +122,18 @@ var app = require('ampersand-app'),
             }
 
             $el.children().removeClass('mActive');
-            $el.animate({top: childHeight * -currentIdIndex + 'px'}, 'fast', function() {
-                $el.children().removeClass('mActive').eq(currentIdIndex).addClass('mActive');
+            $el.parent()[!isPassive ? 'removeClass' : 'addClass']('mPassive');
+            $el.parent()[items && items.length === 0 ? 'removeClass' : 'addClass']('nav-item');
+            $el.parent()[items.length === 0 ? 'addClass' : 'removeClass']('mEmpty');
+
+            $el.animate({top: childHeight * -currentIdIndex + 'px'}, {
+                duration: 'fast',
+                done: function() {
+                    $el.children().removeClass('mActive').eq(currentIdIndex).addClass('mActive');
+                }
             });
         },
-        onSendEvent: function(keyName) {
+        onListenKeyEvent: function(keyName) {
             var self = this,
                 currentDeviceId = self.model.get('deviceId'),
                 view = self.cached.views[currentDeviceId];

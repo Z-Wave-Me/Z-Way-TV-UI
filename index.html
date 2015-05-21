@@ -11,19 +11,19 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
-    <link rel="stylesheet" type="text/css" href="build/css/sprite.css" />
+    <link rel="stylesheet" type="text/css" href="build/css/zwayfont.css" />
     <link rel="stylesheet" type="text/css" href="build/css/styles.css" />
 
     <script type="text/javascript" src="build/js/build.js"></script>
 </head>
-<body>
+<body class="bBody mDisable">
 
 <!--for dune-->
 <object type="application/x-dune-stb-api" id="duneapi"></object>
 
 <div class="bHeaderContainer header-container">
     <header class="bHeader wrapper clearfix">
-        <h1 class="title eHeader_title">Z-WAVE.me</h1>
+        <h1 class="title eHeader_logo jsLogo"></h1>
         <nav class="eHeader_nav">
             <ul class="eHeader_nav_ul">
                 <li class="eHeader_nav_ul_li"><a href="#">feedback</a></li>
@@ -35,17 +35,17 @@
 
 <div class="main-container jsSceneWrapper">
     <div class="bMain main wrapper clearfix" data-nav_type="hbox">
-        <div class="bColumn nav-item">
+        <div class="bColumn nav-item focus">
             <div class="bFilter jsFilters"></div>
         </div>
         <div class="bColumn nav-item">
             <div class="bFilter jsFilterItems"></div>
         </div>
-        <div class="bColumn mDevices nav-item">
+        <div class="bColumn mDevices mEmpty nav-item">
             <div class="bFilter jsDevices"></div>
         </div>
-        <div class="bColumn mPanelDevice nav-item">
-            <div class="bFilter jsDevicePanel"></div>
+        <div class="bColumn mDevices mDevicePanel nav-item jsDevicePanel">
+            <div class="jsPanel"></div>
         </div>
     </div> <!-- #main -->
 </div> <!-- #main-container -->

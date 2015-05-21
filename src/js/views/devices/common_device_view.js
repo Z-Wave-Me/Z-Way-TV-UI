@@ -9,6 +9,7 @@ var View = require('ampersand-view'),
             var self = this;
 
             _.bindAll(self, 'render');
+            self.model.bind('change:metrics', self.render.bind(self));
         },
         render: function() {
             var self = this;

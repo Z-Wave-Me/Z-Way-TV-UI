@@ -33,9 +33,10 @@ var CommonDeviceView = require('./common_device_view'),
             }
 
             metrics.level = nextLevel;
-            self.model.set('metrics', metrics);
-            self.model.trigger('change:metrics');
-            self.model.command(nextLevel);
+            self.model
+                .set('metrics', metrics)
+                .trigger('change:metrics')
+                .command(nextLevel);
         },
         onChange: function() {
             var self = this,

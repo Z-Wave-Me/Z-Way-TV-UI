@@ -1,0 +1,14 @@
+.bHeaderContainer {
+  border-bottom: 1px solid #ccc;
+}
+
+.eHeader_logo {
+  background-image: url(../assets/logo.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 25px;
+  width: 300px;
+  &.mActive {
+    background-image: url(../assets/logo_active.svg);
+  }
+}
