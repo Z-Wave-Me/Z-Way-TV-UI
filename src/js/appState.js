@@ -13,7 +13,10 @@ var AmpersandState = require('ampersand-state'),
 			collections: 'object',
 			serverTime: 'object',
 			activeDeviceType: 'array',
-			includePanels: 'object'
+			includePanels: 'object',
+			baseUrl: 'string',
+			host: 'string',
+			port: 'string'
 		}
 	});
 

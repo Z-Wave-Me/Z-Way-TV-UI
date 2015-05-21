@@ -272,7 +272,7 @@ gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync']
     // --------------------------
     // watch:svg
     // --------------------------
-    gulp.watch(['./src/assets/svg/*.svg'], ['reload-sprites']);
+    gulp.watch(['./src/assets/*.svg'], ['reload-sprites']);
 
     gutil.log(gutil.colors.bgGreen('Watching for changes...'));
 });
@@ -281,6 +281,7 @@ gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync']
 gulp.task('build', [
     'clean',
     'templates',
+    'optimize',
     'assets',
     'symbols',
     'sass',

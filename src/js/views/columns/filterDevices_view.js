@@ -6,6 +6,7 @@ var app = require('ampersand-app'),
     CommonDeviceView = require('../devices/common_device_view'),
     SwitchBinaryView = require('../devices/switchBinary_device_view'),
     ToggleButtonView = require('../devices/toggleButton_device_view'),
+    CameraView = require('../devices/camera_device_view'),
     FiltersView = View.extend({
         template: '<div class="bFilter jsDevices"></div>',
         autoRender: true,
@@ -18,7 +19,8 @@ var app = require('ampersand-app'),
                     common: CommonDeviceView,
                     switchBinary: SwitchBinaryView,
                     doorlock: SwitchBinaryView,
-                    toggleButton: ToggleButtonView
+                    toggleButton: ToggleButtonView,
+                    camera: CameraView
                 }
             };
 

@@ -1,5 +1,5 @@
 <div class="bPanelDecimal jsPanel{{#if saveControl}} mActive{{/if}}">
     {{#each range}}
-        <span class="ePanelDecimal_point{{#compare this '<=' ../currentLevel}} mActive{{/compare}}"></span>
+        <span class="ePanelDecimal_point{{#compare this '<' ../currentLevel}} mActive{{/compare}}"></span>
     {{/each}}
 </div>

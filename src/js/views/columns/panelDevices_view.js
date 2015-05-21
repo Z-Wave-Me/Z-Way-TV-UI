@@ -25,10 +25,10 @@ var app = require('ampersand-app'),
                         model: device
                     });
                 }
-                $(self.el).addClass('mShow');
+                $(self.el).addClass('mShow nav-item');
             } else {
                 $(self.el).find('.jsPanel').empty();
-                $(self.el).removeClass('mShow');
+                $(self.el).removeClass('mShow nav-item');
             }
 
             return self;

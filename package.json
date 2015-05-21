@@ -62,7 +62,8 @@
           "precompilerOptions": {
             "knownHelpersOnly": true,
             "knownHelpers": {
-              "compare": true
+              "compare": true,
+              "getIcon": true
             }
           }
         }

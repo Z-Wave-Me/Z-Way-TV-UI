@@ -53,6 +53,9 @@ body {
   font: 16px/26px 'Roboto', sans-serif;
   background: #151515;
   color: #ccc;
+  &.mDisable {
+    pointer-events: none;
+  }
 }
 
 .wrapper {

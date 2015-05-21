@@ -29,6 +29,7 @@ var View = require('ampersand-view'),
                 step = 3,
                 metrics = self.model.get('metrics'),
                 level = metrics.level,
+                oldLevel = level,
                 min = metrics.min || 0,
                 max = metrics.max || 100,
                 saveControl = true;
@@ -41,8 +42,14 @@ var View = require('ampersand-view'),
 
             metrics.level = level;
 
-            self.model.set(metrics, metrics);
-            self.model.command('exact', 'command', {level: level});
+
+            if (oldLevel !== level) {
+                // TODO add dirty check to ampersand model
+                self.model.set('metrics', metrics);
+                self.model.trigger('change:metrics');
+                self.model.command('exact', 'command', {level: self.model.get('metrics').level});
+            }
+
             self.render(saveControl);
         }
     });

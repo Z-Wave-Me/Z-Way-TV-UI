@@ -29,9 +29,6 @@ app.extend({
                 profiles: new ProfilesCollection()
             };
 
-        // customizing ajax
-        self.preFilterAjax();
-
         // define application state
         self.state = new AppState({
             column: 0,
@@ -78,6 +75,9 @@ app.extend({
         // set event navigations
         self.setNavigationEvents();
 
+        // customizing ajax
+        self.preSettings();
+
         // fetching
         collections.devices.fetch({
             success: function() {
@@ -86,6 +86,7 @@ app.extend({
                 collections.profiles.fetch();
                 self.state.trigger('change:filterType');
                 $$nav.on();
+                self.activateLogo();
             }
         });
 
@@ -203,11 +204,12 @@ app.extend({
 
         self.state.set('deviceId', devices[featureDeviceIdIndex]);
     },
-    preFilterAjax: function() {
+    preSettings: function() {
         var self = this,
             query = self.getQueryParams(document.location.search),
             port = query.hasOwnProperty('port') ? query.port : window.location.port !== '' ? window.location.port : 8083,
-            host = query.hasOwnProperty('host') ? query.host : window.location.hostname;
+            host = query.hasOwnProperty('host') ? query.host : window.location.hostname,
+            baseUrl = '//' + host + ':' + port + '/ZAutomation/api/v1';
 
         $.ajaxPrefilter(function(options) {
             // Your server goes below
@@ -216,8 +218,18 @@ app.extend({
             options.crossDomain = {
                 crossDomain: true
             };
-            options.url = '//' + host + ':' + port + '/ZAutomation/api/v1' + options.url;
+            options.url = baseUrl + options.url;
         });
+
+        self.state.set({
+            host: host,
+            port: port,
+            baseUrl: baseUrl
+        });
+
+        if (query.mouse === 'enable') {
+            $('body').removeClass('mDisable');
+        }
     },
     getQueryParams: function(qs) {
         qs = qs.split('+').join(' ');
@@ -231,6 +243,16 @@ app.extend({
         }
 
         return params;
+    },
+    activateLogo: function() {
+        var self = this,
+            image = new Image();
+
+        image.onload = function() {
+            $('.jsLogo').addClass('mActive');
+        };
+
+        image.src = '/build/assets/logo_active.svg';
     }
 });
 
