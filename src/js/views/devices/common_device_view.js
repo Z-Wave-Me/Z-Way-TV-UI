@@ -8,8 +8,8 @@ var View = require('ampersand-view'),
         initialize: function() {
             var self = this;
 
-            _.bindAll(self, 'render');
-            self.model.bind('change:metrics', self.render.bind(self));
+            _.bindAll(self, 'render', 'remove', 'onChange');
+            self.model.bind('change:metrics', self.onChange);
         },
         render: function() {
             var self = this;
@@ -17,6 +17,18 @@ var View = require('ampersand-view'),
             self.renderWithTemplate(self);
 
             return self;
+        },
+        remove: function() {
+            var self = this;
+
+            $(self.el).unbind().remove();
+        },
+        onChange: function() {
+            var self = this,
+                metrics = self.model.get('metrics'),
+                scaleTitle = metrics.scaleTitle || '';
+
+            $(self.el).find('.eDevice_level').text(metrics.level + ' ' + scaleTitle);
         }
     });
 

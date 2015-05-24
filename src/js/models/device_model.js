@@ -10,10 +10,10 @@ var AmpersandModel = require('ampersand-model'),
             delete: '/devices'
         },
         props: {
-            metrics: 'object',
+            metrics: ['object', true],
             id: 'string',
             location: 'any',
-            tags: 'array',
+            tags: ['array', true],
             creatorId: 'number',
             deviceType: 'string',
             permanently_hidden: 'boolean'

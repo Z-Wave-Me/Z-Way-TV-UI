@@ -1477,10 +1477,10 @@ module.exports = function($, _) {
 		}
 
 		function renderKey(key) {
-			var clickableClass = isClickable(key) ? ' legend-clickable' : '';
-			return '<div class="legend-item legend-item-' + key + clickableClass + '" data-key="' + key + '">' +
-				'<i class="leg-icon leg-icon-' + key + '"></i>' +
-				'<span class="legend-item-title"></span>' +
+			var clickableClass = isClickable(key) ? ' mClick' : '';
+			return '<div class="eLegend_item ' + $.camelCase('m-' + key)  + clickableClass + '" data-key="' + key + '">' +
+				'<i class="eLegend_icon ' + $.camelCase('m-' + key) + '"></i>' +
+				'<span class="eLegend_itemTitle"></span>' +
 				'</div>';
 		}
 
@@ -1496,9 +1496,9 @@ module.exports = function($, _) {
 			legendEl = document.createElement('div');
 			wrap = document.createElement('div');
 
-			legendEl.className = 'legend';
+			legendEl.className = 'bLegend';
 			legendEl.id = 'legend';
-			wrap.className = 'legend-wrap';
+			wrap.className = 'eLegend_wrap';
 			wrap.innerHTML = allKeysHtml;
 			legendEl.appendChild(wrap);
 
@@ -1513,7 +1513,7 @@ module.exports = function($, _) {
 			var initKey = function(key) {
 				var $keyEl;
 				if (!self.keys[key]) {
-					$keyEl = self.$el.find('.legend-item-' + key);
+					$keyEl = self.$el.find('.eLegend_item.' + $.camelCase('m-' + key));
 					self.keys[key] = new LegendKey($keyEl);
 				}
 			};
@@ -1535,7 +1535,7 @@ module.exports = function($, _) {
 
 				keyHtml = renderKey(keyName);
 
-				this.$el.find('.legend-wrap').append(keyHtml);
+				this.$el.find('.eLegend_wrap').append(keyHtml);
 				initKey(keyName);
 			};
 
@@ -1574,7 +1574,7 @@ module.exports = function($, _) {
 
 		LegendKey = function($el) {
 			this.$el = $el;
-			this.$text = $el.find('.legend-item-title');
+			this.$text = $el.find('.eLegend_itemTitle');
 			return _.bind(this.setText, this);
 		};
 
@@ -1588,11 +1588,11 @@ module.exports = function($, _) {
 
 				if (!text && this.isShown) {
 					this.$el[0].style.display = 'none';
-					this.$el.removeClass('legend-item-visible');
+					this.$el.removeClass('mVisible');
 					this.isShown = false;
 				} else if (text && !this.isShown) {
 					this.$el[0].style.display = '';
-					this.$el.addClass('legend-item-visible');
+					this.$el.addClass('mVisible');
 					this.isShown = true;
 				}
 
@@ -1606,7 +1606,7 @@ module.exports = function($, _) {
 
 		$(function() {
 			$$legend.$el.appendTo(document.body);
-			$$legend.$el.on('click', '.legend-clickable', function() {
+			$$legend.$el.on('click', '.mClick', function() {
 				var key = $(this).attr('data-key'),
 					ev, commonEvent;
 

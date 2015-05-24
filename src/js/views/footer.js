@@ -12,21 +12,8 @@ var View = require('ampersand-view'),
             self.model.bind('change:serverTime', self.render);
         },
         render: function() {
-            var self = this,
-                date = self.model.get('serverTime'),
-                monthNames = [
-                    'January', 'February', 'March',
-                    'April', 'May', 'June', 'July',
-                    'August', 'September', 'October',
-                    'November', 'December'
-                ],
-                day = self.addZero(date.getDate()),
-                monthIndex = date.getMonth(),
-                year = self.addZero(date.getFullYear()),
-                hours = self.addZero(date.getHours()),
-                minutes = self.addZero(date.getMinutes());
+            var self = this;
 
-            self.serverTime = [day, monthNames[monthIndex], year].join(' ') + ' ' + [hours, minutes].join(':');
             self.renderWithTemplate(self);
 
             return self;

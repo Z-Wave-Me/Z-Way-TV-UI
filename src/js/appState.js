@@ -16,7 +16,8 @@ var AmpersandState = require('ampersand-state'),
 			includePanels: 'object',
 			baseUrl: 'string',
 			host: 'string',
-			port: 'string'
+			port: 'string',
+			loading: 'boolean'
 		}
 	});
 

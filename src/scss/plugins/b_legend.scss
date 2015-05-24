@@ -1,0 +1,128 @@
+.bLegend {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 32px;
+  padding: 2px 0 0;
+  color: #ffffff;
+  font-size: 16px;
+  z-index: 20;
+  line-height: 28px;
+  width: 100%;
+  display: none;
+}
+
+.eLegend_wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.eLegend_item {
+  float: left;
+  position: relative;
+  padding-left: 30px;
+  display: none;
+  padding-right: 10px;
+}
+
+.eLegend_item.mVisible {
+  display: block;
+}
+
+.eLegend_icon {
+  position: absolute;
+  width: 25px;
+  height: 28px;
+  background: url('../assets/buttons.png');
+  left: 0;
+  top: 1px;
+}
+
+.eLegend_item.mClick {
+  cursor: pointer;
+}
+
+.eLegend_icon.mGreen {
+  background-position: -24px 0;
+}
+
+.eLegend_icon.mYellow {
+  background-position: -48px 0;
+}
+
+.eLegend_icon.mBlue {
+  background-position: -72px 0;
+}
+
+.eLegend_icon.mNumber {
+  background-position: -480px 0;
+  width: 50px;
+}
+
+.eLegend_item.mNumber {
+  padding-left: 60px;
+}
+
+.eLegend_icon.mRew {
+  background-position: -431px 0;
+}
+
+.eLegend_icon.mPlay {
+  background-position: -240px 0;
+}
+
+.eLegend_icon.mPause {
+  background-position: -288px 0;
+}
+
+.eLegend_icon.mStop {
+  background-position: -263px 0;
+}
+
+.eLegend_icon.mFf {
+  background-position: -455px 0;
+}
+
+.eLegend_icon.mTools {
+  background-position: -191px 0;
+}
+
+.eLegend_icon.mLeft {
+  background-position: -580px 0;
+}
+
+.eLegend_icon.mRight {
+  background-position: -603px 0;
+}
+
+.eLegend_icon.mUp {
+  background-position: -530px 0;
+}
+
+.eLegend_icon.mDown {
+  background-position: -554px 0;
+}
+
+.eLegend_icon.mLeftright {
+  background-position: -358px 0;
+}
+
+.eLegend_icon.mUpdown {
+  background-position: -334px 0;
+}
+
+.eLegend_icon.mMove {
+  background-position: -312px 0;
+}
+
+.eLegend_icon.mEnter {
+  background-position: -383px 0;
+}
+
+.eLegend_icon.mRet {
+  background-position: -407px 0;
+}
+
+.eLegend_icon.mInfo {
+  background-position: -168px 0;
+}

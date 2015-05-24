@@ -28,6 +28,45 @@ var app = require('ampersand-app'),
 
             app.state.bind('change:filterType change:filterId', self.render);
             app.state.bind('change:deviceId', self.onChangeDeviceId.bind(self));
+
+            self.collection.on('remove', function(model) {
+                var deviceItems, currentActiveId, filtered;
+
+                if (self.cached.views.hasOwnProperty(model.id)) {
+                    currentActiveId = app.state.get('deviceId');
+                    deviceItems = app.state.get('deviceItems');
+
+                    filtered = deviceItems.filter(function(deviceId) {
+                        return deviceId !== model.id;
+                    });
+
+                    self.cached.views[model.id].remove();
+                    delete self.cached.views[model.id];
+
+                    if (currentActiveId === model.id) {
+                        if (filtered === 0) {
+                            app.state.set({
+                                deviceId: null,
+                                column: 2,
+                                deviceItems: []
+                            });
+                        } else {
+                            app.state.set({
+                                deviceId: deviceItems.indexOf(model.id) === deviceItems.length - 1 ?
+                                    filtered[filtered.length - 1] :
+                                    filtered[deviceItems.indexOf(model.id)],
+                                deviceItems: filtered
+                            });
+                        }
+                    } else {
+                        app.state.set({
+                            deviceItems: filtered
+                        });
+                    }
+
+                    self.movePanel();
+                }
+            });
         },
         render: function() {
             var self = this;
@@ -41,7 +80,6 @@ var app = require('ampersand-app'),
             var self = this,
                 currentFilterType = self.model.get('filterType'),
                 currentFilterId = self.model.get('filterId'),
-                $el = $(self.el),
                 devices,
                 deviceIds;
 
