@@ -1,0 +1,62 @@
+@font-face {
+  font-family: "zwayfont";
+  src: url('../fonts/zwayfont.eot');
+  src: url('../fonts/zwayfont.eot?#iefix') format('eot'),
+    url('../fonts/zwayfont.woff') format('woff'),
+    url('../fonts/zwayfont.ttf') format('truetype'),
+    url('../fonts/zwayfont.svg#zwayfont') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.s:before {
+  display: inline-block;
+  font-family: "zwayfont";
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.s-lg {
+  font-size: 1.3333333333333333em;
+  line-height: 0.75em;
+  vertical-align: -15%;
+}
+.s-2x { font-size: 2em; }
+.s-3x { font-size: 3em; }
+.s-4x { font-size: 4em; }
+.s-5x { font-size: 5em; }
+.s-fw {
+  width: 1.2857142857142858em;
+  text-align: center;
+}
+
+.s-battery_empty:before { content: "\E001" }
+.s-battery_full:before { content: "\E002" }
+.s-battery_low:before { content: "\E003" }
+.s-battery_medium:before { content: "\E004" }
+.s-camera:before { content: "\E005" }
+.s-cloud:before { content: "\E006" }
+.s-cold:before { content: "\E007" }
+.s-door:before { content: "\E008" }
+.s-drib:before { content: "\E009" }
+.s-energy:before { content: "\E00A" }
+.s-fan:before { content: "\E00B" }
+.s-fire:before { content: "\E00C" }
+.s-half-sun:before { content: "\E00D" }
+.s-heat:before { content: "\E00E" }
+.s-home:before { content: "\E00F" }
+.s-light:before { content: "\E010" }
+.s-meter:before { content: "\E011" }
+.s-motion:before { content: "\E012" }
+.s-sun:before { content: "\E013" }
+.s-switch:before { content: "\E014" }
+.s-tap:before { content: "\E015" }
+.s-themperature:before { content: "\E016" }
+.s-thermostat:before { content: "\E017" }
+.s-toggle:before { content: "\E018" }
+.s-turn:before { content: "\E019" }
+.s-water:before { content: "\E01A" }
+.s-window:before { content: "\E01B" }

@@ -233,7 +233,8 @@ gulp.task('browser-sync', function() {
         server: {
             baseDir: './'
         },
-        port: process.env.PORT || 3000,
+        port: process.env.PORT || 8083,
+        host: '192.168.1.191',
         reloadOnRestart: true
     });
 });

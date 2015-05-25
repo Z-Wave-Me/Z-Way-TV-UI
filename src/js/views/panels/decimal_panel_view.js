@@ -48,7 +48,6 @@ var View = require('ampersand-view'),
 
             metrics.level = level;
 
-
             if (oldLevel !== level) {
                 // TODO add dirty check in ampersand model
                 self.model.set('metrics', metrics);
