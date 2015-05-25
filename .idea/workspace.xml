@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2f05ab3c-8b53-4ec7-952a-1b3f6b2cfbc6" name="Default" comment="" />
+    <list default="true" id="2f05ab3c-8b53-4ec7-952a-1b3f6b2cfbc6" name="Default" comment="1. Bump">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+    </list>
     <list id="18ac1cec-0bea-4f77-bfc3-6cb73c999ecf" name="New changelist" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/Z-Way-TV-UI.iml" afterPath="$PROJECT_DIR$/.idea/Z-Way-TV-UI.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <list id="5af04d30-85b5-4eee-983f-89d513e67432" name="Failed commit: Default" comment="1. Remove ide settings" />
@@ -43,7 +44,7 @@
             <state vertical-scroll-proportion="0.0">
               <caret line="2" column="34" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="34" />
               <folding>
-                <marker date="1432489286000" expanded="true" signature="1163:2725" placeholder="..." />
+                <marker date="1432572663000" expanded="true" signature="1163:2725" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -82,8 +83,8 @@
       <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3140394">
-              <caret line="17" column="5" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
+            <state vertical-scroll-proportion="0.33251232">
+              <caret line="18" column="6" selection-start-line="18" selection-start-column="6" selection-end-line="18" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -1020,9 +1021,9 @@
         <state vertical-scroll-proportion="0.19336385">
           <caret line="1515" column="87" selection-start-line="1515" selection-start-column="87" selection-end-line="1515" selection-end-column="87" />
           <folding>
-            <marker date="1432486167000" expanded="true" signature="-1:-1" placeholder="..." />
-            <marker date="1432486167000" expanded="true" signature="-1:-1" placeholder="..." />
-            <marker date="1432486167000" expanded="true" signature="-1:-1" placeholder="..." />
+            <marker date="1432572663000" expanded="true" signature="-1:-1" placeholder="..." />
+            <marker date="1432572663000" expanded="true" signature="-1:-1" placeholder="..." />
+            <marker date="1432572663000" expanded="true" signature="-1:-1" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1064,7 +1065,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="2" column="34" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="34" />
           <folding>
-            <marker date="1432489286000" expanded="true" signature="1163:2725" placeholder="..." />
+            <marker date="1432572663000" expanded="true" signature="1163:2725" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1103,8 +1104,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3140394">
-          <caret line="17" column="5" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
+        <state vertical-scroll-proportion="0.33251232">
+          <caret line="18" column="6" selection-start-line="18" selection-start-column="6" selection-end-line="18" selection-end-column="6" />
           <folding />
         </state>
       </provider>
