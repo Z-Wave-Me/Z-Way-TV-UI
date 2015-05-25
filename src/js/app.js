@@ -5,7 +5,7 @@ window._ = require('lodash', {expose: 'underscore'});
 window.jQuery = window.$;
 
 
-require('./helpers/handlebars_helpers').call(this);
+require('./helpers/handlebars_helper').call(this);
 require('smartbox').call(window, $, _);
 
 var DevicesCollection = require('./collections/devices_collection'),
@@ -17,7 +17,12 @@ var DevicesCollection = require('./collections/devices_collection'),
     DevicesView = require('./views/columns/filterDevices_view'),
     PanelDevicesView = require('./views/columns/panelDevices_view'),
     FooterView = require('./views/footer'),
+    LoaderHelper = require('./helpers/loader_helper'),
+    AutoSyncHelper = require('./helpers/autoSync'),
+    LegendHelper = require('./helpers/legend'),
     app = require('ampersand-app');
+
+window.app = app;
 
 app.extend({
     views: {},
@@ -41,7 +46,6 @@ app.extend({
             activeDeviceType: ['doorlock', 'switchBinary', 'toggleButton', 'switchMultilevel', 'thermostat'],
             includePanels: {
                 switchMultilevel: 'decimal',
-                fan: 'modes',
                 thermostat: 'decimal'
             }
         });
@@ -72,11 +76,21 @@ app.extend({
             })
         };
 
+        // attach helpers
+        self.loader = new LoaderHelper();
+        self.syncer = new AutoSyncHelper();
+        self.legend = new LegendHelper();
+
         // set event navigations
         self.setNavigationEvents();
 
         // customizing ajax
         self.preSettings();
+
+        // add listeners
+        self.state.on('change:loading', function(model, loading) {
+            self.loader[loading ? 'activate' : 'deactivate']();
+        });
 
         // fetching
         collections.devices.fetch({
@@ -85,12 +99,15 @@ app.extend({
                 collections.locations.fetch();
                 collections.profiles.fetch();
                 self.state.trigger('change:filterType');
-                $$nav.on();
-                self.activateLogo();
+                self.state.set('loading', false);
+                self.syncer.activate();
             }
         });
 
         self.collections = collections;
+
+        // activate loading
+        self.state.set('loading', true);
     },
     setNavigationEvents: function() {
         var self = this,
@@ -243,16 +260,6 @@ app.extend({
         }
 
         return params;
-    },
-    activateLogo: function() {
-        var self = this,
-            image = new Image();
-
-        image.onload = function() {
-            $('.jsLogo').addClass('mActive');
-        };
-
-        image.src = '/build/assets/logo_active.svg';
     }
 });
 

@@ -9,6 +9,7 @@ var gulp = require('gulp'),
     buffer = require('vinyl-buffer'),
     rename = require('gulp-rename'),
     argv = require('yargs').argv,
+    streamqueue = require('streamqueue'),
 // sass
     sass = require('gulp-sass'),
     postcss = require('gulp-postcss'),
@@ -98,7 +99,11 @@ var tasks = {
     // SASS (libsass)
     // --------------------------
     sass: function() {
-        return gulp.src(['./src/scss/**/*.scss', './src/scss/*.scss'])
+        return streamqueue({ objectMode: true },
+            gulp.src(['src/scss/normalize.scss', 'src/scss/main.scss']),
+            gulp.src(['!src/scss/normalize.scss', '!src/scss/main.scss', 'src/scss/**/*.scss'])
+        )
+            .pipe(sass())
             // sourcemaps + sass + error handling
             .pipe(gulpif(!production, sourcemaps.init()))
             .pipe(sass({
@@ -108,15 +113,15 @@ var tasks = {
             .on('error', handleError('SASS'))
             // generate .maps
             .pipe(gulpif(!production, sourcemaps.write({
-                'includeContent': false,
-                'sourceRoot': '.'
+                includeContent: false,
+                sourceRoot: '.'
             })))
             // autoprefixer
             .pipe(gulpif(!production, sourcemaps.init({
-                'loadMaps': true
+                loadMaps: true
             })))
             .pipe(postcss([autoprefixer({
-                browsers: ['last 2 versions', 'opera 12.1']
+                browsers: ['last 2 Chrome versions', 'opera 12.1']
             })]))
             // we don't serve the source files
             // so include scss content inside the sourcemaps
@@ -126,7 +131,8 @@ var tasks = {
             .pipe(concat('styles.css'))
             // write sourcemaps to a specific directory
             // give it a file and save
-            .pipe(gulp.dest('build/css'));
+            .pipe(gulp.dest('build/css'))
+            .pipe(browserSync.stream());
     },
     // --------------------------
     // Browserify
@@ -227,11 +233,13 @@ gulp.task('browser-sync', function() {
         server: {
             baseDir: './'
         },
-        port: process.env.PORT || 3000
+        port: process.env.PORT || 8083,
+        host: '192.168.1.191',
+        reloadOnRestart: true
     });
 });
 
-gulp.task('reload-sass', ['sass'], browserSync.reload);
+gulp.task('reload-sass', ['sass']);
 gulp.task('reload-js', ['browserify'], browserSync.reload);
 gulp.task('reload-templates', ['templates'], browserSync.reload);
 gulp.task('reload-sprites', ['symbols'], browserSync.reload);

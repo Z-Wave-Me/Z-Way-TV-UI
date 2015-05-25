@@ -1,10 +1,13 @@
 /*! HTML5 Boilerplate v5.0 | MIT License | http://h5bp.com/ */
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic);
+$font-family-base: 'Roboto', sans-serif;
+
 html {
   color: #ccc;
   font-size: 1em;
   line-height: 1.4;
   overflow: hidden;
-  font-family: 'Roboto';
+  font-family: $font-family-base;
 }
 
 ::-moz-selection {
@@ -50,7 +53,7 @@ textarea {
    ========================================================================== */
 
 body {
-  font: 16px/26px 'Roboto', sans-serif;
+  font: 16px/26px $font-family-base;
   background: #151515;
   color: #ccc;
   &.mDisable {

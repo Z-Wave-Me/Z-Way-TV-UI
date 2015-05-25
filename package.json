@@ -3,7 +3,7 @@
   "version": "0.9.9",
   "description": "zautomation-tv-ui",
   "engines": {
-    "node" : ">=0.10.35"
+    "node": ">=0.10.35"
   },
   "devDependencies": {
     "autoprefixer-core": "^5.1.11",
@@ -32,6 +32,7 @@
     "jscs-jsdoc": "^0.4.6",
     "jshint": "~2.7.0",
     "jshint-stylish": "^1.0.1",
+    "streamqueue": "^0.1.3",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.1.2",

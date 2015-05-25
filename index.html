@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link href='http://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic" rel="stylesheet" type="text/css">
 
     <link rel="stylesheet" type="text/css" href="build/css/zwayfont.css" />
     <link rel="stylesheet" type="text/css" href="build/css/styles.css" />
@@ -24,37 +24,28 @@
 <div class="bHeaderContainer header-container">
     <header class="bHeader wrapper clearfix">
         <h1 class="title eHeader_logo jsLogo"></h1>
-        <nav class="eHeader_nav">
-            <ul class="eHeader_nav_ul">
-                <li class="eHeader_nav_ul_li"><a href="#">feedback</a></li>
-                <li class="eHeader_nav_ul_li"><a href="#">settings</a></li>
-            </ul>
-        </nav>
-    </header>
-</div>
+    </header> <!-- .bHeader -->
+</div> <!-- .bHeaderContainer -->
 
-<div class="main-container jsSceneWrapper">
+<div class="bMainContainer main-container jsSceneWrapper">
     <div class="bMain main wrapper clearfix" data-nav_type="hbox">
-        <div class="bColumn nav-item focus">
+        <div class="bColumn nav-item focus" data-nav_ep="0,1,0,1">
             <div class="bFilter jsFilters"></div>
-        </div>
-        <div class="bColumn nav-item">
+        </div> <!-- .bColumn filterType -->
+        <div class="bColumn nav-item" data-nav_ep="0,1,0,1">
             <div class="bFilter jsFilterItems"></div>
-        </div>
-        <div class="bColumn mDevices mEmpty nav-item">
+        </div> <!-- .bColumn filterId -->
+        <div class="bColumn mDevices mEmpty nav-item" data-nav_ep="0,1,0,1">
             <div class="bFilter jsDevices"></div>
-        </div>
-        <div class="bColumn mDevices mDevicePanel nav-item jsDevicePanel">
+        </div> <!-- .bColumn deviceId -->
+        <div class="bColumn mDevices mDevicePanel nav-item jsDevicePanel" data-nav_ep="0,0,0,1">
             <div class="jsPanel"></div>
-        </div>
-    </div> <!-- #main -->
-</div> <!-- #main-container -->
+        </div> <!-- .bColumn devicePanel -->
+    </div> <!-- .bMain -->
+    <div class="eMainContainer_spinner"></div> <!-- .eMainContainer_spinner -->
+</div> <!-- .bMainContainer -->
 
-<div class="bFooter jsFooter">
-    <footer class="wrapper">
-        <div class="eFooter_serverTime">server time: -</div>
-    </footer>
-</div>
+<div class="bFooter jsFooter"></div><!-- .bFooter -->
 
 <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
 <script>

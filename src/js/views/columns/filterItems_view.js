@@ -16,8 +16,8 @@ var app = require('ampersand-app'),
                 self.changeItems();
             });
             app.state.bind('change:filterId', self.movePanel);
-            app.state.get('collections').locations.bind('sync', self.changeItems);
-            app.state.get('collections').devices.bind('sync', self.changeItems);
+            app.state.get('collections').locations.bind('add remove', self.changeItems);
+            app.state.get('collections').devices.bind('add remove', self.changeItems);
         },
         render: function() {
             var self = this;
@@ -51,7 +51,7 @@ var app = require('ampersand-app'),
             self.items = items;
             self.render();
             $(self.el).parent()[items.length > 0 || currentType !== 'all' ? 'addClass' : 'removeClass']('nav-item');
-            items.length > 0 && app.state.set('filterId', items[0]);
+            items.length > 0 && app.state.set('filterId', items.indexOf(currentType) !== -1 ? items[items.indexOf(currentType)] : items[0]);
             self.movePanel();
         },
         movePanel: function() {

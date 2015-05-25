@@ -1,13 +1,14 @@
 $deviceColumnWidth: 460px;
 $deviceColumnHeight: 90px;
+$defaultMarginTopColumn: 50%;
+$offsetDeviceColumn: 1.5%;
 
 .bColumn {
   display: flex;
   width: 175px;
-  min-height: 20px;
-  height: 600px;
-  padding-top: 18em;
   box-sizing: border-box;
+  position: relative;
+  margin-top: $defaultMarginTopColumn;
 }
 
 .bColumn:before {
@@ -19,7 +20,7 @@ $deviceColumnHeight: 90px;
   border: 3px solid transparent;
   box-sizing: border-box;
   z-index: 1;
-  top: 24.6em;
+  top: 0;
 }
 
 .bColumn.focus:before {
@@ -28,19 +29,16 @@ $deviceColumnHeight: 90px;
 
 .bColumn.mDevices {
   width: $deviceColumnWidth;
-  padding-top: 17em;
-  margin:0 10px;
+  margin: $defaultMarginTopColumn - $offsetDeviceColumn 10px 0 10px;
+  &:before {
+    width: $deviceColumnWidth;
+    height: $deviceColumnHeight;
+    border-radius: 10px;
+    border-color: rgba(51, 51, 51, .5);
+  }
   &.focus:before {
     border-color: #11bfea;
   }
-}
-
-.bColumn.mDevices:before {
-  width: $deviceColumnWidth;
-  height: $deviceColumnHeight;
-  border-radius: 10px;
-  top: 23.6em;
-  border-color: rgba(51, 51, 51, .5);
 }
 
 .bColumn.mDevices.mPassive.focus:before {
@@ -50,7 +48,6 @@ $deviceColumnHeight: 90px;
 .bColumn.mEmpty:before {
   border-color: transparent;
 }
-
 
 .bColumn.mDevices.mDevicePanel,
 .bColumn.mDevices.mDevicePanel:before {
