@@ -44,7 +44,39 @@
     </div> <!-- .bMain -->
     <div class="eMainContainer_spinner"></div> <!-- .eMainContainer_spinner -->
 </div> <!-- .bMainContainer -->
-
+<div class="bSettings mHidden jsSettings">
+    <div class="eSettings_header">Settings</div>
+    <div class="eSettings_menu">
+        <div class="eSettings_group">
+            <div class="eSettings_groupName">General</div>
+            <div class="eSettings_field">
+                <label class="eSettings_label">Language</label>
+                <div class="bColorChooser">
+                    <span class="eColorChooser mEn" data-value="en">en</span>
+                    <span class="eColorChooser mRu" data-value="ru">ru</span>
+                    <span class="eColorChooser mDe" data-value="de">de</span>
+                    <span class="eColorChooser mCn" data-value="cn">cn</span>
+                </div>
+            </div>
+        </div>
+        <div class="eSettings_group">
+            <div class="eSettings_groupName">Connection</div>
+            <div class="eSettings_field">
+                <label class="eSettings_label">Host:Port</label>
+                <input class="eSettings_input" type="text" placeholder="localhost">
+                <input class="eSettings_input mPort" type="number" placeholder="8083">
+            </div>
+        </div>
+        <div class="eSettings_group">
+            <div class="eSettings_groupName">Authentication</div>
+            <div class="eSettings_field">
+                <label class="eSettings_label">Login:Password</label>
+                <input class="eSettings_input" type="text" placeholder="tv">
+                <input class="eSettings_input mPort" type="password" placeholder="password">
+            </div>
+        </div>
+    </div>
+</div>
 <div class="bFooter jsFooter"></div><!-- .bFooter -->
 
 <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
