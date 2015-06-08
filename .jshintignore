@@ -1,1 +1,3 @@
 src/libs/*.js
+node_modules
+build

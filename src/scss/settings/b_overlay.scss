@@ -1,0 +1,69 @@
+$skyBlue: #11bfea;
+
+.bSettings {
+  display: flex;
+  margin: auto;
+  height: 100%;
+  width: 100%;
+  z-index: 20;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 1);
+  justify-content: center;
+  align-items: center;
+  flex-flow: column nowrap;
+  &.mHidden {
+    display: none;
+  }
+}
+
+.eSettings_header {
+  height: 67.875px;
+  display: flex;
+  width: 1026px;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+}
+
+.eSettings_menu {
+  display: flex;
+  height: 100%;
+  width: 50%;
+  margin: auto;
+  justify-content: center;
+  flex-flow: column nowrap;
+  padding: 10px;
+}
+
+.eSettings_group {
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+.eSettings_groupName {
+  font-size: 20px;
+  border-bottom: 1px solid $skyBlue;
+  margin-bottom: 10px;
+}
+
+.eSettings_label {
+  width: 150px;
+  display: inline-block;
+}
+
+.eSettings_input {
+  margin: 0 5px;
+  padding: 5px;
+  border-radius: 3px;
+  box-shadow: none;
+  outline: none;
+  border: 1px solid #ccc;
+  color: #000;
+  &.focus {
+    border-color: $skyBlue;
+  }
+}
