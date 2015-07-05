@@ -1,6 +1,6 @@
 'use strict';
 
-window.$ = require('jQuery');
+window.$ = require('jquery');
 window._ = require('lodash', {expose: 'underscore'});
 window.jQuery = window.$;
 

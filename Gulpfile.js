@@ -1,4 +1,18 @@
 'use strict';
+
+// replace original spawn by a wrapper printing args
+(function() {
+    var childProcess = require("child_process");
+    var oldSpawn = childProcess.spawn;
+    function mySpawn() {
+        console.log('spawn called');
+        console.log(arguments);
+        var result = oldSpawn.apply(this, arguments);
+        return result;
+    }
+    childProcess.spawn = mySpawn;
+})();
+
 var gulp = require('gulp'),
     gutil = require('gulp-util'),
     del = require('del'),
@@ -198,6 +212,10 @@ var tasks = {
         var fontName = 'zwayfont',
             template = 'fontawesome-style'; // you can also choose 'foundation-style'
 
+        // This works only on Darwin Match since sketchtool exists only for Match
+        // http://bohemiancoding.com/sketch/tool/
+        console.log("Skipping creation of build/fonts. Works only on OS X");
+        /*
         gulp.src('src/fonts/z-way-font.sketch')
             .pipe(sketch({
                 export: 'artboards',
@@ -225,6 +243,7 @@ var tasks = {
             })
             .on('error', handleError('SYMBOLS'))
             .pipe(gulp.dest('build/fonts')); // set path to export your fonts
+        */
     }
 };
 
