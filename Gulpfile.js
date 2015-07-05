@@ -219,13 +219,14 @@ var tasks = {
             .pipe(gulp.dest('./src/assets/'));
     },
     symbols: function() {
+        console.log("Skipping creation of build/fonts. Works only on OS X");
+        console.log("Don't forget to run 'git checkout -- build/css/zwayfont.css build/fonts/*' after gulp!");
+        // This works only on Darwin Match since sketchtool exists only for Match
+        // http://bohemiancoding.com/sketch/tool/
+        /*
         var fontName = 'zwayfont',
             template = 'fontawesome-style'; // you can also choose 'foundation-style'
 
-        // This works only on Darwin Match since sketchtool exists only for Match
-        // http://bohemiancoding.com/sketch/tool/
-        console.log("Skipping creation of build/fonts. Works only on OS X");
-        /*
         gulp.src('src/fonts/z-way-font.sketch')
             .pipe(sketch({
                 export: 'artboards',
