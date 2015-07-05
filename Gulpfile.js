@@ -24,6 +24,8 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     argv = require('yargs').argv,
     streamqueue = require('streamqueue'),
+// css
+    minifyCss = require('gulp-minify-css'),
 // sass
     sass = require('gulp-sass'),
     postcss = require('gulp-postcss'),
@@ -108,6 +110,14 @@ var tasks = {
     templates: function() {
         gulp.src('templates/*.html')
             .pipe(gulp.dest('build/'));
+    },
+    // --------------------------
+    // CSS
+    // --------------------------
+    css: function () {
+        gulp.src('src/css/opera_fix.css')
+            .pipe(minifyCss())
+            .pipe(gulp.dest('build/css'));
     },
     // --------------------------
     // SASS (libsass)

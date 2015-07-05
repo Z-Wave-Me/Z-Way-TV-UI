@@ -1,6 +1,7 @@
 'use strict';
 
 window.$ = require('jquery');
+window.$.support.cors = true; // override for DuneHD
 window._ = require('lodash', {expose: 'underscore'});
 window.jQuery = window.$;
 
@@ -108,6 +109,17 @@ app.extend({
 
         // activate loading
         self.state.set('loading', true);
+
+        // check Opera Presto 12.00 and fix flex layout (for Dune HD)
+        if (navigator.userAgent.match(/Presto\/2.10/)) {
+            var headtg = document.getElementsByTagName('head')[0];
+            var linktg = document.createElement('link');
+            linktg.type = 'text/css';
+            linktg.rel = 'stylesheet';
+            linktg.href = 'build/css/opera_fix.css';
+            linktg.title = 'opera_fix';
+            headtg.appendChild(linktg);
+        } 
     },
     setNavigationEvents: function() {
         var self = this,
