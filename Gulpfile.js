@@ -269,6 +269,7 @@ gulp.task('browser-sync', function() {
     });
 });
 
+gulp.task('reload-css', ['css']);
 gulp.task('reload-sass', ['sass']);
 gulp.task('reload-js', ['browserify'], browserSync.reload);
 gulp.task('reload-templates', ['templates'], browserSync.reload);
@@ -283,6 +284,7 @@ var req = build ? ['clean'] : [];
 // individual tasks
 gulp.task('templates', req, tasks.templates);
 gulp.task('assets', req, tasks.assets);
+gulp.task('css', req, tasks.css);
 gulp.task('sass', req, tasks.sass);
 gulp.task('browserify', req, tasks.browserify);
 gulp.task('lint:js', tasks.lintjs);
@@ -295,6 +297,10 @@ gulp.task('symbols', tasks.symbols);
 // --------------------------
 gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync'], function() {
 
+    // --------------------------
+    // watch:css
+    // --------------------------
+    gulp.watch(['./src/css/*.css'], ['reload-css']);
     // --------------------------
     // watch:sass
     // --------------------------
@@ -322,6 +328,7 @@ gulp.task('build', [
     'optimize',
     'assets',
     'symbols',
+    'css',
     'sass',
     'browserify'
 ]);
