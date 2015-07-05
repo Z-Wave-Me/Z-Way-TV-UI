@@ -85,18 +85,20 @@ var app = require('ampersand-app'),
 
             if (currentFilterType === 'rooms' && currentFilterId) {
                 devices = self.collection.filter(function(item) {
-                    return item.get('location') === currentFilterId;
+                    return item.get('location') === currentFilterId && !item.get('permanently_hidden');
                 });
             } else if (currentFilterType === 'types' && currentFilterId) {
                 devices = self.collection.filter(function(item) {
-                    return item.get('deviceType') === currentFilterId;
+                    return item.get('deviceType') === currentFilterId && !item.get('permanently_hidden');
                 });
             } else if (currentFilterType === 'tags' && currentFilterId) {
                 devices = self.collection.filter(function(item) {
-                    return item.get('tags').indexOf(currentFilterId) !== -1;
+                    return item.get('tags').indexOf(currentFilterId) !== -1 && !item.get('permanently_hidden');
                 });
             } else {
-                devices = self.collection.models;
+                devices = self.collection.filter(function(item) {
+                    return !item.get('permanently_hidden');
+                });
             }
 
             deviceIds = _.map(devices, function(device) {

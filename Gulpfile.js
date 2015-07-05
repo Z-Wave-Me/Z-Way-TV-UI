@@ -1,4 +1,18 @@
 'use strict';
+
+// replace original spawn by a wrapper printing args
+(function() {
+    var childProcess = require("child_process");
+    var oldSpawn = childProcess.spawn;
+    function mySpawn() {
+        console.log('spawn called');
+        console.log(arguments);
+        var result = oldSpawn.apply(this, arguments);
+        return result;
+    }
+    childProcess.spawn = mySpawn;
+})();
+
 var gulp = require('gulp'),
     gutil = require('gulp-util'),
     del = require('del'),
@@ -10,6 +24,8 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     argv = require('yargs').argv,
     streamqueue = require('streamqueue'),
+// css
+    minifyCss = require('gulp-minify-css'),
 // sass
     sass = require('gulp-sass'),
     postcss = require('gulp-postcss'),
@@ -94,6 +110,14 @@ var tasks = {
     templates: function() {
         gulp.src('templates/*.html')
             .pipe(gulp.dest('build/'));
+    },
+    // --------------------------
+    // CSS
+    // --------------------------
+    css: function () {
+        gulp.src('src/css/opera_fix.css')
+            .pipe(minifyCss())
+            .pipe(gulp.dest('build/css'));
     },
     // --------------------------
     // SASS (libsass)
@@ -195,6 +219,11 @@ var tasks = {
             .pipe(gulp.dest('./src/assets/'));
     },
     symbols: function() {
+        console.log("Skipping creation of build/fonts. Works only on OS X");
+        console.log("Don't forget to run 'git checkout -- build/css/zwayfont.css build/fonts/*' after gulp!");
+        // This works only on Darwin Match since sketchtool exists only for Match
+        // http://bohemiancoding.com/sketch/tool/
+        /*
         var fontName = 'zwayfont',
             template = 'fontawesome-style'; // you can also choose 'foundation-style'
 
@@ -225,6 +254,7 @@ var tasks = {
             })
             .on('error', handleError('SYMBOLS'))
             .pipe(gulp.dest('build/fonts')); // set path to export your fonts
+        */
     }
 };
 
@@ -239,6 +269,7 @@ gulp.task('browser-sync', function() {
     });
 });
 
+gulp.task('reload-css', ['css']);
 gulp.task('reload-sass', ['sass']);
 gulp.task('reload-js', ['browserify'], browserSync.reload);
 gulp.task('reload-templates', ['templates'], browserSync.reload);
@@ -253,6 +284,7 @@ var req = build ? ['clean'] : [];
 // individual tasks
 gulp.task('templates', req, tasks.templates);
 gulp.task('assets', req, tasks.assets);
+gulp.task('css', req, tasks.css);
 gulp.task('sass', req, tasks.sass);
 gulp.task('browserify', req, tasks.browserify);
 gulp.task('lint:js', tasks.lintjs);
@@ -265,6 +297,10 @@ gulp.task('symbols', tasks.symbols);
 // --------------------------
 gulp.task('watch', ['assets', 'templates', 'sass', 'browserify', 'browser-sync'], function() {
 
+    // --------------------------
+    // watch:css
+    // --------------------------
+    gulp.watch(['./src/css/*.css'], ['reload-css']);
     // --------------------------
     // watch:sass
     // --------------------------
@@ -292,6 +328,7 @@ gulp.task('build', [
     'optimize',
     'assets',
     'symbols',
+    'css',
     'sass',
     'browserify'
 ]);

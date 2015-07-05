@@ -2107,6 +2107,7 @@ module.exports = function($, _) {
 						navCur.removeClass(this.higlight_class).trigger('nav_blur');
 					}
 					this.$container && this.$container.off('mouseenter.nav').off('.loop');
+					$body = $body || $(document.body);
 					$body.unbind('.navigation');
 					navCur = null;
 					return this;

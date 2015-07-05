@@ -1,0 +1,65 @@
+/*
+* Opera 12.00 fix
+**/
+.mDevices  .bFilter .bToggle{
+	float: right;
+	margin-top: 13px;
+}
+.mDevices  .bFilter ..bSwitch { 
+	float: right;
+	margin-top: 10px;
+}
+.bPanelDecimal.mActive:before {
+	 transform: rotate(-45deg);
+	 -o-transform: rotate(-45deg);
+}
+.bPanelDecimal.mActive:after {
+	 transform: rotate(135deg);
+	 -o-transform: rotate(135deg);
+}
+.mDevices  .ePanelDecimal_point {
+  display: block;
+  float: right;
+  clear: right;
+  margin: 1px 0 2px 0;
+}
+.mDevices  .bFilter .eDevice_level{
+	float: right;
+	text-align: right;
+	text-transform: uppercase;
+	width: auto;
+}
+.mDevices  .bFilter .eDevice_level,
+.mDevices  .bFilter .eDevice_name{
+	padding-top: 22px;
+}
+.mDevices  .bFilter .eDevice_name,
+.mDevices  .bFilter .eDevice_icon,
+.bColumn {
+ 	float: left;
+}
+.bColumn {
+ 	width: auto;
+ 	min-width: 10%;
+}
+.bColumn.nav-item { 
+	min-width: 177px; 
+}
+.bColumn.mDevices {
+	min-width: 540px;
+}
+.bColumn.mDevices:before {
+  width: 540px;
+ }
+.bMain  .nav-item .eFilter_item{
+	clear: left;
+	float: left;
+}
+.eLegend_item { 
+	float: none;
+	margin: 0px auto;
+	width: 140px;
+}
+.bMain:after {
+	background: -o-linear-gradient(to bottom, #151515, rgba(21, 21, 21, 0), #151515) transparent;
+}
