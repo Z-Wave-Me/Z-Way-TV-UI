@@ -166,6 +166,8 @@ var app = require('ampersand-app'),
             $el.parent()[items && items.length === 0 ? 'removeClass' : 'addClass']('nav-item');
             $el.parent()[items.length === 0 ? 'addClass' : 'removeClass']('mEmpty');
 
+            if (childHeight < 60) childHeight = 60; // fix by Vadim Zhukov for Opera on Dune HD
+            
             $el.animate({top: childHeight * -currentIdIndex + 'px'}, {
                 duration: 'fast',
                 done: function() {
